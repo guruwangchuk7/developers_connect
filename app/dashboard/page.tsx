@@ -11,6 +11,7 @@ import {
    Send, MessageCircle, LinkIcon, Check, Fingerprint, X,
    ChevronRight, Heart, Bell, LayoutGrid, Search, User,
    Settings, LogOut, ChevronDown, ExternalLink
+} from "lucide-react"
 import { Suspense } from "react"
 
 function DashboardContent() {
