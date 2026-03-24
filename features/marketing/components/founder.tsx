@@ -23,7 +23,7 @@ export function Founder() {
                 alt="Guru Wangchuk" 
                 fill 
                 className="object-cover object-top"
-                quality={100}
+                unoptimized={true}
                 placeholder="blur"
               />
 
