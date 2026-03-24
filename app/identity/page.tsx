@@ -116,53 +116,53 @@ export default function IdentitySynthesisPage() {
          <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full max-w-[1200px] px-6 py-16 md:py-24 space-y-20">
+            <div className="w-full max-w-[1200px] px-4 md:px-6 py-10 md:py-24 space-y-12 md:space-y-20">
 
                {/* PAGE HEADER */}
-               <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-border/40 pb-12">
-                  <div className="space-y-6">
+               <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 md:gap-12 border-b border-border/40 pb-8 md:pb-12">
+                  <div className="space-y-4 md:space-y-6">
                      <button
                         onClick={() => router.back()}
-                        className="group flex items-center gap-3 text-[11px] font-bold text-muted-foreground/40 hover:text-primary transition-all uppercase tracking-widest"
+                        className="group flex items-center gap-3 text-[10px] md:text-[11px] font-bold text-muted-foreground/40 hover:text-primary transition-all uppercase tracking-widest"
                      >
                         <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" /> Back to Grid
                      </button>
                      <div className="space-y-2">
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground uppercase">Identity Synthesis</h1>
-                        <p className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Initialize full presence synchronization</p>
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-foreground uppercase">Identity Synthesis</h1>
+                        <p className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Initialize full presence synchronization</p>
                      </div>
                   </div>
-
+ 
                   <button
                      onClick={handleFullUpdate}
                      disabled={saving}
-                     className="h-16 px-12 text-primary border border-primary/20 font-bold text-[14px] rounded-sm transition-all hover:bg-primary hover:text-background active:scale-95 disabled:opacity-50"
+                     className="w-full md:w-auto h-14 md:h-16 px-8 md:px-12 text-primary border border-primary/20 font-bold text-[13px] md:text-[14px] rounded-sm transition-all hover:bg-primary hover:text-background active:scale-95 disabled:opacity-50"
                   >
                      {saving ? "Synchronizing..." : "Finalize Synthesis"}
                   </button>
                </div>
 
-               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
 
                   {/* LEFT COLUMN */}
                   <div className="lg:col-span-7 space-y-12">
 
                      {/* TECHNICAL NARRATIVE */}
-                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-8">
+                     <div className="p-5 md:p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-8">
                         <div className="flex items-center gap-3">
                            <Fingerprint className="h-5 w-5 text-primary opacity-40" />
                            <h3 className="text-[14px] font-bold text-foreground">Technical Narrative</h3>
                         </div>
                         <textarea
-                           placeholder="Describe your unique professional path in 200 words..."
-                           className="w-full bg-secondary/20 border border-border/20 p-8 focus:outline-none focus:border-primary/40 text-[14px] font-medium min-h-[300px] resize-none leading-relaxed transition-all rounded-sm placeholder:text-muted-foreground/30"
+                           placeholder="Describe your unique professional path..."
+                           className="w-full bg-secondary/20 border border-border/20 p-5 md:p-8 focus:outline-none focus:border-primary/40 text-[14px] font-medium min-h-[250px] md:min-h-[300px] resize-none leading-relaxed transition-all rounded-sm placeholder:text-muted-foreground/30"
                            value={editData.bio}
                            onChange={e => setEditData({ ...editData, bio: e.target.value })}
                         />
                      </div>
 
                      {/* VISUAL IDENTITY */}
-                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                     <div className="p-5 md:p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
                         <div className="flex items-center gap-3">
                            <Camera className="h-5 w-5 text-primary opacity-40" />
                            <h3 className="text-[14px] font-bold text-foreground">Visual Identity</h3>
@@ -199,16 +199,16 @@ export default function IdentitySynthesisPage() {
                   </div>
 
                   {/* RIGHT COLUMN */}
-                  <div className="lg:col-span-5 space-y-12">
+                  <div className="lg:col-span-5 space-y-8 lg:space-y-12">
 
                      {/* NETWORK SYNCHRONIZATION */}
-                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                     <div className="p-5 md:p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
                         <div className="flex items-center gap-3">
                            <LinkIcon className="h-5 w-5 text-primary opacity-40" />
                            <h3 className="text-[14px] font-bold text-foreground">Network Synchronization</h3>
                         </div>
 
-                        <div className="space-y-8">
+                        <div className="space-y-6 md:space-y-8">
                            {(['github', 'linkedin', 'instagram', 'facebook'] as const).map(net => (
                               <div key={net} className="space-y-3">
                                  <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">{net}</label>
@@ -216,7 +216,7 @@ export default function IdentitySynthesisPage() {
                                     <input
                                        type="text"
                                        placeholder={`${net}.com/user`}
-                                       className="w-full bg-secondary/20 border border-border/20 p-4 pl-6 focus:outline-none focus:border-primary/40 text-[11px] font-bold transition-all rounded-sm placeholder:text-muted-foreground/20"
+                                       className="w-full bg-secondary/20 border border-border/20 p-3 md:p-4 pl-6 focus:outline-none focus:border-primary/40 text-[11px] font-bold transition-all rounded-sm placeholder:text-muted-foreground/20"
                                        value={(editData as any)[`${net}_url`]}
                                        onChange={e => setEditData({ ...editData, [`${net}_url`]: e.target.value })}
                                     />
@@ -228,19 +228,19 @@ export default function IdentitySynthesisPage() {
                      </div>
 
                      {/* NETWORK VISIBILITY */}
-                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                     <div className="p-5 md:p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
                         <div className="flex items-center gap-3">
                            <Settings className="h-5 w-5 text-primary opacity-40" />
                            <h3 className="text-[14px] font-bold text-foreground">Network Visibility</h3>
                         </div>
-                        <div className="grid grid-cols-1 gap-3">
+                        <div className="grid grid-cols-1 gap-2 md:gap-3">
                            {["Looking for team", "Open to work", "Just exploring"].map((status) => (
                               <button
                                  key={status}
                                  type="button"
                                  onClick={() => setEditData({ ...editData, availability: status })}
                                  className={cn(
-                                    "px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] border-2 rounded-sm transition-all text-left flex items-center justify-between group",
+                                    "px-5 md:px-6 py-4 md:py-5 text-[10px] font-black uppercase tracking-[0.2em] border-2 rounded-sm transition-all text-left flex items-center justify-between group",
                                     editData.availability === status
                                        ? "bg-primary text-background border-primary shadow-lg shadow-primary/10"
                                        : "bg-background text-muted-foreground/40 border-border/20 hover:border-primary/20 hover:text-foreground"

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { createClient } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { GlobalHeader } from "@/components/common/global-header"
 import { cn } from "@/lib/utils"
 import {
@@ -16,12 +16,28 @@ import {
 export default function DashboardPage() {
    const supabase = createClient()
    const router = useRouter()
+   const pathname = usePathname()
+   const searchParams = useSearchParams()
    const [user, setUser] = React.useState<any>(null)
    const [profile, setProfile] = React.useState<any>(null)
    const [isLoading, setIsLoading] = React.useState(true)
-   const [activeTab, setActiveTab] = React.useState<string>("all")
+   const [activeTab, setActiveTabRaw] = React.useState<string>(searchParams?.get("tab") || "all")
    const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
+
+   const setActiveTab = (tab: string) => {
+      setActiveTabRaw(tab)
+      const params = new URLSearchParams(searchParams?.toString())
+      params.set("tab", tab)
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+   }
+
+   React.useEffect(() => {
+      const tab = searchParams?.get("tab")
+      if (tab && tab !== activeTab) {
+         setActiveTabRaw(tab)
+      }
+   }, [searchParams])
 
    const refreshData = async (userId: string) => {
       const { data } = await supabase
@@ -139,7 +155,7 @@ export default function DashboardPage() {
          </GlobalHeader>
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full max-w-[1440px] px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
 
                {/* LEFT SIDEBAR: NAVIGATION */}
                <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100vh-120px)] sticky top-24">
@@ -194,24 +210,24 @@ export default function DashboardPage() {
                            </button>
                         </nav>
                      </div>
-                  </div>
 
-                  <div className="p-4 bg-background border border-border/40 rounded-sm space-y-4 shadow-sm">
-                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                           <Fingerprint className="h-4 w-4 text-primary" />
+                     <div className="p-4 bg-background border border-border/40 rounded-sm space-y-4 shadow-sm">
+                        <div className="flex items-center gap-3">
+                           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Fingerprint className="h-4 w-4 text-primary" />
+                           </div>
+                           <div className="space-y-0.5">
+                              <p className="text-[12px] font-bold text-foreground">Complete Profile</p>
+                              <p className="text-[11px] font-medium text-muted-foreground/50">85% Synchronized</p>
+                           </div>
                         </div>
-                        <div className="space-y-0.5">
-                           <p className="text-[12px] font-bold text-foreground">Complete Profile</p>
-                           <p className="text-[11px] font-medium text-muted-foreground/50">85% Synchronized</p>
-                        </div>
+                        <button
+                           onClick={() => router.push('/identity')}
+                           className="w-full py-2.5 border border-border/40 text-[12px] font-bold text-muted-foreground/60 hover:bg-primary hover:text-background hover:border-primary transition-all rounded-sm"
+                        >
+                           Update Identity
+                        </button>
                      </div>
-                     <button
-                        onClick={() => router.push('/identity')}
-                        className="w-full py-2.5 border border-border/40 text-[12px] font-bold text-muted-foreground/60 hover:bg-primary hover:text-background hover:border-primary transition-all rounded-sm"
-                     >
-                        Update Identity
-                     </button>
                   </div>
                </div>
 
@@ -224,34 +240,34 @@ export default function DashboardPage() {
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
                      <>
                         {/* WELCOME + ACTION STRIP */}
-                        <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="p-5 md:p-6 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
-                              <h2 className="text-xl font-bold tracking-tighter text-foreground">Welcome back, {profile?.full_name?.split(' ')[0]}</h2>
-                              <p className="text-[12px] font-medium text-muted-foreground/50">What do you want to do today?</p>
+                              <h2 className="text-lg md:text-xl font-bold tracking-tighter text-foreground">Welcome back, {profile?.full_name?.split(' ')[0]}</h2>
+                              <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">What do you want to do today?</p>
                            </div>
-                           <div className="flex items-center gap-3">
-                              <button className="px-5 h-10 text-primary border border-primary/20 text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center gap-2">
-                                 <Plus className="h-4 w-4" /> Ask for Help
+                           <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2">
+                                 <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
                               </button>
-                              <button className="px-5 h-10 text-muted-foreground border border-border/40 text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center gap-2">
-                                 <Users className="h-4 w-4" /> Find Team
+                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
+                                 <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
                               </button>
-                              <button className="px-5 h-10 text-muted-foreground border border-border/40 text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center gap-2">
-                                 <LinkIcon className="h-3.5 w-3.5" /> Share Project
+                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
+                                 <LinkIcon className="h-3 w-3 md:h-3.5 md:w-3.5" /> Share
                               </button>
                            </div>
                         </div>
 
                         {/* POST INPUT BAR */}
-                        <div className="p-6 bg-background border border-border/60 rounded-sm shadow-sm space-y-4">
-                           <div className="flex items-start gap-4">
-                              <div className="h-10 w-10 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[11px] font-black uppercase overflow-hidden shrink-0">
+                        <div className="p-5 md:p-6 bg-background border border-border/60 rounded-sm shadow-sm space-y-4">
+                           <div className="flex items-start gap-3 md:gap-4">
+                              <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[10px] font-black uppercase overflow-hidden shrink-0">
                                  {profile?.avatar_url ? <img src={profile.avatar_url} className="h-full w-full object-cover" /> : profile?.full_name?.[0]}
                               </div>
                               <div className="flex-1 space-y-4">
                                  <textarea
                                     className="w-full min-h-[0px] h-10 py-2 bg-transparent text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none resize-none"
-                                    placeholder="Ask for help, find teammates, or share your project..."
+                                    placeholder="Ask for help, find teammates..."
                                  />
                                  <div className="flex items-center justify-between pt-2 border-t border-border/20">
                                     <div className="flex items-center gap-2">
@@ -261,7 +277,7 @@ export default function DashboardPage() {
                                           <option>PROJECT</option>
                                        </select>
                                     </div>
-                                    <button className="px-8 h-9 text-primary border border-primary/20 text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all">
+                                    <button className="px-6 md:px-8 h-8 md:h-9 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all">
                                        Post
                                     </button>
                                  </div>
@@ -278,25 +294,25 @@ export default function DashboardPage() {
                         </div>
 
                         {/* FEED LIST */}
-                        <div className="space-y-8">
+                        <div className="space-y-4 md:space-y-8">
                            {feedPosts.filter(p => activeTab === "all" || p.type === activeTab.toUpperCase()).map((post) => (
-                              <article key={post.id} className="p-8 bg-background border border-border/40 rounded-sm hover:shadow-xl hover:shadow-black/[0.02] transition-all group">
-                                 <div className="flex items-start justify-between mb-8">
-                                    <div className="flex items-center gap-4 text-left">
-                                       <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-black border border-border/20 uppercase overflow-hidden">
+                              <article key={post.id} className="p-5 md:p-8 bg-background border border-border/40 rounded-sm hover:shadow-xl hover:shadow-black/[0.02] transition-all group">
+                                 <div className="flex items-start justify-between mb-6 md:mb-8">
+                                    <div className="flex items-center gap-3 md:gap-4 text-left">
+                                       <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-black border border-border/20 uppercase overflow-hidden">
                                           {post.user[0]}
                                        </div>
                                        <div className="space-y-0.5">
-                                          <h4 className="text-[15px] font-bold tracking-tight text-foreground">{post.user}</h4>
+                                          <h4 className="text-[14px] md:text-[15px] font-bold tracking-tight text-foreground">{post.user}</h4>
                                           <div className="flex items-center gap-2">
-                                             <span className="text-[11px] font-medium text-muted-foreground/50">{post.role}</span>
+                                             <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/50">{post.role}</span>
                                              <span className="text-muted-foreground/20 text-[8px]">•</span>
-                                             <span className="text-[11px] font-medium text-muted-foreground/30">{post.timestamp}</span>
+                                             <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/30">{post.timestamp}</span>
                                           </div>
                                        </div>
                                     </div>
                                     <div className={cn(
-                                       "px-3 py-1 rounded-sm text-[9px] font-black uppercase tracking-widest",
+                                       "px-2.5 py-1 rounded-sm text-[8px] md:text-[9px] font-black uppercase tracking-widest",
                                        post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
                                           post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
                                     )}>
@@ -315,17 +331,17 @@ export default function DashboardPage() {
                                        ))}
                                     </div>
                                  </div>
-                                 <div className="pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                    <div className="flex items-center gap-8">
-                                       <button className="flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all group/btn">
+                                 <div className="pt-5 md:pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+                                    <div className="flex items-center gap-6 md:gap-8">
+                                       <button className="flex items-center gap-2 text-[10px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all group/btn">
                                           <Heart className="h-4 w-4 transition-transform group-hover/btn:scale-110" /> {post.likes}
                                        </button>
-                                       <button className="flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all group/btn">
+                                       <button className="flex items-center gap-2 text-[10px] md:text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all group/btn">
                                           <MessageCircle className="h-4 w-4 transition-transform group-hover/btn:scale-110" /> {post.comments}
                                        </button>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                       <button className="px-5 py-2 text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm flex items-center gap-2">
+                                       <button className="flex-1 md:flex-none justify-center px-4 md:px-5 py-2 text-[12px] md:text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm flex items-center gap-2">
                                           <UserPlus className="h-3.5 w-3.5" /> Connect
                                        </button>
                                     </div>
@@ -380,8 +396,8 @@ export default function DashboardPage() {
                               <p className="text-[13px] font-medium text-muted-foreground/50">Top contributors to the Bhutanese tech ecosystem</p>
                            </div>
                         </div>
-                        <div className="bg-background border border-border/40 rounded-sm overflow-hidden">
-                           <table className="w-full text-left">
+                        <div className="bg-background border border-border/40 rounded-sm overflow-x-auto scrollbar-hide">
+                           <table className="w-full text-left min-w-[600px] md:min-w-0">
                               <thead>
                                  <tr className="border-b border-border/40 bg-secondary/20">
                                     <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">Rank</th>
@@ -448,9 +464,9 @@ export default function DashboardPage() {
                   ) : null}
                </div>
 
-               {/* RIGHT PANEL: ECOSYSTEM (Hidden on Messages) */}
+               {/* RIGHT PANEL: ECOSYSTEM (Hidden on Messages, Stacks on Mobile) */}
                {activeTab !== "messages" && (
-                  <div className="lg:col-span-3 hidden lg:flex flex-col gap-8">
+                  <div className="lg:col-span-3 flex flex-col gap-8 pb-10">
 
                      {/* Section 1: Suggested Developers */}
                      <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm space-y-6">
@@ -546,28 +562,6 @@ export default function DashboardPage() {
 
             </div>
          </main>
-
-         {/* SECURE DRAWER (MESSAGES) */}
-         {isMessagesOpen && (
-            <div className="fixed inset-y-0 right-0 w-full md:w-[400px] bg-background border-l border-border/40 shadow-2xl z-50 animate-in slide-in-from-right duration-300">
-               <div className="flex items-center justify-between p-8 border-b border-border/40">
-                  <div className="flex items-center gap-3">
-                     <MessageSquare className="h-5 w-5 text-primary" />
-                     <h3 className="text-xs font-bold uppercase tracking-widest">Secure Messages</h3>
-                  </div>
-                  <button
-                     onClick={() => setIsMessagesOpen(false)}
-                     className="p-2 hover:bg-secondary rounded-full"
-                  >
-                     <X className="h-5 w-5" />
-                  </button>
-               </div>
-
-               <div className="p-12 text-center py-40 opacity-20">
-                  <p className="text-[10px] font-black uppercase tracking-widest">Searching Streams...</p>
-               </div>
-            </div>
-         )}
       </div>
    )
 }

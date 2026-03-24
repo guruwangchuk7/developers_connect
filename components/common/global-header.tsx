@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -27,8 +27,19 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
     });
   }, [supabase]);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Hide marketing links if on dashboard or if custom children are provided
-  const showMarketing = !isDashboard && !children && !session;
+  const showMarketingLinks = !isDashboard && !children;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md">
@@ -39,7 +50,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
           </Link>
 
-          {showMarketing && (
+          {showMarketingLinks && (
             <nav className="hidden lg:flex items-center gap-8 text-[12px] font-semibold text-muted-foreground uppercase tracking-widest">
               <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
               <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
@@ -54,25 +65,22 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             children
           ) : (
             <>
-              {showMarketing ? (
-                <>
-                  <Link href="/pricing" className="hidden md:block text-[12px] font-semibold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest">
-                    Pricing
+              {showMarketingLinks && !session && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight shadow-sm transition hover:bg-secondary/50")}>
+                    Sign in
                   </Link>
-                  <div className="hidden sm:flex items-center gap-2">
-                    <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight shadow-sm transition hover:bg-secondary/50")}>
-                      Sign in
-                    </Link>
-                    <Link href="/join" className={cn(buttonVariants({ size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight bg-primary shadow-sm transition hover:opacity-90")}>
-                      Join Network
-                    </Link>
-                  </div>
-                </>
-              ) : session ? (
+                  <Link href="/join" className={cn(buttonVariants({ size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight bg-primary shadow-sm transition hover:opacity-90")}>
+                    Join Network
+                  </Link>
+                </div>
+              )}
+
+              {session && (
                 <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest")}>
                   Dashboard
                 </Link>
-              ) : null}
+              )}
             </>
           )}
 
@@ -88,24 +96,56 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
       {/* Mobile Menu */}
       <div className={cn(
-        "lg:hidden fixed inset-0 top-16 z-40 bg-background transition-transform duration-300 ease-in-out",
+        "lg:hidden fixed left-0 right-0 top-16 h-[calc(100dvh-4rem)] z-40 bg-background transition-transform duration-300 ease-in-out overflow-y-auto border-t",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <nav className="flex flex-col p-6 gap-6">
-          {showMarketing && (
+        <nav className="flex flex-col p-6 gap-6 min-h-full">
+          {showMarketingLinks && (
             <>
               <Link href="/directory" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Developers</Link>
               <Link href="/projects" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Projects</Link>
               <Link href="/feed" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Help</Link>
-              <Link href="/pricing" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Pricing</Link>
+              <Link href="/events" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Events</Link>
             </>
           )}
 
-          <div className="flex flex-col gap-3 pt-4">
-            {session ? (
-              <Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>
-                Go to Dashboard
+          {isDashboard && (
+            <>
+              <Link href="/dashboard?tab=all" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
+                Feed
               </Link>
+              <Link href="/dashboard?tab=discover" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
+                Discover Developers
+              </Link>
+              <Link href="/dashboard?tab=teams" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
+                Teams
+              </Link>
+              <Link href="/dashboard?tab=leaderboard" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
+                Leaderboard
+              </Link>
+              <Link href="/dashboard?tab=messages" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
+                Messages
+              </Link>
+            </>
+          )}
+
+          <div className="flex flex-col gap-3 mt-auto pt-8 pb-4">
+            {session ? (
+              <div className="flex flex-col gap-3">
+                <Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>
+                  Dashboard Home
+                </Link>
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setIsOpen(false);
+                    window.location.href = "/";
+                  }}
+                  className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-sm")}
+                >
+                  Sign out
+                </button>
+              </div>
             ) : (
               <>
                 <Link href="/join" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>Join Network</Link>

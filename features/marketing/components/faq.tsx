@@ -59,7 +59,7 @@ export function FAQ() {
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
                 className="w-full min-h-[56px] py-4 px-6 flex items-center justify-between text-left hover:bg-secondary/10 transition-colors gap-4"
               >
-                <span className="text-[15px] md:text-base font-bold tracking-tight">{faq.question}</span>
+                <span className="text-[15px] md:text-base font-normal tracking-tight">{faq.question}</span>
                 <div className="h-7 w-7 md:h-8 md:w-8 shrink-0 flex items-center justify-center text-muted-foreground rounded-full border border-border/40 transition-transform group-hover:bg-background group-hover:scale-110">
                   {openIndex === i ? <Minus className="h-3 w-3 md:h-4 md:w-4" /> : <Plus className="h-3 w-3 md:h-4 md:w-4" />}
                 </div>

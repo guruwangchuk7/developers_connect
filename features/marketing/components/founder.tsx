@@ -1,5 +1,7 @@
 import * as React from "react"
+import Image from "next/image"
 import { Github, Twitter, Linkedin } from "@/components/icons"
+import guruPhoto from "../../../assets/guru.jpg"
 
 export function Founder() {
   return (
@@ -14,15 +16,19 @@ export function Founder() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center p-0 md:p-12 lg:p-16 relative group">
           <div className="relative flex flex-col items-center">
-            {/* Minimal profile placeholder */}
+            {/* Founder Profile Photo */}
             <div className="relative h-48 w-48 sm:h-64 sm:w-64 md:h-80 md:w-80 overflow-hidden rounded-full border border-border transition-transform group-hover:scale-105 duration-700 shadow-inner">
-              {/* Note: In a real app, use <Image /> with src */}
-              <div className="w-full h-full bg-secondary flex items-center justify-center bg-gradient-to-br from-secondary via-background to-secondary/50">
-                <span className="text-4xl sm:text-6xl font-black text-muted-foreground/20 italic">GW</span>
-              </div>
+              <Image 
+                src={guruPhoto} 
+                alt="Guru Wangchuk" 
+                fill 
+                className="object-cover object-top"
+                quality={100}
+                placeholder="blur"
+              />
 
               {/* Visual Effect: A soft glow */}
-              <div className="absolute inset-0 bg-primary/5 mix-blend-overlay"></div>
+              <div className="absolute inset-0 bg-primary/5 mix-blend-overlay pointer-events-none"></div>
             </div>
 
             <div className="mt-6 md:mt-8 text-center">

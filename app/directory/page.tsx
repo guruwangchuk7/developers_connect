@@ -38,13 +38,13 @@ export default function DirectoryPage() {
     <div className="min-h-screen bg-background flex flex-col">
       <GlobalHeader />
       
-      <main className="flex-1 container mx-auto py-16 px-4 md:px-6">
+      <main className="flex-1 container mx-auto py-8 md:py-16 px-4 md:px-6">
         <div className="flex flex-col gap-12">
           {/* Header & Filter */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div className="space-y-3">
-              <h1 className="text-4xl font-semibold tracking-tighter">Developer Directory</h1>
-              <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">The National Technical Grid</p>
+               <h1 className="text-3xl md:text-4xl font-semibold tracking-tighter">Developer Directory</h1>
+               <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[9px] md:text-[10px]">The National Technical Grid</p>
             </div>
             
             <div className="relative w-full md:w-80">
@@ -61,15 +61,15 @@ export default function DirectoryPage() {
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} className="h-64 bg-secondary/20 animate-pulse rounded-sm border border-border/40"></div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border border border-border rounded-sm overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
               {filteredProfiles.map((p) => (
-                <div key={p.id} className="bg-background p-8 md:p-10 space-y-6 hover:bg-secondary/10 transition-colors group">
+                <div key={p.id} className="bg-background p-6 md:p-10 space-y-6 hover:bg-secondary/10 transition-colors group">
                   <div className="flex items-start justify-between">
                      <div className="flex flex-col items-center justify-center h-12 w-12 rounded-full bg-secondary italic font-black text-muted-foreground/40 text-sm border border-border/50">
                         {p.full_name?.split(' ').map((n: string) => n[0]).join('')}
