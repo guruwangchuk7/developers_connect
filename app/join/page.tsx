@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase"
 import { buttonVariants } from "@/components/ui/button-variants"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { Github, Mail } from "lucide-react"
+import { Mail } from "lucide-react"
 
 export default function JoinPage() {
   const supabase = createClient()
