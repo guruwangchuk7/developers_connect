@@ -29,6 +29,7 @@ export default function IdentitySynthesisPage() {
 
   React.useEffect(() => {
     async function getSession() {
+      if (!supabase) return; // Exit early if credentials missing during build
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         router.push('/join')
