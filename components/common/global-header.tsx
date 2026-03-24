@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
+import { Session } from "@supabase/supabase-js";
 
 interface GlobalHeaderProps {
   children?: React.ReactNode;
@@ -14,14 +15,15 @@ interface GlobalHeaderProps {
 
 export function GlobalHeader({ children }: GlobalHeaderProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [session, setSession] = React.useState<any>(null);
+  const [session, setSession] = React.useState<Session | null>(null);
   const supabase = createClient();
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
 
   React.useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    if (!supabase) return;
+    supabase.auth.getSession().then((response: any) => {
+      setSession(response.data?.session ?? null);
     });
   }, [supabase]);
 
@@ -36,7 +38,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
             <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
           </Link>
-          
+
           {showMarketing && (
             <nav className="hidden lg:flex items-center gap-8 text-[12px] font-semibold text-muted-foreground uppercase tracking-widest">
               <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
@@ -73,7 +75,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               ) : null}
             </>
           )}
-          
+
           <button
             className="lg:hidden p-2 text-foreground/70 hover:text-foreground transition-colors"
             onClick={() => setIsOpen(!isOpen)}
@@ -98,7 +100,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               <Link href="/pricing" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Pricing</Link>
             </>
           )}
-          
+
           <div className="flex flex-col gap-3 pt-4">
             {session ? (
               <Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>

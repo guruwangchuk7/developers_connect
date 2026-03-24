@@ -140,15 +140,15 @@ export default function DashboardPage() {
 
          <main className="flex-1 flex justify-center w-full">
             <div className="w-full max-w-[1440px] px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
-               
+
                {/* LEFT SIDEBAR: NAVIGATION */}
                <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100vh-120px)] sticky top-24">
                   <div className="flex-1 space-y-8">
                      <div className="space-y-4">
                         <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 px-4">Navigation</h3>
                         <nav className="flex flex-col gap-1">
-                           <button 
-                              onClick={() => setActiveTab("all")} 
+                           <button
+                              onClick={() => setActiveTab("all")}
                               className={cn(
                                  "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
                                  activeTab === "all" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
@@ -156,8 +156,8 @@ export default function DashboardPage() {
                            >
                               <LayoutGrid className="h-4 w-4" /> Feed
                            </button>
-                           <button 
-                              onClick={() => setActiveTab("discover")} 
+                           <button
+                              onClick={() => setActiveTab("discover")}
                               className={cn(
                                  "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
                                  activeTab === "discover" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
@@ -165,8 +165,8 @@ export default function DashboardPage() {
                            >
                               <Search className="h-4 w-4" /> Discover Developers
                            </button>
-                           <button 
-                              onClick={() => setActiveTab("teams")} 
+                           <button
+                              onClick={() => setActiveTab("teams")}
                               className={cn(
                                  "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
                                  activeTab === "teams" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
@@ -174,8 +174,8 @@ export default function DashboardPage() {
                            >
                               <Users className="h-4 w-4" /> Teams
                            </button>
-                           <button 
-                              onClick={() => setActiveTab("leaderboard")} 
+                           <button
+                              onClick={() => setActiveTab("leaderboard")}
                               className={cn(
                                  "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
                                  activeTab === "leaderboard" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
@@ -183,8 +183,8 @@ export default function DashboardPage() {
                            >
                               <Trophy className="h-4 w-4" /> Leaderboard
                            </button>
-                           <button 
-                              onClick={() => setActiveTab("messages")} 
+                           <button
+                              onClick={() => setActiveTab("messages")}
                               className={cn(
                                  "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
                                  activeTab === "messages" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                            <p className="text-[11px] font-medium text-muted-foreground/50">85% Synchronized</p>
                         </div>
                      </div>
-                     <button 
+                     <button
                         onClick={() => router.push('/identity')}
                         className="w-full py-2.5 border border-border/40 text-[12px] font-bold text-muted-foreground/60 hover:bg-primary hover:text-background hover:border-primary transition-all rounded-sm"
                      >
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                   "space-y-8 transition-all duration-500",
                   activeTab === "messages" ? "lg:col-span-10" : "lg:col-span-7"
                )}>
-                  
+
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
                      <>
                         {/* WELCOME + ACTION STRIP */}
@@ -249,7 +249,7 @@ export default function DashboardPage() {
                                  {profile?.avatar_url ? <img src={profile.avatar_url} className="h-full w-full object-cover" /> : profile?.full_name?.[0]}
                               </div>
                               <div className="flex-1 space-y-4">
-                                 <textarea 
+                                 <textarea
                                     className="w-full min-h-[0px] h-10 py-2 bg-transparent text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none resize-none"
                                     placeholder="Ask for help, find teammates, or share your project..."
                                  />
@@ -297,8 +297,8 @@ export default function DashboardPage() {
                                     </div>
                                     <div className={cn(
                                        "px-3 py-1 rounded-sm text-[9px] font-black uppercase tracking-widest",
-                                       post.type === 'HELP' ? "bg-red-500/10 text-red-600" : 
-                                       post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
+                                       post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
+                                          post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
                                     )}>
                                        {post.type}
                                     </div>
@@ -451,7 +451,7 @@ export default function DashboardPage() {
                {/* RIGHT PANEL: ECOSYSTEM (Hidden on Messages) */}
                {activeTab !== "messages" && (
                   <div className="lg:col-span-3 hidden lg:flex flex-col gap-8">
-                     
+
                      {/* Section 1: Suggested Developers */}
                      <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm space-y-6">
                         <div className="flex items-center justify-between">
