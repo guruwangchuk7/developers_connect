@@ -11,9 +11,9 @@ import {
    Send, MessageCircle, LinkIcon, Check, Fingerprint, X,
    ChevronRight, Heart, Bell, LayoutGrid, Search, User,
    Settings, LogOut, ChevronDown, ExternalLink
-} from "lucide-react"
+import { Suspense } from "react"
 
-export default function DashboardPage() {
+function DashboardContent() {
    const supabase = createClient()
    const router = useRouter()
    const pathname = usePathname()
@@ -563,5 +563,17 @@ export default function DashboardPage() {
             </div>
          </main>
       </div>
+   )
+}
+
+export default function DashboardPage() {
+   return (
+      <Suspense fallback={
+         <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+         </div>
+      }>
+         <DashboardContent />
+      </Suspense>
    )
 }
