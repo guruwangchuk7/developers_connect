@@ -35,43 +35,43 @@ export function FAQ() {
   ]
 
   return (
-    <section id="faq" className="bg-background py-16 px-4">
-      <div className="container mx-auto max-w-4xl px-4">
-        <div className="flex flex-col items-center gap-4 text-center mb-12 lg:mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tighter text-foreground">
+    <section id="faq" className="bg-background py-16 md:py-20 lg:py-24 px-4 border-t">
+      <div className="container mx-auto max-w-4xl px-2 sm:px-4">
+        <div className="flex flex-col items-center gap-4 text-center mb-12 md:mb-16">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             Frequently Asked Questions
           </h2>
-          <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/80 leading-relaxed font-medium">
+          <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/80 leading-relaxed font-medium text-balance">
             Everything you need to know about the BDN ecosystem.
           </p>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {faqs.map((faq, i) => (
             <div 
               key={i} 
               className={cn(
                 "group border border-border/40 rounded-sm overflow-hidden transition-all duration-300",
-                openIndex === i ? "bg-secondary/5 border-primary/10" : "bg-transparent"
+                openIndex === i ? "bg-secondary/5 border-primary/20 shadow-sm" : "bg-transparent"
               )}
             >
               <button 
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full h-14 px-6 flex items-center justify-between text-left hover:bg-secondary/10 transition-colors"
+                className="w-full min-h-[56px] py-4 px-6 flex items-center justify-between text-left hover:bg-secondary/10 transition-colors gap-4"
               >
-                <span className="text-base font-bold tracking-tight">{faq.question}</span>
-                <div className="h-8 w-8 flex items-center justify-center text-muted-foreground rounded-full border border-border/40 transition-transform group-hover:bg-background">
-                  {openIndex === i ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                <span className="text-[15px] md:text-base font-bold tracking-tight">{faq.question}</span>
+                <div className="h-7 w-7 md:h-8 md:w-8 shrink-0 flex items-center justify-center text-muted-foreground rounded-full border border-border/40 transition-transform group-hover:bg-background group-hover:scale-110">
+                  {openIndex === i ? <Minus className="h-3 w-3 md:h-4 md:w-4" /> : <Plus className="h-3 w-3 md:h-4 md:w-4" />}
                 </div>
               </button>
               
               <div 
                 className={cn(
-                  "overflow-hidden transition-all duration-300",
-                  openIndex === i ? "max-h-[300px] opacity-100 py-8 px-8 border-t border-border/20" : "max-h-0 opacity-0"
+                  "overflow-hidden transition-all duration-300 ease-in-out",
+                  openIndex === i ? "max-h-[500px] opacity-100 py-6 px-6 md:py-8 md:px-8 border-t border-border/20" : "max-h-0 opacity-0"
                 )}
               >
-                <p className="text-muted-foreground leading-relaxed text-base">
+                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
                   {faq.answer}
                 </p>
               </div>

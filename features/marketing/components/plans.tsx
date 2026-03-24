@@ -15,7 +15,7 @@ export function Plans() {
     },
     {
       name: "Professional",
-      price: "$19",
+      price: "Nu. 499",
       description: "For professionals looking to build an elite presence.",
       features: ["Vetted network status", "Priority help requests", "Project management tools", "Portfolio verification"],
       highlight: true
@@ -30,37 +30,37 @@ export function Plans() {
   ]
 
   return (
-    <section id="plans" className="bg-background py-32 px-4">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-6 text-center mb-20">
-          <h2 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground">
+    <section id="plans" className="bg-background py-20 md:py-32 px-4 border-t">
+      <div className="container mx-auto max-w-6xl px-2 sm:px-4">
+        <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-20">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             Simple, Scalable Plans
           </h2>
-          <p className="max-w-[700px] text-lg text-muted-foreground font-medium">
+          <p className="max-w-[700px] text-base md:text-lg text-muted-foreground font-medium text-balance">
             Choose the right level of access to Bhutan&apos;s most active technical network.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {plans.map((plan, i) => (
             <div 
               key={i} 
               className={cn(
-                "p-8 bg-background border rounded-sm flex flex-col transition-all",
-                plan.highlight && "border-primary border-2 scale-105 z-10"
+                "p-6 md:p-8 bg-background border rounded-sm flex flex-col transition-all",
+                plan.highlight && "border-primary md:border-2 md:scale-105 z-10 shadow-lg md:shadow-xl"
               )}
             >
               <div className="mb-6">
-                <h3 className="text-xl font-bold uppercase tracking-widest text-muted-foreground mb-2">{plan.name}</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  {plan.price !== "Custom" && <span className="text-muted-foreground">/mo</span>}
+                  <span className="text-3xl md:text-4xl font-bold">{plan.price}</span>
+                  {plan.price !== "Custom" && <span className="text-sm text-muted-foreground">/mo</span>}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-8">
+              <p className="text-sm text-muted-foreground mb-6 md:mb-8 leading-relaxed">
                 {plan.description}
               </p>
-              <ul className="space-y-4 mb-10 flex-1">
+              <ul className="space-y-4 mb-8 md:mb-10 flex-1">
                 {plan.features.map((feature, j) => (
                   <li key={j} className="flex gap-3 text-sm font-medium">
                     <Check className="h-5 w-5 text-primary flex-shrink-0" />
@@ -72,7 +72,7 @@ export function Plans() {
                 href="/join"
                 className={cn(
                   buttonVariants({ variant: plan.highlight ? "default" : "outline" }),
-                  "w-full h-11 rounded-sm font-bold tracking-tight"
+                  "w-full h-11 rounded-sm font-bold tracking-tight shadow-sm"
                 )}
               >
                 Get Started
