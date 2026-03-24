@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: "A working network for builders in Bhutan.",
 };
 
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +34,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Toaster position="top-center" expand={false} richColors />
+      </body>
     </html>
   );
 }
