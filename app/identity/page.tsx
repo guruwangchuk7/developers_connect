@@ -110,174 +110,207 @@ export default function IdentitySynthesisPage() {
 
   if (isLoading || !user) return null
 
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <GlobalHeader />
-      
-      <main className="flex-1 container mx-auto py-12 md:py-20 px-4 md:px-8 max-w-[1400px]">
-        <div className="space-y-16">
-            <div className="flex flex-col md:flex-row items-end justify-between gap-10 border-b border-border/40 pb-12">
-               <div className="space-y-4">
-                  <button onClick={() => router.back()} className="text-[10px] font-bold text-muted-foreground hover:text-primary flex items-center gap-2 uppercase tracking-widest transition-all">
-                     <ArrowLeft className="h-3 w-3" /> Back to Grid
-                  </button>
-                  <h1 className="text-5xl font-bold tracking-tighter">Identity Synthesis</h1>
-                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-[0.4em]">Initialize full presence synchronization</p>
-               </div>
-               
-               <div className="flex gap-4">
-                  <button 
-                   onClick={handleFullUpdate}
-                   className="h-16 px-10 bg-primary text-background font-bold text-[11px] uppercase tracking-[0.2em] rounded-sm shadow-2xl shadow-primary/10 transition-all hover:scale-[1.02] active:scale-95"
-                  >
-                     {saving ? "Synchronizing All Data..." : "Finalize Synthesis"}
-                  </button>
-               </div>
-            </div>
+   return (
+      <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-primary selection:text-background text-foreground/80">
+         <GlobalHeader />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+         <main className="flex-1 flex justify-center w-full">
+            <div className="w-full max-w-[1200px] px-6 py-16 md:py-24 space-y-20">
                
-               <div className="space-y-12">
-                  <div className="p-10 border border-border/80 rounded-sm bg-secondary/5 space-y-8">
-                     <div className="flex items-center gap-3">
-                        <BookOpen className="h-5 w-5 text-primary" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest">Technical Narrative</h3>
+               {/* PAGE HEADER */}
+               <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b border-border/40 pb-12">
+                  <div className="space-y-6">
+                     <button 
+                        onClick={() => router.back()} 
+                        className="group flex items-center gap-3 text-[11px] font-bold text-muted-foreground/40 hover:text-primary transition-all uppercase tracking-widest"
+                     >
+                        <ArrowLeft className="h-3 w-3 transition-transform group-hover:-translate-x-1" /> Back to Grid
+                     </button>
+                     <div className="space-y-2">
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground uppercase">Identity Synthesis</h1>
+                        <p className="text-[11px] font-black uppercase tracking-[0.4em] text-muted-foreground/60">Initialize full presence synchronization</p>
                      </div>
-                     <textarea
-                        placeholder="Describe your unique professional path in 200 words..."
-                        className="w-full bg-background border border-border/60 p-6 focus:outline-none focus:border-primary text-base font-medium min-h-[250px] resize-none leading-relaxed transition-all"
-                        value={editData.bio}
-                        onChange={e => setEditData({...editData, bio: e.target.value})}
-                     />
                   </div>
 
-                  {/* MINIMALIST VISUAL IDENTITY */}
-                  <div className="p-10 border border-border/80 rounded-sm bg-secondary/5 space-y-10 relative">
-                     <div className="flex items-center gap-3">
-                        <Camera className="h-5 w-5 text-primary opacity-40" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest">Visual Identity</h3>
+                  <button 
+                     onClick={handleFullUpdate}
+                     disabled={saving}
+                     className="h-16 px-12 text-primary border border-primary/20 font-bold text-[14px] rounded-sm transition-all hover:bg-primary hover:text-background active:scale-95 disabled:opacity-50"
+                  >
+                     {saving ? "Synchronizing..." : "Finalize Synthesis"}
+                  </button>
+               </div>
+
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                  
+                  {/* LEFT COLUMN */}
+                  <div className="lg:col-span-7 space-y-12">
+                     
+                     {/* TECHNICAL NARRATIVE */}
+                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-8">
+                        <div className="flex items-center gap-3">
+                           <Fingerprint className="h-5 w-5 text-primary opacity-40" />
+                           <h3 className="text-[14px] font-bold text-foreground">Technical Narrative</h3>
+                        </div>
+                        <textarea
+                           placeholder="Describe your unique professional path in 200 words..."
+                           className="w-full bg-secondary/20 border border-border/20 p-8 focus:outline-none focus:border-primary/40 text-[14px] font-medium min-h-[300px] resize-none leading-relaxed transition-all rounded-sm placeholder:text-muted-foreground/30"
+                           value={editData.bio}
+                           onChange={e => setEditData({...editData, bio: e.target.value})}
+                        />
                      </div>
-                     <div className="flex flex-col md:flex-row items-center gap-12 text-left">
-                        <button 
-                           onClick={() => setIsUploadOpen(true)}
-                           className="relative h-32 w-32 rounded-full border border-border/80 bg-background flex items-center justify-center overflow-hidden transition-all hover:border-primary/40 group shrink-0"
-                        >
-                           {editData.avatar_url ? (
-                              <img src={editData.avatar_url} className="h-full w-full object-cover transition-all group-hover:scale-105" />
-                           ) : <UserCircle2 className="h-10 w-10 text-muted-foreground/10" />}
-                           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                              <Plus className="h-6 w-6 text-primary" />
+
+                     {/* VISUAL IDENTITY */}
+                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                        <div className="flex items-center gap-3">
+                           <Camera className="h-5 w-5 text-primary opacity-40" />
+                           <h3 className="text-[14px] font-bold text-foreground">Visual Identity</h3>
+                        </div>
+                        
+                        <div className="flex flex-col md:flex-row items-center gap-12">
+                           <button 
+                              onClick={() => setIsUploadOpen(true)}
+                              className="relative h-40 w-40 rounded-full border-2 border-dashed border-border/40 bg-secondary/10 flex items-center justify-center overflow-hidden transition-all hover:border-primary/40 group shrink-0"
+                           >
+                              {editData.avatar_url ? (
+                                 <img src={editData.avatar_url} className="h-full w-full object-cover transition-all group-hover:scale-110" />
+                              ) : <UploadCloud className="h-8 w-8 text-muted-foreground/20" />}
+                              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                                 <Plus className="h-6 w-6 text-primary" />
+                              </div>
+                           </button>
+
+                           <div className="flex-1 space-y-6 w-full">
+                              <div className="space-y-3">
+                                 <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Professional Photo URL</label>
+                                 <input
+                                    type="text"
+                                    placeholder="https://images.unsplash.com/..."
+                                    className="w-full bg-transparent border-b-2 border-border/20 pb-4 focus:outline-none focus:border-primary text-[11px] font-bold tracking-tight transition-all placeholder:text-muted-foreground/20"
+                                    value={editData.avatar_url}
+                                    onChange={e => setEditData({...editData, avatar_url: e.target.value})}
+                                 />
+                              </div>
+                              <p className="text-[9px] text-muted-foreground/40 leading-relaxed uppercase tracking-[0.2em] italic">High-resolution portraits recommended for verification.</p>
                            </div>
-                        </button>
-                        <div className="flex-1 space-y-4 w-full">
-                           <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/50">Professional Photo URL</label>
-                           <input
-                              type="text"
-                              placeholder="https://images.unsplash.com/..."
-                              className="w-full bg-transparent border-b border-border/40 pb-4 focus:outline-none focus:border-primary text-[11px] font-medium tracking-tight transition-all"
-                              value={editData.avatar_url}
-                              onChange={e => setEditData({...editData, avatar_url: e.target.value})}
-                           />
-                           <p className="text-[10px] text-muted-foreground/40 leading-relaxed uppercase tracking-widest italic">High-resolution portraits recommended for verification.</p>
                         </div>
                      </div>
                   </div>
-               </div>
 
-               <div className="space-y-12">
-                  <div className="p-10 border border-border/80 rounded-sm bg-secondary/5 space-y-10">
-                     <div className="flex items-center gap-3">
-                        <LinkIcon className="h-5 w-5 text-primary" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest">Network Synchronization</h3>
-                     </div>
+                  {/* RIGHT COLUMN */}
+                  <div className="lg:col-span-5 space-y-12">
                      
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Network Inputs */}
-                        {(['github', 'linkedin', 'instagram', 'facebook'] as const).map(net => (
-                           <div key={net} className="space-y-4">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{net.charAt(0).toUpperCase() + net.slice(1)}</label>
-                              <input
-                                 type="text"
-                                 placeholder={`${net}.com/user`}
-                                 className="w-full bg-background border-b border-border/80 p-4 focus:outline-none focus:border-primary text-[11px] font-medium transition-all"
-                                 value={(editData as any)[`${net}_url`]}
-                                 onChange={e => setEditData({...editData, [`${net}_url`]: e.target.value})}
-                              />
-                           </div>
-                        ))}
+                     {/* NETWORK SYNCHRONIZATION */}
+                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                        <div className="flex items-center gap-3">
+                           <LinkIcon className="h-5 w-5 text-primary opacity-40" />
+                           <h3 className="text-[14px] font-bold text-foreground">Network Synchronization</h3>
+                        </div>
+                        
+                        <div className="space-y-8">
+                           {(['github', 'linkedin', 'instagram', 'facebook'] as const).map(net => (
+                              <div key={net} className="space-y-3">
+                                 <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">{net}</label>
+                                 <div className="relative group">
+                                    <input
+                                       type="text"
+                                       placeholder={`${net}.com/user`}
+                                       className="w-full bg-secondary/20 border border-border/20 p-4 pl-6 focus:outline-none focus:border-primary/40 text-[11px] font-bold transition-all rounded-sm placeholder:text-muted-foreground/20"
+                                       value={(editData as any)[`${net}_url`]}
+                                       onChange={e => setEditData({...editData, [`${net}_url`]: e.target.value})}
+                                    />
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/20 group-focus-within:bg-primary transition-all rounded-l-sm" />
+                                 </div>
+                              </div>
+                           ))}
+                        </div>
                      </div>
-                  </div>
 
-                  <div className="p-10 border border-border/80 rounded-sm bg-secondary/5 space-y-8">
-                     <div className="flex items-center gap-3">
-                        <Clock className="h-5 w-5 text-primary" />
-                        <h3 className="text-xs font-bold uppercase tracking-widest">Network Visibility & Availability</h3>
-                     </div>
-                     <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                     {/* NETWORK VISIBILITY */}
+                     <div className="p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
+                        <div className="flex items-center gap-3">
+                           <Settings className="h-5 w-5 text-primary opacity-40" />
+                           <h3 className="text-[14px] font-bold text-foreground">Network Visibility</h3>
+                        </div>
+                        <div className="grid grid-cols-1 gap-3">
                            {["Looking for team", "Open to work", "Just exploring"].map((status) => (
                               <button
                                  key={status}
                                  type="button"
                                  onClick={() => setEditData({...editData, availability: status})}
                                  className={cn(
-                                    "p-5 text-[10px] font-bold uppercase tracking-widest border rounded-sm transition-all text-center",
+                                    "px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] border-2 rounded-sm transition-all text-left flex items-center justify-between group",
                                     editData.availability === status 
-                                       ? "bg-primary text-background border-primary shadow-xl shadow-primary/10" 
-                                       : "bg-background text-muted-foreground border-border/80 hover:border-primary/40"
+                                       ? "bg-primary text-background border-primary shadow-lg shadow-primary/10" 
+                                       : "bg-background text-muted-foreground/40 border-border/20 hover:border-primary/20 hover:text-foreground"
                                  )}
                               >
                                  {status}
+                                 {editData.availability === status && <Check className="h-4 w-4" />}
                               </button>
                            ))}
                         </div>
                      </div>
+
                   </div>
                </div>
             </div>
-        </div>
-      </main>
+         </main>
 
-      {/* UPLOAD OVERLAY MODAL */}
-      {isUploadOpen && (
-         <div className="fixed inset-0 bg-background/98 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
-            <button 
-               onClick={() => setIsUploadOpen(false)}
-               className="absolute top-10 right-10 p-4 hover:bg-secondary rounded-full transition-all group"
-            >
-               <X className="h-8 w-8 text-muted-foreground/40 group-hover:text-foreground" />
-            </button>
+         {/* UPLOAD OVERLAY */}
+         {isUploadOpen && (
+            <div className="fixed inset-0 bg-background/95 backdrop-blur-md z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+               <div className="w-full max-w-2xl bg-background border border-border/40 p-12 rounded-sm shadow-2xl relative space-y-12">
+                  <button 
+                     onClick={() => setIsUploadOpen(false)}
+                     className="absolute top-6 right-6 p-2 hover:bg-secondary rounded-full transition-all"
+                  >
+                     <X className="h-6 w-6 text-muted-foreground/40" />
+                  </button>
 
-            <div 
-               className="w-full max-w-2xl aspect-video border-2 border-dashed border-border/60 rounded-sm flex flex-col items-center justify-center gap-6 hover:border-primary/40 transition-all cursor-pointer group"
-               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-               onDrop={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  const file = e.dataTransfer.files?.[0];
-                  if (file) handleFileUpload(file);
-               }}
-               onClick={() => document.getElementById('modal-upload')?.click()}
-            >
-               <div className="p-8 bg-secondary/5 rounded-full group-hover:scale-110 transition-all">
-                  <UploadCloud className="h-12 w-12 text-primary opacity-30 group-hover:opacity-100" />
+                  <div className="text-center space-y-4">
+                     <h2 className="text-[14px] font-black uppercase tracking-[0.4em] text-foreground">Visual Asset Upload</h2>
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Synchronize your portrait with the network core</p>
+                  </div>
+
+                  <div 
+                     className="aspect-video border-2 border-dashed border-border/40 rounded-sm flex flex-col items-center justify-center gap-8 hover:border-primary/40 transition-all cursor-pointer bg-secondary/5 group"
+                     onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                     onDrop={(e) => {
+                        e.preventDefault(); e.stopPropagation();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleFileUpload(file);
+                     }}
+                     onClick={() => document.getElementById('modal-upload')?.click()}
+                  >
+                     <div className="p-6 bg-background border border-border/20 rounded-full group-hover:scale-110 transition-all">
+                        <UploadCloud className="h-10 w-10 text-primary opacity-30 group-hover:opacity-100" />
+                     </div>
+                     <div className="text-center space-y-2">
+                        <p className="text-[11px] font-black uppercase tracking-[0.2em]">Drag to Upload</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/30">Maximum fragment size: 5MB</p>
+                     </div>
+                     <input 
+                        id="modal-upload" 
+                        type="file" 
+                        className="hidden" 
+                        accept="image/*"
+                        onChange={(e) => {
+                           const file = e.target.files?.[0];
+                           if (file) handleFileUpload(file);
+                        }}
+                     />
+                  </div>
+
+                  <button 
+                     onClick={() => setIsUploadOpen(false)}
+                     className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-foreground transition-all"
+                  >
+                     Abort Synchronization
+                  </button>
                </div>
-               <div className="text-center space-y-2">
-                  <h2 className="text-sm font-bold uppercase tracking-[0.3em]">Drag to Synchronize</h2>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Or click to select from system</p>
-               </div>
-               <input 
-                  id="modal-upload" 
-                  type="file" 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={(e) => {
-                     const file = e.target.files?.[0];
-                     if (file) handleFileUpload(file);
-                  }}
-               />
             </div>
-         </div>
-      )}
-    </div>
-  )
+         )}
+      </div>
+   )
 }
