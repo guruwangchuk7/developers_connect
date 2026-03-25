@@ -25,6 +25,10 @@ function DashboardContent() {
    const [activeTab, setActiveTabRaw] = React.useState<string>(searchParams?.get("tab") || "all")
    const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
+   const [posts, setPosts] = React.useState<any[]>([])
+   const [newPostContent, setNewPostContent] = React.useState("")
+   const [newPostType, setNewPostType] = React.useState("HELP")
+   const [isPosting, setIsPosting] = React.useState(false)
 
    const setActiveTab = (tab: string) => {
       setActiveTabRaw(tab)
@@ -38,7 +42,32 @@ function DashboardContent() {
       if (tab && tab !== activeTab) {
          setActiveTabRaw(tab)
       }
-   }, [searchParams])
+   }, [searchParams, activeTab])
+
+   const fetchPosts = async () => {
+      if (!supabase) return;
+      
+      const { data, error } = await supabase
+         .from('posts')
+         .select(`
+            *,
+            profiles!user_id (
+               full_name,
+               role
+            )
+         `)
+         .order('created_at', { ascending: false })
+
+      if (error) {
+         console.error('Error fetching posts:', error.message, error.details, error.hint)
+         return
+      }
+      
+      if (data) {
+         console.log('Posts raw:', data)
+         setPosts(data)
+      }
+   }
 
    const refreshData = async (userId: string) => {
       const { data } = await supabase
@@ -53,7 +82,7 @@ function DashboardContent() {
 
    React.useEffect(() => {
       async function getSession() {
-         if (!supabase) return; // Exit early if correctly handled warning
+         if (!supabase) return; 
          const { data: { session } } = await supabase.auth.getSession()
          if (!session) {
             router.push('/join')
@@ -61,10 +90,63 @@ function DashboardContent() {
          }
          setUser(session.user)
          await refreshData(session.user.id)
+         await fetchPosts()
          setIsLoading(false)
       }
       getSession()
    }, [supabase, router])
+
+   const handlePost = async () => {
+      if (!newPostContent.trim() || isPosting) return
+
+      setIsPosting(true)
+      const { error } = await supabase
+         .from('posts')
+         .insert([
+            {
+               user_id: user.id,
+               type: newPostType,
+               content: newPostContent,
+               tags: newPostContent.match(/#\w+/g)?.map(t => t.slice(1)) || []
+            }
+         ])
+
+      if (error) {
+         console.error('Error creating post:', error)
+      } else {
+         setNewPostContent("")
+         await fetchPosts()
+      }
+      setIsPosting(false)
+   }
+
+   const handleConnect = async (targetUserId: string) => {
+      if (!user || user.id === targetUserId) return
+
+      const { error } = await supabase
+         .from('connections')
+         .insert([
+            {
+               sender_id: user.id,
+               receiver_id: targetUserId,
+               status: 'PENDING'
+            }
+         ])
+
+      if (error) {
+         console.error('Error sending connection request:', error)
+      } else {
+         console.log('Connection request sent')
+      }
+   }
+
+   const handleQuickAction = (type: string) => {
+      setNewPostType(type)
+      const textarea = document.querySelector('textarea')
+      if (textarea) {
+         textarea.focus()
+      }
+   }
 
    const handleSignOut = async () => {
       await supabase.auth.signOut()
@@ -73,64 +155,20 @@ function DashboardContent() {
 
    if (isLoading || !user) return null
 
-   // Feed Data (Same as previous)
-   const feedPosts = [
-      {
-         id: 1,
-         type: "HELP",
-         user: "Pema Dorji",
-         role: "Backend Engineer",
-         content: "Integrating Supabase auth in Next.js 14 with Turbopack. Middleware session refresh issue?",
-         tags: ["Supabase", "NextJS"],
-         timestamp: "2h ago",
-         likes: 45,
-         comments: 12
-      },
-      {
-         id: 2,
-         type: "TEAM",
-         user: "Sonam Yangzom",
-         role: "Founder",
-         content: "Looking for 2 teammates (Fullstack + UI/UX) for the upcoming Bhutan Innovation Hub Hackathon. Aiming to build a decentralized voting system.",
-         tags: ["React", "Web3", "Hackathon"],
-         timestamp: "4h ago",
-         likes: 23,
-         comments: 8
-      },
-      {
-         id: 3,
-         type: "PROJECT",
-         user: "Karma Tashi",
-         role: "Software Lead",
-         content: "Just launched 'DrukRide' — a community-driven ride-sharing app prototype for Thimphu city. Check out the repository below!",
-         tags: ["React Native", "Firebase", "OpenSource"],
-         timestamp: "6h ago",
-         likes: 67,
-         comments: 15
-      },
-      {
-         id: 4,
-         type: "TEAM",
-         user: "Yeshi Lhamo",
-         role: "Designer",
-         content: "Growing our design team at 'Innovate Bhutan'. Looking for a motion designer to help with our upcoming rebranding efforts.",
-         tags: ["Figma", "Branding", "Jobs"],
-         timestamp: "1d ago",
-         likes: 31,
-         comments: 4
-      },
-      {
-         id: 5,
-         type: "PROJECT",
-         user: "Sonam Dema",
-         role: "Fullstack Dev",
-         content: "Working on 'DrukHealth Dashboard' — an open-source health metrics tracker. We've just integrated the national vaccine database.",
-         tags: ["NextJS", "PostgreSQL", "HealthTech"],
-         timestamp: "2d ago",
-         likes: 89,
-         comments: 21
-      }
-   ]
+   // Feed Data (Supabase-driven)
+   const feedPosts = posts.length > 0 ? posts.map(p => ({
+      id: p.id,
+      userId: p.user_id,
+      type: p.type,
+      user: p.profiles?.full_name || "Anonymous",
+      role: p.profiles?.role || "Developer",
+      content: p.content,
+      tags: p.tags || [],
+      timestamp: new Date(p.created_at).toLocaleDateString(),
+      likes: p.likes_count || 0,
+      comments: p.comments_count || 0,
+      avatar: null
+   })) : []
 
    return (
       <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-primary selection:text-background text-foreground/80">
@@ -154,7 +192,7 @@ function DashboardContent() {
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                         className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary border border-border/20 overflow-hidden text-[11px] font-black uppercase tracking-tighter transition-all hover:border-primary/40 active:scale-95 shadow-sm"
                      >
-                        {profile?.avatar_url ? <img src={profile.avatar_url} className="h-full w-full object-cover" /> : profile?.full_name?.[0]}
+                         {profile?.full_name?.[0]}
                      </button>
 
                      {isProfileMenuOpen && (
@@ -288,13 +326,19 @@ function DashboardContent() {
                               <h2 className="text-lg md:text-xl font-bold tracking-tighter text-foreground">Welcome back, {profile?.full_name?.split(' ')[0]}</h2>
                               <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">What do you want to do today?</p>
                            </div>
-                           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2">
-                                 <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
-                              </button>
-                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
-                                 <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
-                              </button>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                               <button
+                                 onClick={() => handleQuickAction('HELP')}
+                                 className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2"
+                               >
+                                  <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
+                               </button>
+                               <button
+                                 onClick={() => handleQuickAction('TEAM')}
+                                 className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2"
+                               >
+                                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
+                               </button>
                               <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
                                  <LinkIcon className="h-3 w-3 md:h-3.5 md:w-3.5" /> Share
                               </button>
@@ -305,23 +349,33 @@ function DashboardContent() {
                         <div className="p-5 md:p-6 bg-background border border-border/60 rounded-sm shadow-sm space-y-4">
                            <div className="flex items-start gap-3 md:gap-4">
                               <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[10px] font-black uppercase overflow-hidden shrink-0">
-                                 {profile?.avatar_url ? <img src={profile.avatar_url} className="h-full w-full object-cover" /> : profile?.full_name?.[0]}
+                                 {profile?.full_name?.[0]}
                               </div>
                               <div className="flex-1 space-y-4">
                                  <textarea
                                     className="w-full min-h-[0px] h-10 py-2 bg-transparent text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none resize-none"
                                     placeholder="Ask for help, find teammates..."
+                                    value={newPostContent}
+                                    onChange={(e) => setNewPostContent(e.target.value)}
                                  />
                                  <div className="flex items-center justify-between pt-2 border-t border-border/20">
                                     <div className="flex items-center gap-2">
-                                       <select className="bg-secondary/50 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm focus:ring-1 focus:ring-primary/20 appearance-none cursor-pointer hover:bg-secondary">
-                                          <option>HELP</option>
-                                          <option>TEAM</option>
-                                          <option>PROJECT</option>
+                                       <select
+                                          value={newPostType}
+                                          onChange={(e) => setNewPostType(e.target.value)}
+                                          className="bg-secondary/50 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm focus:ring-1 focus:ring-primary/20 appearance-none cursor-pointer hover:bg-secondary"
+                                       >
+                                          <option value="HELP">HELP</option>
+                                          <option value="TEAM">TEAM</option>
+                                          <option value="PROJECT">PROJECT</option>
                                        </select>
                                     </div>
-                                    <button className="px-6 md:px-8 h-8 md:h-9 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all">
-                                       Post
+                                    <button
+                                       onClick={handlePost}
+                                       disabled={isPosting || !newPostContent.trim()}
+                                       className="px-6 md:px-8 h-8 md:h-9 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all disabled:opacity-50"
+                                    >
+                                       {isPosting ? "Posting..." : "Post"}
                                     </button>
                                  </div>
                               </div>
@@ -361,13 +415,13 @@ function DashboardContent() {
                                     <p className="text-[15px] leading-relaxed font-medium text-foreground/80 font-inter">
                                        {post.content}
                                     </p>
-                                    <div className="flex flex-wrap gap-2">
-                                       {post.tags.map(tag => (
-                                          <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
-                                             #{tag}
-                                          </span>
-                                       ))}
-                                    </div>
+                                     <div className="flex flex-wrap gap-2">
+                                        {post.tags.map((tag: string) => (
+                                           <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
+                                              #{tag}
+                                           </span>
+                                        ))}
+                                     </div>
                                  </div>
                                  <div className="pt-5 md:pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                                     <div className="flex items-center gap-6 md:gap-8">
@@ -378,11 +432,15 @@ function DashboardContent() {
                                           <MessageCircle className="h-4 w-4 transition-transform group-hover/btn:scale-110" /> {post.comments}
                                        </button>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                       <button className="flex-1 md:flex-none justify-center px-4 md:px-5 py-2 text-[12px] md:text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm flex items-center gap-2">
-                                          <UserPlus className="h-3.5 w-3.5" /> Connect
-                                       </button>
-                                    </div>
+                                     <div className="flex items-center gap-3">
+                                        <button
+                                          onClick={() => handleConnect(post.userId)}
+                                          disabled={post.userId === user?.id}
+                                          className="flex-1 md:flex-none justify-center px-4 md:px-5 py-2 text-[12px] md:text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm flex items-center gap-2 disabled:opacity-30"
+                                        >
+                                           <UserPlus className="h-3.5 w-3.5" /> {post.userId === user?.id ? "Your Post" : "Connect"}
+                                        </button>
+                                     </div>
                                  </div>
                               </article>
                            ))}

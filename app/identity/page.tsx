@@ -14,17 +14,15 @@ export default function IdentitySynthesisPage() {
    const [profile, setProfile] = React.useState<any>(null)
    const [isLoading, setIsLoading] = React.useState(true)
    const [saving, setSaving] = React.useState(false)
-   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
+   const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
+   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
 
    // Edit State
    const [editData, setEditData] = React.useState({
       bio: "",
       github_url: "",
-      linkedin_url: "",
-      instagram_url: "",
-      facebook_url: "",
-      availability: "Looking for team",
-      avatar_url: ""
+      portfolio_url: "",
+      availability: "Looking for team"
    })
 
    React.useEffect(() => {
@@ -48,11 +46,8 @@ export default function IdentitySynthesisPage() {
             setEditData({
                bio: data.bio || "",
                github_url: data.github_url || "",
-               linkedin_url: data.linkedin_url || "",
-               instagram_url: data.instagram_url || "",
-               facebook_url: data.facebook_url || "",
-               availability: data.availability || "Looking for team",
-               avatar_url: data.avatar_url || ""
+               portfolio_url: data.portfolio_url || "",
+               availability: data.availability || "Looking for team"
             })
          }
          setIsLoading(false)
@@ -68,11 +63,8 @@ export default function IdentitySynthesisPage() {
          .update({
             bio: editData.bio,
             github_url: editData.github_url,
-            linkedin_url: editData.linkedin_url,
-            instagram_url: editData.instagram_url,
-            facebook_url: editData.facebook_url,
+            portfolio_url: editData.portfolio_url,
             availability: editData.availability,
-            avatar_url: editData.avatar_url,
             updated_at: new Date().toISOString()
          })
          .eq('id', user.id)
@@ -83,31 +75,6 @@ export default function IdentitySynthesisPage() {
       setSaving(false)
    }
 
-   const handleFileUpload = async (file: File) => {
-      if (!file || !user) return
-      try {
-         setSaving(true)
-         const fileExt = file.name.split('.').pop()
-         const filePath = `avatars/${user.id}/${Date.now()}.${fileExt}`
-
-         const { error: uploadError } = await supabase.storage
-            .from('profiles')
-            .upload(filePath, file)
-
-         if (uploadError) throw uploadError
-
-         const { data: { publicUrl } } = supabase.storage
-            .from('profiles')
-            .getPublicUrl(filePath)
-
-         setEditData({ ...editData, avatar_url: publicUrl })
-         setIsUploadOpen(false)
-      } catch (err) {
-         console.error("Upload failed", err)
-      } finally {
-         setSaving(false)
-      }
-   }
 
    if (isLoading || !user) return null
 
@@ -160,42 +127,6 @@ export default function IdentitySynthesisPage() {
                            onChange={e => setEditData({ ...editData, bio: e.target.value })}
                         />
                      </div>
-
-                     {/* VISUAL IDENTITY */}
-                     <div className="p-5 md:p-10 bg-background border border-border/40 rounded-sm shadow-sm space-y-10">
-                        <div className="flex items-center gap-3">
-                           <Camera className="h-5 w-5 text-primary opacity-40" />
-                           <h3 className="text-[14px] font-bold text-foreground">Visual Identity</h3>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row items-center gap-12">
-                           <button
-                              onClick={() => setIsUploadOpen(true)}
-                              className="relative h-40 w-40 rounded-full border-2 border-dashed border-border/40 bg-secondary/10 flex items-center justify-center overflow-hidden transition-all hover:border-primary/40 group shrink-0"
-                           >
-                              {editData.avatar_url ? (
-                                 <img src={editData.avatar_url} className="h-full w-full object-cover transition-all group-hover:scale-110" />
-                              ) : <UploadCloud className="h-8 w-8 text-muted-foreground/20" />}
-                              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                                 <Plus className="h-6 w-6 text-primary" />
-                              </div>
-                           </button>
-
-                           <div className="flex-1 space-y-6 w-full">
-                              <div className="space-y-3">
-                                 <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Professional Photo URL</label>
-                                 <input
-                                    type="text"
-                                    placeholder="https://images.unsplash.com/..."
-                                    className="w-full bg-transparent border-b-2 border-border/20 pb-4 focus:outline-none focus:border-primary text-[11px] font-bold tracking-tight transition-all placeholder:text-muted-foreground/20"
-                                    value={editData.avatar_url}
-                                    onChange={e => setEditData({ ...editData, avatar_url: e.target.value })}
-                                 />
-                              </div>
-                              <p className="text-[9px] text-muted-foreground/40 leading-relaxed uppercase tracking-[0.2em] italic">High-resolution portraits recommended for verification.</p>
-                           </div>
-                        </div>
-                     </div>
                   </div>
 
                   {/* RIGHT COLUMN */}
@@ -209,7 +140,7 @@ export default function IdentitySynthesisPage() {
                         </div>
 
                         <div className="space-y-6 md:space-y-8">
-                           {(['github', 'linkedin', 'instagram', 'facebook'] as const).map(net => (
+                           {['github', 'portfolio'].map(net => (
                               <div key={net} className="space-y-3">
                                  <label className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">{net}</label>
                                  <div className="relative group">
@@ -258,60 +189,7 @@ export default function IdentitySynthesisPage() {
             </div>
          </main>
 
-         {/* UPLOAD OVERLAY */}
-         {isUploadOpen && (
-            <div className="fixed inset-0 bg-background/95 backdrop-blur-md z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
-               <div className="w-full max-w-2xl bg-background border border-border/40 p-12 rounded-sm shadow-2xl relative space-y-12">
-                  <button
-                     onClick={() => setIsUploadOpen(false)}
-                     className="absolute top-6 right-6 p-2 hover:bg-secondary rounded-full transition-all"
-                  >
-                     <X className="h-6 w-6 text-muted-foreground/40" />
-                  </button>
 
-                  <div className="text-center space-y-4">
-                     <h2 className="text-[14px] font-black uppercase tracking-[0.4em] text-foreground">Visual Asset Upload</h2>
-                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">Synchronize your portrait with the network core</p>
-                  </div>
-
-                  <div
-                     className="aspect-video border-2 border-dashed border-border/40 rounded-sm flex flex-col items-center justify-center gap-8 hover:border-primary/40 transition-all cursor-pointer bg-secondary/5 group"
-                     onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                     onDrop={(e) => {
-                        e.preventDefault(); e.stopPropagation();
-                        const file = e.dataTransfer.files?.[0];
-                        if (file) handleFileUpload(file);
-                     }}
-                     onClick={() => document.getElementById('modal-upload')?.click()}
-                  >
-                     <div className="p-6 bg-background border border-border/20 rounded-full group-hover:scale-110 transition-all">
-                        <UploadCloud className="h-10 w-10 text-primary opacity-30 group-hover:opacity-100" />
-                     </div>
-                     <div className="text-center space-y-2">
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em]">Drag to Upload</p>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/30">Maximum fragment size: 5MB</p>
-                     </div>
-                     <input
-                        id="modal-upload"
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => {
-                           const file = e.target.files?.[0];
-                           if (file) handleFileUpload(file);
-                        }}
-                     />
-                  </div>
-
-                  <button
-                     onClick={() => setIsUploadOpen(false)}
-                     className="w-full py-4 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40 hover:text-foreground transition-all"
-                  >
-                     Abort Synchronization
-                  </button>
-               </div>
-            </div>
-         )}
       </div>
    )
 }
