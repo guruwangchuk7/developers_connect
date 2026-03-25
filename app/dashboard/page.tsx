@@ -291,10 +291,11 @@ function DashboardContent() {
                   </div>
                </div>
             </div>
-         </GlobalHeader>
+
+          </GlobalHeader>
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10">
+            <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 pb-24 lg:pb-0">
 
                {/* LEFT SIDEBAR: NAVIGATION */}
                <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100vh-120px)] sticky top-24">
@@ -392,68 +393,68 @@ function DashboardContent() {
                <div className="lg:col-span-10 space-y-8 transition-all duration-500">
 
                   {/* WELCOME + ACTION STRIP */}
-                  <div className="p-6 md:p-8 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-8">
-                     <div className="flex flex-col items-start text-left gap-1">
-                        <span className="text-[12px] font-medium text-muted-foreground/50">Welcome back,</span>
-                        <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground leading-tight">
+                  <div className="p-4 md:p-8 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8">
+                     <div className="flex flex-col items-start text-left gap-0.5 md:gap-1">
+                        <span className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">Welcome back,</span>
+                        <h2 className="text-[18px] md:text-[24px] font-medium tracking-tight text-foreground leading-tight">
                            {profile?.full_name?.split(' ')[0] || "Guru"}
                         </h2>
-                        <p className="text-[12px] font-medium text-muted-foreground/40 mt-1">
+                        <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/40 mt-0.5 md:mt-1">
                            What do you want to do today?
                         </p>
                      </div>
-                     <div className="flex flex-wrap items-center gap-3">
+                     <div className="flex flex-wrap items-center gap-2 md:gap-3">
                         <button
                            onClick={() => handleQuickAction('HELP')}
-                           className="flex-1 md:flex-none px-6 h-11 text-primary border border-primary/20 text-[14px] font-medium rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95"
+                           className="flex-1 md:flex-none px-4 md:px-6 h-10 md:h-11 text-primary border border-primary/20 text-[13px] md:text-[14px] font-medium rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2 md:gap-2.5 shadow-sm active:scale-95"
                         >
-                           <Plus className="h-4 w-4" /> Help
+                           <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
                         </button>
                         <button
                            onClick={() => handleQuickAction('TEAM')}
-                           className="flex-1 md:flex-none px-6 h-11 text-muted-foreground border border-border/40 text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95"
+                           className="flex-1 md:flex-none px-4 md:px-6 h-10 md:h-11 text-muted-foreground border border-border/40 text-[13px] md:text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2 md:gap-2.5 shadow-sm active:scale-95"
                         >
-                           <Users className="h-4 w-4" /> Team
+                           <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
                         </button>
-                        <button className="flex-1 md:flex-none px-6 h-11 text-muted-foreground border border-border/40 text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95">
-                           <LinkIcon className="h-3.5 w-3.5" /> Share
+                        <button className="flex-1 md:flex-none px-4 md:px-6 h-10 md:h-11 text-muted-foreground border border-border/40 text-[13px] md:text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2 md:gap-2.5 shadow-sm active:scale-95">
+                           <LinkIcon className="h-3 w-3 md:h-3.5 md:w-3.5" /> Share
                         </button>
                      </div>
                   </div>
 
                   {/* SUB-NAVIGATION / FILTER BAR */}
                   {activeTab === "all" && (
-                     <div className="flex items-center gap-8 overflow-x-auto pb-1 scrollbar-hide border-b border-border/20 mt-4">
-                        {[
-                           { id: "all", label: "All Feed", icon: LayoutGrid },
-                           { id: "discover", label: "Developers", icon: Search },
-                           { id: "teams", label: "Teams", icon: Users },
-                           { id: "projects", label: "Projects", icon: LayoutGrid },
-                           { id: "help", label: "Help Hub", icon: MessageCircle },
-                        ].map((tab) => {
-                           const Icon = tab.icon
-                           const isActive = activeTab === tab.id
-                           return (
-                              <button
-                                 key={tab.id}
-                                 onClick={() => setActiveTab(tab.id)}
-                                 className={cn(
-                                    "flex items-center gap-2.5 px-0.5 py-4 text-[14px] font-medium transition-all whitespace-nowrap relative group",
-                                    isActive ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
-                                 )}
-                              >
-                                 <Icon className={cn("h-4 w-4", isActive ? "opacity-100" : "opacity-60")} />
-                                 {tab.label}
-                                 {isActive && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
-                                 )}
-                                 {!isActive && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent group-hover:bg-primary/20 transition-all" />
-                                 )}
-                              </button>
-                           )
-                        })}
-                     </div>
+                  <div className="flex items-center w-full md:gap-8 border-b border-border/20 mt-4 px-1 md:px-0">
+                     {[
+                        { id: "all", label: "Feed", icon: LayoutGrid },
+                        { id: "discover", label: "Devs", icon: Search },
+                        { id: "teams", label: "Teams", icon: Users },
+                        { id: "projects", label: "Project", icon: LayoutGrid },
+                        { id: "help", label: "Help", icon: MessageCircle },
+                     ].map((tab) => {
+                        const Icon = tab.icon
+                        const isActive = activeTab === tab.id
+                        return (
+                           <button
+                              key={tab.id}
+                              onClick={() => setActiveTab(tab.id)}
+                              className={cn(
+                                 "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-1.5 md:gap-2.5 px-0.5 py-4 text-[11px] md:text-[14px] font-medium transition-all whitespace-nowrap relative group",
+                                 isActive ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
+                              )}
+                           >
+                              <Icon className={cn("h-3.5 w-3.5 md:h-4 md:w-4", isActive ? "opacity-100" : "opacity-60")} />
+                              {tab.label}
+                              {isActive && (
+                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+                              )}
+                              {!isActive && (
+                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent group-hover:bg-primary/20 transition-all" />
+                              )}
+                           </button>
+                        )
+                     })}
+                  </div>
                   )}
 
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
@@ -688,7 +689,7 @@ function DashboardContent() {
                      </div>
                   ) : activeTab === "messages" ? (
                      <div className="h-[calc(100vh-160px)] flex bg-background border border-border/40 rounded-sm overflow-hidden shadow-sm">
-                        <div className="w-80 border-r border-border/40 flex flex-col">
+                        <div className="w-full lg:w-80 border-r border-border/40 flex flex-col">
                            <div className="p-6 border-b border-border/40">
                               <h3 className="text-[14px] font-bold">Conversations</h3>
                            </div>
@@ -711,7 +712,7 @@ function DashboardContent() {
                               ))}
                            </div>
                         </div>
-                        <div className="flex-1 flex flex-col items-center justify-center space-y-4 opacity-30">
+                        <div className="hidden lg:flex flex-1 flex flex-col items-center justify-center space-y-4 opacity-30">
                            <div className="p-6 bg-secondary rounded-full">
                               <MessageSquare className="h-8 w-8 text-primary" />
                            </div>
@@ -725,6 +726,48 @@ function DashboardContent() {
 
             </div>
          </main>
+
+         <div className="lg:hidden fixed bottom-1.5 left-0 right-0 px-4 pb-2 z-50 animate-in fade-in slide-in-from-bottom-5 duration-700">
+            <div className="bg-background/80 backdrop-blur-xl border border-border/40 rounded-full px-8 py-3.5 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
+               <button
+                  onClick={() => setActiveTab("all")}
+                  className={cn(
+                     "flex flex-col items-center gap-1 transition-all",
+                     ["all", "discover", "teams", "projects", "help"].includes(activeTab) ? "text-primary scale-110" : "text-muted-foreground/40"
+                  )}
+               >
+                  <LayoutGrid className="h-4.5 w-4.5" />
+                  <span className="text-[14px] font-medium">Feed</span>
+               </button>
+               <button
+                  onClick={() => setActiveTab("leaderboard")}
+                  className={cn(
+                     "flex flex-col items-center gap-1 transition-all ",
+                     activeTab === "leaderboard" ? "text-primary scale-110" : "text-muted-foreground/40"
+                  )}
+               >
+                  <Trophy className="h-4.5 w-4.5" />
+                  <span className="text-[14px] font-medium">Network</span>
+               </button>
+               <button
+                  onClick={() => setActiveTab("messages")}
+                  className={cn(
+                     "flex flex-col items-center gap-1 transition-all ",
+                     activeTab === "messages" ? "text-primary scale-110" : "text-muted-foreground/40"
+                   )}
+               >
+                  <MessageSquare className="h-4.5 w-4.5" />
+                  <span className="text-[14px] font-medium">Messages</span>
+               </button>
+               <button
+                  onClick={() => router.push('/identity')}
+                  className="flex flex-col items-center gap-1 text-muted-foreground/40"
+                >
+                  <Settings className="h-4.5 w-4.5" />
+                  <span className="text-[14px] font-medium">Settings</span>
+               </button>
+            </div>
+         </div>
       </div>
    )
 }

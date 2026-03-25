@@ -112,30 +112,30 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           {isDashboard && (
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 px-1">Network</p>
+                <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-1">Network</p>
                 <div className="flex flex-col gap-2">
-                  <Link href="/dashboard?tab=all" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <LayoutGrid className="h-6 w-6 opacity-30" /> Feed
+                  <Link href="/dashboard?tab=all" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-5 w-5 opacity-30" /> Feed
                   </Link>
-                  <Link href="/dashboard?tab=discover" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <Search className="h-6 w-6 opacity-30" /> Developers
+                  <Link href="/dashboard?tab=discover" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <Search className="h-5 w-5 opacity-30" /> Developers
                   </Link>
-                  <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <Users className="h-6 w-6 opacity-30" /> Teams
+                  <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <Users className="h-5 w-5 opacity-30" /> Teams
                   </Link>
-                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <Trophy className="h-6 w-6 opacity-30" /> Leaderboard
+                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <Trophy className="h-5 w-5 opacity-30" /> Leaderboard
                   </Link>
                 </div>
               </div>
               <div className="flex flex-col gap-4">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 px-1">Workspace</p>
+                <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-1">Workspace</p>
                 <div className="flex flex-col gap-2">
-                  <Link href="/dashboard?tab=messages" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <MessageSquare className="h-6 w-6 opacity-30" /> Messages
+                  <Link href="/dashboard?tab=messages" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <MessageSquare className="h-5 w-5 opacity-30" /> Messages
                   </Link>
-                  <Link href="/identity" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
-                    <Settings className="h-6 w-6 opacity-30" /> Settings
+                  <Link href="/identity" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                    <Settings className="h-5 w-5 opacity-30" /> Settings
                   </Link>
                 </div>
               </div>
