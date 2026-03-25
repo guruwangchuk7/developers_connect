@@ -26,12 +26,19 @@ function DashboardContent() {
    const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
    const [posts, setPosts] = React.useState<any[]>([])
-   const [newPostContent, setNewPostContent] = React.useState("")
-   const [newPostType, setNewPostType] = React.useState("HELP")
    const [isPosting, setIsPosting] = React.useState(false)
+   const [newPostType, setNewPostType] = React.useState("HELP")
+   const [guidedFields, setGuidedFields] = React.useState<Record<string, string>>({
+      blocker: "", stack: "", context: "",
+      role: "", project: "", mission: "",
+      projectName: "", description: "", link: ""
+   })
 
    const setActiveTab = (tab: string) => {
       setActiveTabRaw(tab)
+      if (["teams", "projects", "help"].includes(tab)) {
+         setNewPostType(tab === "teams" ? "TEAM" : tab === "projects" ? "PROJECT" : "HELP")
+      }
       const params = new URLSearchParams(searchParams?.toString())
       params.set("tab", tab)
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
@@ -41,12 +48,16 @@ function DashboardContent() {
       const tab = searchParams?.get("tab")
       if (tab && tab !== activeTab) {
          setActiveTabRaw(tab)
+         // Also set post type context
+         if (["teams", "projects", "help"].includes(tab)) {
+            setNewPostType(tab === "teams" ? "TEAM" : tab === "projects" ? "PROJECT" : "HELP")
+         }
       }
    }, [searchParams, activeTab])
 
    const fetchPosts = async () => {
       if (!supabase) return;
-      
+
       const { data, error } = await supabase
          .from('posts')
          .select(`
@@ -62,7 +73,7 @@ function DashboardContent() {
          console.error('Error fetching posts:', error.message, error.details, error.hint)
          return
       }
-      
+
       if (data) {
          console.log('Posts raw:', data)
          setPosts(data)
@@ -82,7 +93,7 @@ function DashboardContent() {
 
    React.useEffect(() => {
       async function getSession() {
-         if (!supabase) return; 
+         if (!supabase) return;
          const { data: { session } } = await supabase.auth.getSession()
          if (!session) {
             router.push('/join')
@@ -97,7 +108,16 @@ function DashboardContent() {
    }, [supabase, router])
 
    const handlePost = async () => {
-      if (!newPostContent.trim() || isPosting) return
+      let content = ""
+      if (activeTab === "help") {
+         content = `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`
+      } else if (activeTab === "teams") {
+         content = `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`
+      } else if (activeTab === "projects") {
+         content = `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`
+      }
+
+      if (!content.trim() || isPosting) return
 
       setIsPosting(true)
       const { error } = await supabase
@@ -106,15 +126,19 @@ function DashboardContent() {
             {
                user_id: user.id,
                type: newPostType,
-               content: newPostContent,
-               tags: newPostContent.match(/#\w+/g)?.map(t => t.slice(1)) || []
+               content: content,
+               tags: content.match(/#\w+/g)?.map(t => t.slice(1)) || []
             }
          ])
 
       if (error) {
          console.error('Error creating post:', error)
       } else {
-         setNewPostContent("")
+         setGuidedFields({
+            blocker: "", stack: "", context: "",
+            role: "", project: "", mission: "",
+            projectName: "", description: "", link: ""
+         })
          await fetchPosts()
       }
       setIsPosting(false)
@@ -139,12 +163,26 @@ function DashboardContent() {
          console.log('Connection request sent')
       }
    }
-
    const handleQuickAction = (type: string) => {
       setNewPostType(type)
       const textarea = document.querySelector('textarea')
       if (textarea) {
          textarea.focus()
+      }
+   }
+
+   const handleDeletePost = async (postId: string) => {
+      if (!window.confirm("Are you sure you want to delete this fragment? This action is permanent.")) return
+
+      const { error } = await supabase
+         .from('posts')
+         .delete()
+         .eq('id', postId)
+
+      if (error) {
+         console.error('Error deleting post:', error)
+      } else {
+         await fetchPosts()
       }
    }
 
@@ -190,9 +228,9 @@ function DashboardContent() {
                   <div className="relative">
                      <button
                         onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                        className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary border border-border/20 overflow-hidden text-[11px] font-black uppercase tracking-tighter transition-all hover:border-primary/40 active:scale-95 shadow-sm"
+                        className="flex items-center justify-center h-8 w-8 rounded-full bg-secondary border border-border/20 overflow-hidden text-[11px] font-bold uppercase tracking-tighter transition-all hover:border-primary/40 active:scale-95 shadow-sm"
                      >
-                         {profile?.full_name?.[0]}
+                        {profile?.full_name?.[0]}
                      </button>
 
                      {isProfileMenuOpen && (
@@ -323,64 +361,108 @@ function DashboardContent() {
                         {/* WELCOME + ACTION STRIP */}
                         <div className="p-5 md:p-6 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
-                              <h2 className="text-lg md:text-xl font-bold tracking-tighter text-foreground">Welcome back, {profile?.full_name?.split(' ')[0]}</h2>
-                              <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">What do you want to do today?</p>
+                              <h2 className="text-lg md:text-xl font-bold tracking-tighter text-foreground">
+                                 {activeTab === "all" ? `Welcome back, ${profile?.full_name?.split(' ')[0]}` :
+                                    activeTab === "projects" ? "Project Showcase" :
+                                       activeTab === "teams" ? "Team Coordination" : "Help Requests"}
+                              </h2>
+                              <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">
+                                 {activeTab === "all" ? "What do you want to do today?" :
+                                    activeTab === "projects" ? "Explore high-impact architectural and digital fragments" :
+                                       activeTab === "teams" ? "Recruit specialists or find your next mission" : "Solve technical blockers or provide assistance"}
+                              </p>
                            </div>
-                            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                               <button
+                           <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                              <button
                                  onClick={() => handleQuickAction('HELP')}
                                  className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2"
-                               >
-                                  <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
-                               </button>
-                               <button
+                              >
+                                 <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
+                              </button>
+                              <button
                                  onClick={() => handleQuickAction('TEAM')}
                                  className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2"
-                               >
-                                  <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
-                               </button>
+                              >
+                                 <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
+                              </button>
                               <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
                                  <LinkIcon className="h-3 w-3 md:h-3.5 md:w-3.5" /> Share
                               </button>
                            </div>
                         </div>
 
-                        {/* POST INPUT BAR */}
-                        <div className="p-5 md:p-6 bg-background border border-border/60 rounded-sm shadow-sm space-y-4">
-                           <div className="flex items-start gap-3 md:gap-4">
-                              <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[10px] font-black uppercase overflow-hidden shrink-0">
-                                 {profile?.full_name?.[0]}
+                        {/* POST INPUT BAR - Guided Version (Refined UI + Simple Button) */}
+                        {["help", "teams", "projects"].includes(activeTab) && (
+                           <div className="p-8 md:p-10 bg-background border border-border/40 rounded-sm shadow-xl shadow-black/[0.02] space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
+                              <div className="flex items-center gap-4">
+                                 <div className="h-0.5 w-8 bg-primary/30" />
+                                 <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary/60">Guided Synthesis</h3>
                               </div>
-                              <div className="flex-1 space-y-4">
-                                 <textarea
-                                    className="w-full min-h-[0px] h-10 py-2 bg-transparent text-[13px] font-medium placeholder:text-muted-foreground/30 focus:outline-none resize-none"
-                                    placeholder="Ask for help, find teammates..."
-                                    value={newPostContent}
-                                    onChange={(e) => setNewPostContent(e.target.value)}
-                                 />
-                                 <div className="flex items-center justify-between pt-2 border-t border-border/20">
-                                    <div className="flex items-center gap-2">
-                                       <select
-                                          value={newPostType}
-                                          onChange={(e) => setNewPostType(e.target.value)}
-                                          className="bg-secondary/50 border-none text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm focus:ring-1 focus:ring-primary/20 appearance-none cursor-pointer hover:bg-secondary"
-                                       >
-                                          <option value="HELP">HELP</option>
-                                          <option value="TEAM">TEAM</option>
-                                          <option value="PROJECT">PROJECT</option>
-                                       </select>
-                                    </div>
-                                    <button
-                                       onClick={handlePost}
-                                       disabled={isPosting || !newPostContent.trim()}
-                                       className="px-6 md:px-8 h-8 md:h-9 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all disabled:opacity-50"
-                                    >
-                                       {isPosting ? "Posting..." : "Post"}
-                                    </button>
-                                 </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+                                 {activeTab === "help" && (
+                                    <>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Primary Blocker</label>
+                                          <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Tech Stack</label>
+                                          <input type="text" placeholder="e.g. Next.js 14, Tailwind" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.stack} onChange={e => setGuidedFields({ ...guidedFields, stack: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3 md:col-span-2">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Full Context</label>
+                                          <textarea placeholder="Provide details to help others synchronize with your issue..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
+                                       </div>
+                                    </>
+                                 )}
+
+                                 {activeTab === "teams" && (
+                                    <>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Role Needed</label>
+                                          <input type="text" placeholder="e.g. Rust Developer" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.role} onChange={e => setGuidedFields({ ...guidedFields, role: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Project Name</label>
+                                          <input type="text" placeholder="e.g. DrukRide MVP" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.project} onChange={e => setGuidedFields({ ...guidedFields, project: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3 md:col-span-2">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Mission Goal</label>
+                                          <textarea placeholder="Describe the mission and what success looks like..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.mission} onChange={e => setGuidedFields({ ...guidedFields, mission: e.target.value })} />
+                                       </div>
+                                    </>
+                                 )}
+
+                                 {activeTab === "projects" && (
+                                    <>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Project Title</label>
+                                          <input type="text" placeholder="e.g. Bhutan Analytics Core" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.projectName} onChange={e => setGuidedFields({ ...guidedFields, projectName: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Live Link / Repository</label>
+                                          <input type="text" placeholder="https://github.com/..." className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.link} onChange={e => setGuidedFields({ ...guidedFields, link: e.target.value })} />
+                                       </div>
+                                       <div className="space-y-3 md:col-span-2">
+                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Functional Description</label>
+                                          <textarea placeholder="What does this fragment solve? Showcase your work..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.description} onChange={e => setGuidedFields({ ...guidedFields, description: e.target.value })} />
+                                       </div>
+                                    </>
+                                 )}
+                              </div>
+
+                              <div className="flex items-center justify-end pt-8 border-t border-border/20">
+                                 <button
+                                    onClick={handlePost}
+                                    disabled={isPosting}
+                                    className="px-10 h-10 text-primary border border-primary/20 text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all disabled:opacity-50 active:scale-95"
+                                 >
+                                    {isPosting ? "Posting..." : "Post"}
+                                 </button>
                               </div>
                            </div>
-                        </div>
+                        )}
 
                         {/* FEED LIST */}
                         <div className="space-y-4 md:space-y-8">
@@ -391,7 +473,7 @@ function DashboardContent() {
                               <article key={post.id} className="p-5 md:p-8 bg-background border border-border/40 rounded-sm hover:shadow-xl hover:shadow-black/[0.02] transition-all group">
                                  <div className="flex items-start justify-between mb-6 md:mb-8">
                                     <div className="flex items-center gap-3 md:gap-4 text-left">
-                                       <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-black border border-border/20 uppercase overflow-hidden">
+                                       <div className="h-9 w-9 md:h-10 md:w-10 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold border border-border/20 uppercase overflow-hidden">
                                           {post.user[0]}
                                        </div>
                                        <div className="space-y-0.5">
@@ -403,25 +485,36 @@ function DashboardContent() {
                                           </div>
                                        </div>
                                     </div>
-                                    <div className={cn(
-                                       "px-2.5 py-1 rounded-sm text-[8px] md:text-[9px] font-black uppercase tracking-widest",
-                                       post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
-                                          post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
-                                    )}>
-                                       {post.type}
+                                    <div className="flex items-center gap-3">
+                                       <div className={cn(
+                                          "px-2.5 py-1 rounded-sm text-[10px] md:text-[11px] font-bold uppercase",
+                                          post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
+                                             post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
+                                       )}>
+                                          {post.type}
+                                       </div>
+                                       {post.userId === user?.id && (
+                                          <button
+                                             onClick={() => handleDeletePost(post.id)}
+                                             className="p-1.5 text-muted-foreground/30 hover:text-red-500 transition-colors"
+                                             title="Delete Post"
+                                          >
+                                             <X className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                                          </button>
+                                       )}
                                     </div>
                                  </div>
                                  <div className="space-y-6 text-left mb-8">
                                     <p className="text-[15px] leading-relaxed font-medium text-foreground/80 font-inter">
                                        {post.content}
                                     </p>
-                                     <div className="flex flex-wrap gap-2">
-                                        {post.tags.map((tag: string) => (
-                                           <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
-                                              #{tag}
-                                           </span>
-                                        ))}
-                                     </div>
+                                    <div className="flex flex-wrap gap-2">
+                                       {post.tags.map((tag: string) => (
+                                          <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
+                                             #{tag}
+                                          </span>
+                                       ))}
+                                    </div>
                                  </div>
                                  <div className="pt-5 md:pt-6 border-t border-border/20 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                                     <div className="flex items-center gap-6 md:gap-8">
@@ -432,15 +525,15 @@ function DashboardContent() {
                                           <MessageCircle className="h-4 w-4 transition-transform group-hover/btn:scale-110" /> {post.comments}
                                        </button>
                                     </div>
-                                     <div className="flex items-center gap-3">
-                                        <button
+                                    <div className="flex items-center gap-3">
+                                       <button
                                           onClick={() => handleConnect(post.userId)}
                                           disabled={post.userId === user?.id}
                                           className="flex-1 md:flex-none justify-center px-4 md:px-5 py-2 text-[12px] md:text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm flex items-center gap-2 disabled:opacity-30"
-                                        >
-                                           <UserPlus className="h-3.5 w-3.5" /> {post.userId === user?.id ? "Your Post" : "Connect"}
-                                        </button>
-                                     </div>
+                                       >
+                                          <UserPlus className="h-3.5 w-3.5" /> {post.userId === user?.id ? "Your Post" : "Connect"}
+                                       </button>
+                                    </div>
                                  </div>
                               </article>
                            ))}
