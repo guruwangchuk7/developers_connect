@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut } from "lucide-react";
+import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -110,23 +110,36 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           )}
 
           {isDashboard && (
-            <>
-              <Link href="/dashboard?tab=all" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
-                Feed
-              </Link>
-              <Link href="/dashboard?tab=discover" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
-                Discover Developers
-              </Link>
-              <Link href="/dashboard?tab=teams" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
-                Teams
-              </Link>
-              <Link href="/dashboard?tab=leaderboard" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
-                Leaderboard
-              </Link>
-              <Link href="/dashboard?tab=messages" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>
-                Messages
-              </Link>
-            </>
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 px-1">Network</p>
+                <div className="flex flex-col gap-2">
+                  <Link href="/dashboard?tab=all" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-6 w-6 opacity-30" /> Feed
+                  </Link>
+                  <Link href="/dashboard?tab=discover" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <Search className="h-6 w-6 opacity-30" /> Developers
+                  </Link>
+                  <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <Users className="h-6 w-6 opacity-30" /> Teams
+                  </Link>
+                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <Trophy className="h-6 w-6 opacity-30" /> Leaderboard
+                  </Link>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 px-1">Workspace</p>
+                <div className="flex flex-col gap-2">
+                  <Link href="/dashboard?tab=messages" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <MessageSquare className="h-6 w-6 opacity-30" /> Messages
+                  </Link>
+                  <Link href="/identity" className="flex items-center gap-4 text-xl font-bold py-2" onClick={() => setIsOpen(false)}>
+                    <Settings className="h-6 w-6 opacity-30" /> Settings
+                  </Link>
+                </div>
+              </div>
+            </div>
           )}
 
           <div className="flex flex-col gap-3 mt-auto pt-8 pb-4">

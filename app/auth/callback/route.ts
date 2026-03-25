@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  
+
   if (code) {
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -26,22 +26,22 @@ export async function GET(request: Request) {
       }
     )
     const { data: { user }, error } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (!error && user) {
-        // Check if user has a profile
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
 
-        if (!profile) {
-            // New user -> Onboarding
-            return NextResponse.redirect(`${origin}/onboarding`)
-        }
-        
-        // Existing user -> Dashboard
-        return NextResponse.redirect(`${origin}/dashboard`)
+    if (!error && user) {
+      // Check if user has a profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile) {
+        // New user -> Onboarding
+        return NextResponse.redirect(`${origin}/onboarding`)
+      }
+
+      // Existing user -> Dashboard
+      return NextResponse.redirect(`${origin}/dashboard`)
     }
   }
 

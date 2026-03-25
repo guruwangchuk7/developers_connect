@@ -91,11 +91,44 @@ function DashboardContent() {
          type: "TEAM",
          user: "Sonam Yangzom",
          role: "Founder",
-         content: "Looking for 2 teammates (Fullstack + UI/UX) for the upcoming Bhutan Innovation Hub Hackathon.",
-         tags: ["React", "Web3"],
+         content: "Looking for 2 teammates (Fullstack + UI/UX) for the upcoming Bhutan Innovation Hub Hackathon. Aiming to build a decentralized voting system.",
+         tags: ["React", "Web3", "Hackathon"],
          timestamp: "4h ago",
          likes: 23,
          comments: 8
+      },
+      {
+         id: 3,
+         type: "PROJECT",
+         user: "Karma Tashi",
+         role: "Software Lead",
+         content: "Just launched 'DrukRide' — a community-driven ride-sharing app prototype for Thimphu city. Check out the repository below!",
+         tags: ["React Native", "Firebase", "OpenSource"],
+         timestamp: "6h ago",
+         likes: 67,
+         comments: 15
+      },
+      {
+         id: 4,
+         type: "TEAM",
+         user: "Yeshi Lhamo",
+         role: "Designer",
+         content: "Growing our design team at 'Innovate Bhutan'. Looking for a motion designer to help with our upcoming rebranding efforts.",
+         tags: ["Figma", "Branding", "Jobs"],
+         timestamp: "1d ago",
+         likes: 31,
+         comments: 4
+      },
+      {
+         id: 5,
+         type: "PROJECT",
+         user: "Sonam Dema",
+         role: "Fullstack Dev",
+         content: "Working on 'DrukHealth Dashboard' — an open-source health metrics tracker. We've just integrated the national vaccine database.",
+         tags: ["NextJS", "PostgreSQL", "HealthTech"],
+         timestamp: "2d ago",
+         likes: 89,
+         comments: 21
       }
    ]
 
@@ -103,12 +136,6 @@ function DashboardContent() {
       <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-primary selection:text-background text-foreground/80">
          <GlobalHeader>
             <div className="flex items-center gap-6">
-               <div className="h-4 w-px bg-border/40 hidden md:block" />
-               <nav className="hidden md:flex items-center gap-10">
-                  <button onClick={() => setActiveTab("all")} className={cn("text-[14px] font-bold transition-all", activeTab === "all" ? "text-primary border-b-2 border-primary pb-px" : "text-muted-foreground/50 hover:text-foreground")}>Stream</button>
-                  <button onClick={() => setActiveTab("teams")} className={cn("text-[14px] font-bold transition-all", activeTab === "teams" ? "text-primary border-b-2 border-primary pb-px" : "text-muted-foreground/50 hover:text-foreground")}>Teams</button>
-                  <button onClick={() => setActiveTab("projects")} className={cn("text-[14px] font-bold transition-all", activeTab === "projects" ? "text-primary border-b-2 border-primary pb-px" : "text-muted-foreground/50 hover:text-foreground")}>Projects</button>
-               </nav>
                <div className="h-4 w-px bg-border/40" />
 
                <div className="flex items-center gap-2 md:gap-4">
@@ -162,81 +189,96 @@ function DashboardContent() {
                <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100vh-120px)] sticky top-24">
                   <div className="flex-1 space-y-8">
                      <div className="space-y-4">
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 px-4">Navigation</h3>
-                        <nav className="flex flex-col gap-1">
-                           <button
-                              onClick={() => setActiveTab("all")}
-                              className={cn(
-                                 "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
-                                 activeTab === "all" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
-                              )}
-                           >
-                              <LayoutGrid className="h-4 w-4" /> Feed
-                           </button>
-                           <button
-                              onClick={() => setActiveTab("discover")}
-                              className={cn(
-                                 "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
-                                 activeTab === "discover" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
-                              )}
-                           >
-                              <Search className="h-4 w-4" /> Discover Developers
-                           </button>
-                           <button
-                              onClick={() => setActiveTab("teams")}
-                              className={cn(
-                                 "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
-                                 activeTab === "teams" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
-                              )}
-                           >
-                              <Users className="h-4 w-4" /> Teams
-                           </button>
-                           <button
-                              onClick={() => setActiveTab("leaderboard")}
-                              className={cn(
-                                 "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
-                                 activeTab === "leaderboard" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
-                              )}
-                           >
-                              <Trophy className="h-4 w-4" /> Leaderboard
-                           </button>
-                           <button
-                              onClick={() => setActiveTab("messages")}
-                              className={cn(
-                                 "flex items-center gap-3 px-4 py-3 text-[13px] font-bold transition-all rounded-sm",
-                                 activeTab === "messages" ? "text-primary bg-primary/5 border-r-2 border-primary" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
-                              )}
-                           >
-                              <MessageSquare className="h-4 w-4" /> Messages
-                           </button>
-                        </nav>
-                     </div>
-
-                     <div className="p-4 bg-background border border-border/40 rounded-sm space-y-4 shadow-sm">
-                        <div className="flex items-center gap-3">
-                           <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Fingerprint className="h-4 w-4 text-primary" />
+                        <div className="space-y-6">
+                           <div className="space-y-3">
+                              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 px-4">Network</h3>
+                              <nav className="flex flex-col gap-0.5">
+                                 <button
+                                    onClick={() => setActiveTab("all")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "all" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <LayoutGrid className="h-4 w-4" /> Feed
+                                 </button>
+                                 <button
+                                    onClick={() => setActiveTab("discover")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "discover" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <Search className="h-4 w-4" /> Developers
+                                 </button>
+                                 <button
+                                    onClick={() => setActiveTab("teams")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "teams" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <Users className="h-4 w-4" /> Teams
+                                 </button>
+                                 <button
+                                    onClick={() => setActiveTab("projects")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "projects" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <LayoutGrid className="h-4 w-4 opacity-40" /> Projects
+                                 </button>
+                                 <button
+                                    onClick={() => setActiveTab("help")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "help" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <MessageCircle className="h-4 w-4 opacity-40" /> Help Requests
+                                 </button>
+                                 <button
+                                    onClick={() => setActiveTab("leaderboard")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "leaderboard" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <Trophy className="h-4 w-4" /> Leaderboard
+                                 </button>
+                              </nav>
                            </div>
-                           <div className="space-y-0.5">
-                              <p className="text-[12px] font-bold text-foreground">Complete Profile</p>
-                              <p className="text-[11px] font-medium text-muted-foreground/50">85% Synchronized</p>
+
+                           <div className="space-y-3">
+                              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 px-4">Workspace</h3>
+                              <nav className="flex flex-col gap-0.5">
+                                 <button
+                                    onClick={() => setActiveTab("messages")}
+                                    className={cn(
+                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       activeTab === "messages" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
+                                    )}
+                                 >
+                                    <MessageSquare className="h-4 w-4" /> Messages
+                                 </button>
+                                 <button
+                                    onClick={() => router.push('/identity')}
+                                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40 transition-all rounded-sm"
+                                 >
+                                    <Settings className="h-4 w-4" /> Settings
+                                 </button>
+                              </nav>
                            </div>
                         </div>
-                        <button
-                           onClick={() => router.push('/identity')}
-                           className="w-full py-2.5 border border-border/40 text-[12px] font-bold text-muted-foreground/60 hover:bg-primary hover:text-background hover:border-primary transition-all rounded-sm"
-                        >
-                           Update Identity
-                        </button>
                      </div>
+
+
                   </div>
                </div>
 
                {/* MAIN CONTENT AREA */}
-               <div className={cn(
-                  "space-y-8 transition-all duration-500",
-                  activeTab === "messages" ? "lg:col-span-10" : "lg:col-span-7"
-               )}>
+               <div className="lg:col-span-10 space-y-8 transition-all duration-500">
 
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
                      <>
@@ -286,17 +328,12 @@ function DashboardContent() {
                            </div>
                         </div>
 
-                        {/* FEED SECTION TABS */}
-                        <div className="flex items-center gap-10 border-b border-border/40 px-2 pb-px overflow-x-auto whitespace-nowrap scrollbar-hide">
-                           <button onClick={() => setActiveTab("all")} className={cn("py-4 text-[14px] font-bold transition-all", activeTab === "all" ? "text-primary border-b-2 border-primary" : "text-muted-foreground/40 hover:text-foreground")}>All Activity</button>
-                           <button onClick={() => setActiveTab("help")} className={cn("py-4 text-[14px] font-bold transition-all", activeTab === "help" ? "text-primary border-b-2 border-primary" : "text-muted-foreground/40 hover:text-foreground")}>Help Requests</button>
-                           <button onClick={() => setActiveTab("teams")} className={cn("py-4 text-[14px] font-bold transition-all", activeTab === "teams" ? "text-primary border-b-2 border-primary" : "text-muted-foreground/40 hover:text-foreground")}>Team Opportunities</button>
-                           <button onClick={() => setActiveTab("projects")} className={cn("py-4 text-[14px] font-bold transition-all", activeTab === "projects" ? "text-primary border-b-2 border-primary" : "text-muted-foreground/40 hover:text-foreground")}>Projects</button>
-                        </div>
-
                         {/* FEED LIST */}
                         <div className="space-y-4 md:space-y-8">
-                           {feedPosts.filter(p => activeTab === "all" || p.type === activeTab.toUpperCase()).map((post) => (
+                           {feedPosts.filter(p => {
+                              const normalizedTab = activeTab === "teams" ? "TEAM" : activeTab === "projects" ? "PROJECT" : activeTab.toUpperCase()
+                              return activeTab === "all" || p.type === normalizedTab
+                           }).map((post) => (
                               <article key={post.id} className="p-5 md:p-8 bg-background border border-border/40 rounded-sm hover:shadow-xl hover:shadow-black/[0.02] transition-all group">
                                  <div className="flex items-start justify-between mb-6 md:mb-8">
                                     <div className="flex items-center gap-3 md:gap-4 text-left">
@@ -465,101 +502,7 @@ function DashboardContent() {
                   ) : null}
                </div>
 
-               {/* RIGHT PANEL: ECOSYSTEM (Hidden on Messages, Stacks on Mobile) */}
-               {activeTab !== "messages" && (
-                  <div className="lg:col-span-3 flex flex-col gap-8 pb-10">
 
-                     {/* Section 1: Suggested Developers */}
-                     <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm space-y-6">
-                        <div className="flex items-center justify-between">
-                           <h3 className="text-[13px] font-bold text-foreground">Suggested Connects</h3>
-                           <Sparkles className="h-3 w-3 text-primary/40" />
-                        </div>
-                        <div className="space-y-5">
-                           {[
-                              { name: "Tandin Wangchuck", role: "Rust Dev" },
-                              { name: "Yeshi Lhamo", role: "UI/UX Designer" },
-                              { name: "Karma Tashi", role: "DevOps" }
-                           ].map(dev => (
-                              <div key={dev.name} className="flex items-center justify-between group">
-                                 <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[9px] font-black uppercase font-inter">{dev.name[0]}</div>
-                                    <div className="space-y-0.5">
-                                       <p className="text-[13px] font-bold text-foreground leading-none">{dev.name}</p>
-                                       <p className="text-[11px] font-medium text-muted-foreground/50">{dev.role}</p>
-                                    </div>
-                                 </div>
-                                 <button className="p-2 text-muted-foreground/40 hover:text-primary transition-all">
-                                    <UserPlus className="h-3.5 w-3.5" />
-                                 </button>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-
-                     {/* Section 2: Open Team Requests */}
-                     <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm space-y-6">
-                        <div className="flex items-center justify-between">
-                           <h3 className="text-[13px] font-bold text-foreground">Team Requests</h3>
-                           <Users className="h-3 w-3 text-primary/40" />
-                        </div>
-                        <div className="space-y-4">
-                           {[
-                              "Looking for React Dev for AgriTech Dashboard",
-                              "Need Python Expert for ML pipeline"
-                           ].map((req, i) => (
-                              <div key={i} className="p-4 bg-secondary/30 border border-border/20 rounded-sm space-y-3">
-                                 <p className="text-[12px] font-bold leading-relaxed text-foreground/70">{req}</p>
-                                 <button className="w-full py-2 bg-background border border-border/40 text-[11px] font-bold hover:bg-primary hover:text-background transition-all rounded-sm">
-                                    Join Team
-                                 </button>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-
-                     {/* Section 3: Leaderboard Mini */}
-                     <div className="p-6 bg-background border border-border/40 rounded-sm shadow-sm space-y-6">
-                        <div className="flex items-center justify-between">
-                           <h3 className="text-[13px] font-bold text-foreground">Leaderboard</h3>
-                           <Trophy className="h-3 w-3 text-amber-500/40" />
-                        </div>
-                        <div className="space-y-4">
-                           {[
-                              { rank: 1, name: "Pema Dorji", points: 2450 },
-                              { rank: 2, name: "Sonam Kuenza", points: 2100 },
-                              { rank: 3, name: "Dorji Wangmo", points: 1950 }
-                           ].map(user => (
-                              <div key={user.name} className="flex items-center justify-between">
-                                 <div className="flex items-center gap-3">
-                                    <span className="text-[11px] font-bold text-muted-foreground/30">#0{user.rank}</span>
-                                    <p className="text-[13px] font-bold text-foreground">{user.name}</p>
-                                 </div>
-                                 <span className="text-[12px] font-bold text-primary">{user.points} pts</span>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-
-                     {/* Section 4: Monthly Project */}
-                     <div className="p-6 bg-primary/[0.02] border border-primary/20 rounded-sm shadow-sm space-y-6 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-2">
-                           <Sparkles className="h-4 w-4 text-primary/20" />
-                        </div>
-                        <div className="space-y-1">
-                           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Monthly Project</h3>
-                           <h4 className="text-[16px] font-bold tracking-tight text-foreground">DrukHealth Dashboard</h4>
-                        </div>
-                        <p className="text-[13px] font-medium leading-relaxed text-muted-foreground/60">
-                           A community-driven platform for tracking health metrics across the kingdom.
-                        </p>
-                        <button className="w-full py-3 bg-primary text-background text-[11px] font-bold uppercase tracking-widest rounded-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20">
-                           View Projects
-                        </button>
-                     </div>
-
-                  </div>
-               )}
 
             </div>
          </main>
