@@ -100,7 +100,21 @@ function DashboardContent() {
             return
          }
          setUser(session.user)
-         await refreshData(session.user.id)
+
+         // Fetch profile and check if it exists
+         const { data: profileRecord, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+
+         if (profileError || !profileRecord) {
+            console.warn('No profile found for authenticated user. Redirecting to onboarding...')
+            router.push('/onboarding')
+            return
+         }
+
+         setProfile(profileRecord)
          await fetchPosts()
          setIsLoading(false)
       }
@@ -108,32 +122,53 @@ function DashboardContent() {
    }, [supabase, router])
 
    const handlePost = async () => {
+      // Derive type and build content based on active tab
       let content = ""
+      let postType = "HELP"
+
       if (activeTab === "help") {
          content = `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`
+         postType = "HELP"
       } else if (activeTab === "teams") {
          content = `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`
+         postType = "TEAM"
       } else if (activeTab === "projects") {
          content = `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`
+         postType = "PROJECT"
       }
 
       if (!content.trim() || isPosting) return
 
+      // Ensure user and profile exist before posting
+      if (!user?.id) {
+         console.error('Cannot create post: User session not found')
+         return
+      }
+
       setIsPosting(true)
-      const { error } = await supabase
+
+      const { data, error } = await supabase
          .from('posts')
          .insert([
             {
                user_id: user.id,
-               type: newPostType,
+               type: postType,
                content: content,
                tags: content.match(/#\w+/g)?.map(t => t.slice(1)) || []
             }
          ])
+         .select()
 
       if (error) {
-         console.error('Error creating post:', error)
+         console.error('Error creating post:', error.message, '| Code:', error.code, '| Details:', error.details)
+         // If it's a foreign key violation, it likely means the profile is missing
+         if (error.code === '23503') {
+            console.warn('Post creation failed due to missing profile record. Attempting to synchronize...')
+            const { data: refreshedProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+            if (refreshedProfile) setProfile(refreshedProfile)
+         }
       } else {
+         console.log('Post created successfully:', data)
          setGuidedFields({
             blocker: "", stack: "", context: "",
             role: "", project: "", mission: "",
@@ -266,13 +301,13 @@ function DashboardContent() {
                   <div className="flex-1 space-y-8">
                      <div className="space-y-4">
                         <div className="space-y-6">
-                           <div className="space-y-3">
-                              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 px-4">Network</h3>
-                              <nav className="flex flex-col gap-0.5">
+                           <div className="space-y-4">
+                              <h3 className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-4">Network</h3>
+                              <nav className="flex flex-col gap-1">
                                  <button
                                     onClick={() => setActiveTab("all")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "all" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -281,7 +316,7 @@ function DashboardContent() {
                                  <button
                                     onClick={() => setActiveTab("discover")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "discover" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -290,7 +325,7 @@ function DashboardContent() {
                                  <button
                                     onClick={() => setActiveTab("teams")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "teams" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -299,7 +334,7 @@ function DashboardContent() {
                                  <button
                                     onClick={() => setActiveTab("projects")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "projects" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -308,7 +343,7 @@ function DashboardContent() {
                                  <button
                                     onClick={() => setActiveTab("help")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "help" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -317,7 +352,7 @@ function DashboardContent() {
                                  <button
                                     onClick={() => setActiveTab("leaderboard")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "leaderboard" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -326,13 +361,13 @@ function DashboardContent() {
                               </nav>
                            </div>
 
-                           <div className="space-y-3">
-                              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 px-4">Workspace</h3>
-                              <nav className="flex flex-col gap-0.5">
+                           <div className="space-y-4">
+                              <h3 className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-4">Workspace</h3>
+                              <nav className="flex flex-col gap-1">
                                  <button
                                     onClick={() => setActiveTab("messages")}
                                     className={cn(
-                                       "flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold transition-all rounded-sm",
+                                       "flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium transition-all rounded-sm",
                                        activeTab === "messages" ? "text-primary bg-primary/5 shadow-[inset_2px_0_0_0_currentColor]" : "text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40"
                                     )}
                                  >
@@ -340,7 +375,7 @@ function DashboardContent() {
                                  </button>
                                  <button
                                     onClick={() => router.push('/identity')}
-                                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-bold text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40 transition-all rounded-sm"
+                                    className="flex items-center gap-3.5 px-4 py-3 text-[14px] font-medium text-muted-foreground/60 hover:text-foreground hover:bg-secondary/40 transition-all rounded-sm"
                                  >
                                     <Settings className="h-4 w-4" /> Settings
                                  </button>
@@ -356,63 +391,96 @@ function DashboardContent() {
                {/* MAIN CONTENT AREA */}
                <div className="lg:col-span-10 space-y-8 transition-all duration-500">
 
+                  {/* WELCOME + ACTION STRIP */}
+                  <div className="p-6 md:p-8 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-end justify-between gap-8">
+                     <div className="flex flex-col items-start text-left gap-1">
+                        <span className="text-[12px] font-medium text-muted-foreground/50">Welcome back,</span>
+                        <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground leading-tight">
+                           {profile?.full_name?.split(' ')[0] || "Guru"}
+                        </h2>
+                        <p className="text-[12px] font-medium text-muted-foreground/40 mt-1">
+                           What do you want to do today?
+                        </p>
+                     </div>
+                     <div className="flex flex-wrap items-center gap-3">
+                        <button
+                           onClick={() => handleQuickAction('HELP')}
+                           className="flex-1 md:flex-none px-6 h-11 text-primary border border-primary/20 text-[14px] font-medium rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95"
+                        >
+                           <Plus className="h-4 w-4" /> Help
+                        </button>
+                        <button
+                           onClick={() => handleQuickAction('TEAM')}
+                           className="flex-1 md:flex-none px-6 h-11 text-muted-foreground border border-border/40 text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95"
+                        >
+                           <Users className="h-4 w-4" /> Team
+                        </button>
+                        <button className="flex-1 md:flex-none px-6 h-11 text-muted-foreground border border-border/40 text-[14px] font-medium rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2.5 shadow-sm active:scale-95">
+                           <LinkIcon className="h-3.5 w-3.5" /> Share
+                        </button>
+                     </div>
+                  </div>
+
+                  {/* SUB-NAVIGATION / FILTER BAR */}
+                  {activeTab === "all" && (
+                     <div className="flex items-center gap-8 overflow-x-auto pb-1 scrollbar-hide border-b border-border/20 mt-4">
+                        {[
+                           { id: "all", label: "All Feed", icon: LayoutGrid },
+                           { id: "discover", label: "Developers", icon: Search },
+                           { id: "teams", label: "Teams", icon: Users },
+                           { id: "projects", label: "Projects", icon: LayoutGrid },
+                           { id: "help", label: "Help Hub", icon: MessageCircle },
+                        ].map((tab) => {
+                           const Icon = tab.icon
+                           const isActive = activeTab === tab.id
+                           return (
+                              <button
+                                 key={tab.id}
+                                 onClick={() => setActiveTab(tab.id)}
+                                 className={cn(
+                                    "flex items-center gap-2.5 px-0.5 py-4 text-[14px] font-medium transition-all whitespace-nowrap relative group",
+                                    isActive ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
+                                 )}
+                              >
+                                 <Icon className={cn("h-4 w-4", isActive ? "opacity-100" : "opacity-60")} />
+                                 {tab.label}
+                                 {isActive && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+                                 )}
+                                 {!isActive && (
+                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent group-hover:bg-primary/20 transition-all" />
+                                 )}
+                              </button>
+                           )
+                        })}
+                     </div>
+                  )}
+
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
                      <>
-                        {/* WELCOME + ACTION STRIP */}
-                        <div className="p-5 md:p-6 bg-background border border-border/40 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-                           <div className="space-y-1">
-                              <h2 className="text-lg md:text-xl font-bold tracking-tighter text-foreground">
-                                 {activeTab === "all" ? `Welcome back, ${profile?.full_name?.split(' ')[0]}` :
-                                    activeTab === "projects" ? "Project Showcase" :
-                                       activeTab === "teams" ? "Team Coordination" : "Help Requests"}
-                              </h2>
-                              <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50">
-                                 {activeTab === "all" ? "What do you want to do today?" :
-                                    activeTab === "projects" ? "Explore high-impact architectural and digital fragments" :
-                                       activeTab === "teams" ? "Recruit specialists or find your next mission" : "Solve technical blockers or provide assistance"}
-                              </p>
-                           </div>
-                           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                              <button
-                                 onClick={() => handleQuickAction('HELP')}
-                                 className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-primary border border-primary/20 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all flex items-center justify-center gap-2"
-                              >
-                                 <Plus className="h-3.5 w-3.5 md:h-4 md:w-4" /> Help
-                              </button>
-                              <button
-                                 onClick={() => handleQuickAction('TEAM')}
-                                 className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2"
-                              >
-                                 <Users className="h-3.5 w-3.5 md:h-4 md:w-4" /> Team
-                              </button>
-                              <button className="flex-1 md:flex-none px-4 md:px-5 h-9 md:h-10 text-muted-foreground border border-border/40 text-[12px] md:text-[13px] font-bold rounded-sm hover:bg-secondary transition-all flex items-center justify-center gap-2">
-                                 <LinkIcon className="h-3 w-3 md:h-3.5 md:w-3.5" /> Share
-                              </button>
-                           </div>
-                        </div>
 
                         {/* POST INPUT BAR - Guided Version (Refined UI + Simple Button) */}
                         {["help", "teams", "projects"].includes(activeTab) && (
                            <div className="p-8 md:p-10 bg-background border border-border/40 rounded-sm shadow-xl shadow-black/[0.02] space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
                               <div className="flex items-center gap-4">
                                  <div className="h-0.5 w-8 bg-primary/30" />
-                                 <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary/60">Guided Synthesis</h3>
+                                 <h3 className="text-[13px] font-semibold uppercase tracking-widest text-primary/60">Guided Synthesis</h3>
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                                  {activeTab === "help" && (
                                     <>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Primary Blocker</label>
-                                          <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Primary Blocker</label>
+                                          <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
                                        </div>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Tech Stack</label>
-                                          <input type="text" placeholder="e.g. Next.js 14, Tailwind" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.stack} onChange={e => setGuidedFields({ ...guidedFields, stack: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Tech Stack</label>
+                                          <input type="text" placeholder="e.g. Next.js 14, Tailwind" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.stack} onChange={e => setGuidedFields({ ...guidedFields, stack: e.target.value })} />
                                        </div>
                                        <div className="space-y-3 md:col-span-2">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Full Context</label>
-                                          <textarea placeholder="Provide details to help others synchronize with your issue..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Full Context</label>
+                                          <textarea placeholder="Provide details to help others synchronize with your issue..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
                                        </div>
                                     </>
                                  )}
@@ -420,16 +488,16 @@ function DashboardContent() {
                                  {activeTab === "teams" && (
                                     <>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Role Needed</label>
-                                          <input type="text" placeholder="e.g. Rust Developer" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.role} onChange={e => setGuidedFields({ ...guidedFields, role: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Role Needed</label>
+                                          <input type="text" placeholder="e.g. Rust Developer" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.role} onChange={e => setGuidedFields({ ...guidedFields, role: e.target.value })} />
                                        </div>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Project Name</label>
-                                          <input type="text" placeholder="e.g. DrukRide MVP" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.project} onChange={e => setGuidedFields({ ...guidedFields, project: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Project Name</label>
+                                          <input type="text" placeholder="e.g. DrukRide MVP" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.project} onChange={e => setGuidedFields({ ...guidedFields, project: e.target.value })} />
                                        </div>
                                        <div className="space-y-3 md:col-span-2">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Mission Goal</label>
-                                          <textarea placeholder="Describe the mission and what success looks like..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.mission} onChange={e => setGuidedFields({ ...guidedFields, mission: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Mission Goal</label>
+                                          <textarea placeholder="Describe the mission and what success looks like..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.mission} onChange={e => setGuidedFields({ ...guidedFields, mission: e.target.value })} />
                                        </div>
                                     </>
                                  )}
@@ -437,16 +505,16 @@ function DashboardContent() {
                                  {activeTab === "projects" && (
                                     <>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Project Title</label>
-                                          <input type="text" placeholder="e.g. Bhutan Analytics Core" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.projectName} onChange={e => setGuidedFields({ ...guidedFields, projectName: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Project Title</label>
+                                          <input type="text" placeholder="e.g. Bhutan Analytics Core" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.projectName} onChange={e => setGuidedFields({ ...guidedFields, projectName: e.target.value })} />
                                        </div>
                                        <div className="space-y-3">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Live Link / Repository</label>
-                                          <input type="text" placeholder="https://github.com/..." className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.link} onChange={e => setGuidedFields({ ...guidedFields, link: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Live Link / Repository</label>
+                                          <input type="text" placeholder="https://github.com/..." className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.link} onChange={e => setGuidedFields({ ...guidedFields, link: e.target.value })} />
                                        </div>
                                        <div className="space-y-3 md:col-span-2">
-                                          <label className="text-[10px] font-bold uppercase text-foreground/40 tracking-widest pl-1">Functional Description</label>
-                                          <textarea placeholder="What does this fragment solve? Showcase your work..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[13px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.description} onChange={e => setGuidedFields({ ...guidedFields, description: e.target.value })} />
+                                          <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Functional Description</label>
+                                          <textarea placeholder="What does this fragment solve? Showcase your work..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.description} onChange={e => setGuidedFields({ ...guidedFields, description: e.target.value })} />
                                        </div>
                                     </>
                                  )}
@@ -456,9 +524,9 @@ function DashboardContent() {
                                  <button
                                     onClick={handlePost}
                                     disabled={isPosting}
-                                    className="px-10 h-10 text-primary border border-primary/20 text-[13px] font-bold rounded-sm hover:bg-primary hover:text-background transition-all disabled:opacity-50 active:scale-95"
+                                    className="px-10 h-10 text-primary border border-primary/20 text-[14px] font-medium rounded-sm hover:bg-primary hover:text-background transition-all disabled:opacity-50 active:scale-95"
                                  >
-                                    {isPosting ? "Posting..." : "Post"}
+                                    {isPosting ? "Posting..." : "Post Fragment"}
                                  </button>
                               </div>
                            </div>
@@ -543,7 +611,7 @@ function DashboardContent() {
                      <div className="space-y-12">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
-                              <h2 className="text-2xl font-bold tracking-tighter text-foreground">Discover Developers</h2>
+                              <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
                               <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
                            </div>
                            <div className="flex items-center gap-2 font-inter">
@@ -561,7 +629,7 @@ function DashboardContent() {
                                  <div className="flex items-center gap-5 mb-6">
                                     <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase">{dev.name[0]}</div>
                                     <div className="space-y-0.5 text-left">
-                                       <h4 className="text-[16px] font-bold text-foreground">{dev.name}</h4>
+                                       <h4 className="text-[15px] font-medium text-foreground">{dev.name}</h4>
                                        <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
                                     </div>
                                  </div>
@@ -581,7 +649,7 @@ function DashboardContent() {
                      <div className="space-y-12">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
-                              <h2 className="text-2xl font-bold tracking-tighter text-foreground">Network Leaderboard</h2>
+                              <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Network Leaderboard</h2>
                               <p className="text-[13px] font-medium text-muted-foreground/50">Top contributors to the Bhutanese tech ecosystem</p>
                            </div>
                         </div>
@@ -589,10 +657,10 @@ function DashboardContent() {
                            <table className="w-full text-left min-w-[600px] md:min-w-0">
                               <thead>
                                  <tr className="border-b border-border/40 bg-secondary/20">
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">Rank</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">Developer</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">Reputation</th>
-                                    <th className="px-8 py-5 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">Contributions</th>
+                                    <th className="px-8 py-5 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/40">Rank</th>
+                                    <th className="px-8 py-5 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/40">Developer</th>
+                                    <th className="px-8 py-5 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/40">Reputation</th>
+                                    <th className="px-8 py-5 text-[12px] font-semibold uppercase tracking-widest text-muted-foreground/40">Contributions</th>
                                  </tr>
                               </thead>
                               <tbody>
@@ -603,14 +671,14 @@ function DashboardContent() {
                                     { rank: "04", name: "Tandin Wangmo", score: 3600, count: 77 },
                                  ].map((row, i) => (
                                     <tr key={i} className="border-b border-border/20 last:border-none hover:bg-secondary/10 transition-colors">
-                                       <td className="px-8 py-6 text-[14px] font-black text-primary/40">#{row.rank}</td>
+                                       <td className="px-8 py-6 text-[15px] font-medium text-primary/40">#{row.rank}</td>
                                        <td className="px-8 py-6">
                                           <div className="flex items-center gap-3">
                                              <div className="h-8 w-8 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[10px] font-bold">{row.name[0]}</div>
                                              <span className="text-[14px] font-bold">{row.name}</span>
                                           </div>
                                        </td>
-                                       <td className="px-8 py-6 text-[14px] font-bold text-primary">{row.score} RP</td>
+                                       <td className="px-8 py-6 text-[15px] font-medium text-primary">{row.score} RP</td>
                                        <td className="px-8 py-6 text-[14px] font-medium text-muted-foreground/60">{row.count} posts</td>
                                     </tr>
                                  ))}
