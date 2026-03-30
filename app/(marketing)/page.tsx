@@ -20,7 +20,7 @@ export default function Home() {
         <section id="capabilities" className="min-h-[100dvh] flex items-center justify-center bg-background py-16 md:py-20 lg:py-32 border-t">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-24 lg:mb-32">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
                 Where Identity Meets Collaboration
               </h2>
               <p className="max-w-[700px] text-sm md:text-base lg:text-lg text-muted-foreground/80 leading-relaxed font-medium text-balance">
@@ -72,10 +72,10 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
       <div className="h-8 w-8 md:h-9 md:w-9 mb-6 md:mb-8 p-1.5 md:p-2 rounded-sm bg-secondary/80 text-primary group-hover:scale-110 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-border/20">
         {icon}
       </div>
-      <h3 className="text-base md:text-lg font-semibold tracking-tight mb-3 md:mb-4 text-foreground">
+      <h3 className="text-base md:text-lg font-semibold tracking-tight mb-2 md:mb-4 text-foreground">
         {title}
       </h3>
-      <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+      <p className="text-[13px] md:text-sm text-muted-foreground leading-relaxed">
         {description}
       </p>
     </div>

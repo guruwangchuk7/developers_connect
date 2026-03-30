@@ -10,7 +10,7 @@ export function Founder() {
         <div className="flex flex-col items-center gap-8 md:gap-12 text-center mb-12 md:mb-16">
           <div className="space-y-4">
             <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground bg-background px-3 py-1 md:px-4 md:py-1.5 rounded-full border border-border shadow-sm">Creator-Led</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">Meet the Founder</h2>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">Meet the Founder</h2>
           </div>
         </div>
 
@@ -32,14 +32,14 @@ export function Founder() {
             </div>
 
             <div className="mt-6 md:mt-8 text-center">
-              <h3 className="text-xl md:text-2xl font-bold tracking-tight mb-1 md:mb-2">Guru Wangchuk</h3>
-              <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px] md:text-xs">Thimphu, BT</p>
+              <h3 className="text-lg md:text-2xl font-bold tracking-tight mb-1 md:mb-2">Guru Wangchuk</h3>
+              <p className="text-muted-foreground font-medium uppercase tracking-widest text-[9px] md:text-xs">Thimphu, BT</p>
             </div>
           </div>
 
           <div className="space-y-6 md:space-y-8 relative">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b pb-4 sm:border-none sm:pb-0">
-              <span className="text-base md:text-lg font-bold tracking-tight text-primary">@guru_wangchuk</span>
+              <span className="text-sm md:text-lg font-bold tracking-tight text-primary">@guru_wangchuk</span>
               <div className="flex gap-4 items-center">
                 <Twitter className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
                 <Github className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
@@ -47,7 +47,7 @@ export function Founder() {
               </div>
             </div>
 
-            <div className="space-y-4 md:space-y-6 text-sm md:text-lg leading-relaxed text-muted-foreground font-medium text-center md:text-left">
+            <div className="space-y-4 md:space-y-6 text-[13px] md:text-lg leading-relaxed text-muted-foreground font-medium text-center md:text-left">
               <p>
                 Guru has spent years deeply immersed in the Bhutanese tech ecosystem,
                 witnessing first-hand the bridge needed between raw technical talent and professional opportunities.

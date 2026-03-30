@@ -71,7 +71,7 @@ export default function ProfileDetailPage() {
                 <div className="w-24 h-24 md:w-32 md:h-32 bg-secondary flex items-center justify-center text-3xl font-black italic text-muted-foreground/30 rounded-full border border-border overflow-hidden mb-8">
                   {profile.full_name?.split(' ').map((n: string) => n[0]).join('')}
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-2">{profile.full_name}</h1>
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2">{profile.full_name}</h1>
                 <p className="text-primary font-bold uppercase tracking-[0.3em] text-[10px] mb-8">{profile.role}</p>
               </div>
 
@@ -108,7 +108,7 @@ export default function ProfileDetailPage() {
             <div className="md:col-span-7 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
                <div className="space-y-6">
                   <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground opacity-50">Identity & Bio</h2>
-                  <p className="text-xl md:text-2xl leading-relaxed text-foreground/90 font-medium">
+                  <p className="text-lg md:text-2xl leading-relaxed text-foreground/90 font-medium">
                     {profile.bio || "This developer hasn't added a bio yet, but they are an active part of the Bhutan Developer Network."}
                   </p>
                </div>

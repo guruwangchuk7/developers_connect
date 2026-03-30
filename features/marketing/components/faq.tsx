@@ -38,7 +38,7 @@ export function FAQ() {
     <section id="faq" className="bg-background py-16 md:py-20 lg:py-24 px-4 border-t">
       <div className="container mx-auto max-w-4xl px-2 sm:px-4">
         <div className="flex flex-col items-center gap-4 text-center mb-12 md:mb-16">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             Frequently Asked Questions
           </h2>
           <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/80 leading-relaxed font-medium text-balance">

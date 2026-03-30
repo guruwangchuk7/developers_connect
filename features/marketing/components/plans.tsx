@@ -33,10 +33,10 @@ export function Plans() {
     <section id="plans" className="bg-background py-20 md:py-32 px-4 border-t">
       <div className="container mx-auto max-w-6xl px-2 sm:px-4">
         <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-20">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             Simple, Scalable Plans
           </h2>
-          <p className="max-w-[700px] text-base md:text-lg text-muted-foreground font-medium text-balance">
+          <p className="max-w-[700px] text-sm md:text-lg text-muted-foreground font-medium text-balance">
             Choose the right level of access to Bhutan&apos;s most active technical network.
           </p>
         </div>
@@ -51,18 +51,18 @@ export function Plans() {
               )}
             >
               <div className="mb-6">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">{plan.name}</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">{plan.name}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl md:text-4xl font-bold">{plan.price}</span>
-                  {plan.price !== "Custom" && <span className="text-sm text-muted-foreground">/mo</span>}
+                  <span className="text-2xl md:text-4xl font-bold">{plan.price}</span>
+                  {plan.price !== "Custom" && <span className="text-[11px] text-muted-foreground">/mo</span>}
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground mb-6 md:mb-8 leading-relaxed">
+              <p className="text-[13px] text-muted-foreground mb-6 md:mb-8 leading-relaxed">
                 {plan.description}
               </p>
               <ul className="space-y-4 mb-8 md:mb-10 flex-1">
                 {plan.features.map((feature, j) => (
-                  <li key={j} className="flex gap-3 text-sm font-medium">
+                  <li key={j} className="flex gap-3 text-[13px] font-medium">
                     <Check className="h-5 w-5 text-primary flex-shrink-0" />
                     {feature}
                   </li>
