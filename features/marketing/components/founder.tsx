@@ -8,7 +8,7 @@ export function Founder() {
     <section id="founder" className="bg-background py-20 md:py-32 px-4 relative">
       <div className="container mx-auto max-w-5xl px-0 sm:px-4">
         <div className="flex flex-col items-center gap-8 md:gap-12 text-center mb-12 md:mb-16">
-          <div className="space-y-4">
+          <div className="flex flex-col items-center gap-5 md:gap-6">
             <span className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground bg-background px-3 py-1 md:px-4 md:py-1.5 rounded-full border border-border shadow-sm">Creator-Led</span>
             <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">Meet the Founder</h2>
           </div>
