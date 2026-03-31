@@ -57,6 +57,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
               <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
               <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
+              <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
             </nav>
           )}
 
@@ -106,6 +107,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               <Link href="/projects" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Projects</Link>
               <Link href="/feed" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Help</Link>
               <Link href="/events" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Events</Link>
+              <Link href="/contact" className="text-lg font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Contact</Link>
             </>
           )}
 

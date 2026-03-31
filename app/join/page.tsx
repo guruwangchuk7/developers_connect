@@ -66,8 +66,8 @@ export default function JoinPage() {
           </button>
 
           <div className="relative py-4">
-             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border/50"></div></div>
-             <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold"><span className="bg-background px-4 text-muted-foreground/40">Or continue with</span></div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border/50"></div></div>
+            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold"><span className="bg-background px-4 text-muted-foreground/40">Or continue with</span></div>
           </div>
 
           <button

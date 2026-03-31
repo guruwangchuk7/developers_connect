@@ -20,7 +20,7 @@ export function HeroSection() {
 
           <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 w-full sm:w-auto">
             <Link
-              href="/pricing"
+              href="/#plans"
               className={cn(buttonVariants({ size: "lg" }), "h-11 w-full sm:w-auto rounded-sm bg-primary px-8 text-[13px] font-bold tracking-tight shadow-md transition hover:opacity-90 active:scale-95")}
             >
               See pricing
