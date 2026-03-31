@@ -47,7 +47,7 @@ export function Founder() {
               </div>
             </div>
 
-            <div className="space-y-4 md:space-y-6 text-[13px] md:text-lg leading-relaxed text-muted-foreground font-medium text-center md:text-left">
+            <div className="space-y-4 md:space-y-6 text-base leading-relaxed text-muted-foreground text-center md:text-left">
               <p>
                 Guru has spent years deeply immersed in the Bhutanese tech ecosystem,
                 witnessing first-hand the bridge needed between raw technical talent and professional opportunities.

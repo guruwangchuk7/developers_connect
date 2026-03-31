@@ -41,7 +41,7 @@ export function FAQ() {
           <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             Frequently Asked Questions
           </h2>
-          <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/80 leading-relaxed font-medium text-balance">
+          <p className="max-w-[700px] text-base text-muted-foreground/80 leading-relaxed text-balance">
             Everything you need to know about the BDN ecosystem.
           </p>
         </div>
@@ -51,7 +51,7 @@ export function FAQ() {
             <div 
               key={i} 
               className={cn(
-                "group border border-border/40 rounded-sm overflow-hidden transition-all duration-300",
+                "group border border-border/40 rounded-sm overflow-hidden",
                 openIndex === i ? "bg-secondary/5 border-primary/20 shadow-sm" : "bg-transparent"
               )}
             >
@@ -67,13 +67,20 @@ export function FAQ() {
               
               <div 
                 className={cn(
-                  "overflow-hidden transition-all duration-300 ease-in-out",
-                  openIndex === i ? "max-h-[500px] opacity-100 py-6 px-6 md:py-8 md:px-8 border-t border-border/20" : "max-h-0 opacity-0"
+                  "grid transition-all duration-0 md:duration-300 ease-in-out",
+                  openIndex === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 )}
               >
-                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
-                  {faq.answer}
-                </p>
+                <div className="overflow-hidden">
+                  <div className={cn(
+                    "px-6 md:px-8 border-t border-border/20 transition-all duration-0 md:duration-300",
+                    openIndex === i ? "py-6 md:py-8" : "py-0"
+                  )}>
+                    <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

@@ -29,6 +29,23 @@
   /* Even more minimal radius */
   --brand-success: #10b981;
   --header-height: 64px;
+
+  /* Responsive Font Weights */
+  --weight-medium: 500;
+  --weight-semibold: 500; /* 600 -> 500 on mobile */
+  --weight-bold: 600;     /* 700 -> 600 on mobile */
+  --weight-extrabold: 700; /* 800 -> 700 on mobile */
+  --weight-black: 800;     /* 900 -> 800 on mobile */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+    --weight-extrabold: 800;
+    --weight-black: 900;
+  }
 }
 
 @theme inline {
@@ -51,6 +68,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-brand-success: var(--brand-success);
+
+  --font-weight-medium: var(--weight-medium);
+  --font-weight-semibold: var(--weight-semibold);
+  --font-weight-bold: var(--weight-bold);
+  --font-weight-extrabold: var(--weight-extrabold);
+  --font-weight-black: var(--weight-black);
 
   --font-sans: var(--font-outfit), var(--font-inter), ui-sans-serif, system-ui;
   --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular;
@@ -83,8 +106,8 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  font-weight: 700;
-  /* Bold like the reference image */
+  font-weight: var(--weight-bold);
+  /* Responsive Bold (600 on mobile, 700 on desktop) */
   letter-spacing: -0.03em;
   /* Tight tracking for premium look */
   line-height: 1.1;

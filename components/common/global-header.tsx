@@ -43,34 +43,34 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md">
-      <div className="w-full px-4 md:px-8 lg:px-12 flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6 lg:gap-12">
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
-            <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
-          </Link>
+        <div className="w-full px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
+          <div className="flex items-center gap-6 lg:gap-12 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
+              <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
+            </Link>
+          </div>
 
           {showMarketingLinks && (
-            <nav className="hidden lg:flex items-center gap-8 text-[12px] font-semibold text-muted-foreground uppercase tracking-widest">
+            <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-[13px] font-medium text-muted-foreground/80">
               <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
               <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
               <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
               <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
             </nav>
           )}
-        </div>
 
-        <div className="flex items-center gap-3 lg:gap-8">
+          <div className="flex items-center gap-3 lg:gap-8 shrink-0">
           {children ? (
             children
           ) : (
             <>
               {showMarketingLinks && !session && (
                 <div className="hidden sm:flex items-center gap-2">
-                  <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight shadow-sm transition hover:bg-secondary/50")}>
+                  <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[13px] font-semibold shadow-sm transition hover:bg-secondary/50")}>
                     Sign in
                   </Link>
-                  <Link href="/join" className={cn(buttonVariants({ size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[11px] md:text-[12px] font-bold tracking-tight bg-primary shadow-sm transition hover:opacity-90")}>
+                  <Link href="/join" className={cn(buttonVariants({ size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[13px] font-semibold bg-primary shadow-sm transition hover:opacity-90")}>
                     Join Network
                   </Link>
                 </div>

@@ -23,8 +23,8 @@ export default function Home() {
               <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
                 Where Identity Meets Collaboration
               </h2>
-              <p className="max-w-[700px] text-sm md:text-base lg:text-lg text-muted-foreground/80 leading-relaxed font-medium text-balance">
-                We provide the Bhutanese tech ecosystem with a centralized layer for professional identity, 
+              <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/70 leading-relaxed text-balance">
+                We provide the Bhutanese tech ecosystem with a centralized layer for professional identity,
                 technical help, and team formation.
               </p>
             </div>
@@ -68,7 +68,7 @@ export default function Home() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
-    <div className="bg-background p-8 md:p-10 lg:p-12 transition-all hover:bg-secondary/20 group cursor-pointer border sm:border-none rounded-sm">
+    <div className="bg-background p-8 md:p-10 lg:p-12 transition-all hover:bg-secondary/20 group cursor-pointer border sm:border-none rounded-sm flex flex-col items-center text-center">
       <div className="h-8 w-8 md:h-9 md:w-9 mb-6 md:mb-8 p-1.5 md:p-2 rounded-sm bg-secondary/80 text-primary group-hover:scale-110 transition-transform shadow-[0_2px_4px_rgba(0,0,0,0.05)] border border-border/20">
         {icon}
       </div>
@@ -86,19 +86,19 @@ function Footer() {
   return (
     <footer className="bg-background pt-24 md:pt-32 pb-12 md:pb-16 border-t">
       <div className="w-full px-4 md:px-8 lg:px-12">
-        <div className="flex flex-col lg:flex-row items-start justify-between gap-12 lg:gap-16 pb-16 md:pb-20 border-b">
-          <div className="space-y-6 max-w-sm">
-            <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+        <div className="flex flex-col items-center text-center gap-12 lg:gap-16 pb-16 md:pb-20 border-b">
+          <div className="space-y-6 max-w-sm flex flex-col items-center">
+            <Link href="/" className="flex items-center gap-2 group cursor-pointer justify-center">
               <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:translate-x-1 transition-transform"></div>
               <span className="text-xl font-semibold tracking-tighter">BDN</span>
             </Link>
             <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-              Professionalizing the Bhutanese tech ecosystem through identity, collaboration, 
+              Professionalizing the Bhutanese tech ecosystem through identity, collaboration,
               and community-driven engineering.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 md:gap-20 w-full lg:w-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-10 md:gap-20 w-full max-w-md">
             <div className="space-y-4 md:space-y-5">
               <h4 className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-foreground">Product</h4>
               <nav className="flex flex-col gap-2 md:gap-3 text-[12px] md:text-[13px] font-medium text-muted-foreground">

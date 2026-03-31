@@ -21,7 +21,7 @@ export default function ProfileDetailPage() {
         .select('*')
         .eq('id', id)
         .single()
-      
+
       if (!error && data) {
         setProfile(data)
       }
@@ -36,7 +36,7 @@ export default function ProfileDetailPage() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
         <p className="text-muted-foreground font-medium mb-4 uppercase tracking-widest text-xs">Profile not found</p>
-        <button 
+        <button
           onClick={() => router.back()}
           className="text-primary font-bold transition hover:opacity-80"
         >
@@ -49,12 +49,12 @@ export default function ProfileDetailPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <GlobalHeader />
-      
+
       <main className="flex-1 container mx-auto py-16 md:py-24 px-4 md:px-6">
         <div className="max-w-4xl mx-auto space-y-16">
           {/* Action Header */}
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => router.back()}
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
             >
@@ -77,60 +77,60 @@ export default function ProfileDetailPage() {
 
               <div className="space-y-6 pt-8 border-t border-border/60">
                 <div className="flex items-center gap-4 text-muted-foreground font-medium">
-                   <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><MapPin className="h-4 w-4" /></div>
-                   <span className="text-sm">Bumthang, Bhutan</span>
+                  <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><MapPin className="h-4 w-4" /></div>
+                  <span className="text-sm">Bumthang, Bhutan</span>
                 </div>
                 <div className="flex items-center gap-4 text-muted-foreground font-medium">
-                   <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><Mail className="h-4 w-4" /></div>
-                   <span className="text-sm">Contact Member</span>
+                  <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><Mail className="h-4 w-4" /></div>
+                  <span className="text-sm">Contact Member</span>
                 </div>
                 <div className="flex items-center gap-4 text-muted-foreground font-medium">
-                   <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><Calendar className="h-4 w-4" /></div>
-                   <span className="text-sm">Joined {new Date(profile.updated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                  <div className="w-8 h-8 rounded-sm bg-secondary flex items-center justify-center border border-border/40"><Calendar className="h-4 w-4" /></div>
+                  <span className="text-sm">Joined {new Date(profile.updated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
                 </div>
               </div>
 
               <div className="flex gap-4 pt-4">
-                 {profile.github_url && (
-                    <Link href={profile.github_url} className="px-6 h-11 bg-primary text-background rounded-sm flex items-center shadow-lg hover:opacity-90 transition shadow-primary/10 font-bold tracking-tight text-xs">
-                       View Repo
-                    </Link>
-                 )}
-                 {profile.portfolio_url && (
-                    <button className="h-11 px-6 border border-border font-bold text-xs uppercase tracking-widest hover:bg-secondary/50 transition">
-                       Portfolio
-                    </button>
-                 )}
+                {profile.github_url && (
+                  <Link href={profile.github_url} className="px-6 h-11 bg-primary text-background rounded-sm flex items-center shadow-lg hover:opacity-90 transition shadow-primary/10 font-bold tracking-tight text-xs">
+                    View Repo
+                  </Link>
+                )}
+                {profile.portfolio_url && (
+                  <button className="h-11 px-6 border border-border font-bold text-xs uppercase tracking-widest hover:bg-secondary/50 transition">
+                    Portfolio
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Right: Technical Details */}
             <div className="md:col-span-7 space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-               <div className="space-y-6">
-                  <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground opacity-50">Identity & Bio</h2>
-                  <p className="text-lg md:text-2xl leading-relaxed text-foreground/90 font-medium">
-                    {profile.bio || "This developer hasn't added a bio yet, but they are an active part of the Bhutan Developer Network."}
-                  </p>
-               </div>
+              <div className="space-y-6">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground opacity-50">Identity & Bio</h2>
+                <p className="text-lg md:text-2xl leading-relaxed text-foreground/90 font-medium">
+                  {profile.bio || "This developer hasn't added a bio yet, but they are an active part of the Bhutan Developer Network."}
+                </p>
+              </div>
 
-               <div className="space-y-6">
-                  <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground opacity-50">Technical Stack</h2>
-                  <div className="flex flex-wrap gap-3">
-                     {profile.skills?.map((s: string, i: number) => (
-                        <span key={i} className="px-4 py-2 bg-secondary/80 text-primary font-bold text-[13px] tracking-tight rounded-sm border border-border">{s}</span>
-                     ))}
-                  </div>
-               </div>
+              <div className="space-y-6">
+                <h2 className="text-[11px] font-bold uppercase tracking-[0.25em] text-muted-foreground opacity-50">Technical Stack</h2>
+                <div className="flex flex-wrap gap-3">
+                  {profile.skills?.map((s: string, i: number) => (
+                    <span key={i} className="px-4 py-2 bg-secondary/80 text-primary font-bold text-[13px] tracking-tight rounded-sm border border-border">{s}</span>
+                  ))}
+                </div>
+              </div>
 
-               <div className="p-10 bg-secondary/30 border border-border rounded-sm flex flex-col sm:flex-row items-center justify-between gap-6">
-                  <div className="space-y-1 text-center sm:text-left">
-                     <h3 className="text-lg font-bold tracking-tight">Current Availability</h3>
-                     <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest text-[9px]">{profile.availability}</p>
-                  </div>
-                  <button className="h-12 px-8 bg-background border border-primary text-primary font-bold rounded-sm shadow-sm hover:bg-primary hover:text-background transition-all active:scale-95 text-xs">
-                     Connect for Team {profile.full_name?.split(' ')[0]}
-                  </button>
-               </div>
+              <div className="p-10 bg-secondary/30 border border-border rounded-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="space-y-1 text-center sm:text-left">
+                  <h3 className="text-lg font-bold tracking-tight">Current Availability</h3>
+                  <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest text-[9px]">{profile.availability}</p>
+                </div>
+                <button className="h-12 px-8 bg-background border border-primary text-primary font-bold rounded-sm shadow-sm hover:bg-primary hover:text-background transition-all active:scale-95 text-xs">
+                  Connect for Team {profile.full_name?.split(' ')[0]}
+                </button>
+              </div>
             </div>
           </div>
         </div>

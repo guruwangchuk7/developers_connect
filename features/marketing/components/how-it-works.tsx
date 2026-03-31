@@ -23,7 +23,7 @@ export function HowItWorks() {
           <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             How It Works
           </h2>
-          <p className="max-w-[700px] text-sm md:text-lg text-muted-foreground font-medium text-balance">
+          <p className="max-w-[700px] text-base text-muted-foreground text-balance">
             A streamlined process to connect with the nation&apos;s technical talent and start building.
           </p>
         </div>
@@ -34,8 +34,8 @@ export function HowItWorks() {
               <div className="h-12 w-12 md:h-16 md:w-16 rounded-full bg-secondary flex items-center justify-center text-xl md:text-2xl font-bold mb-4 md:mb-8 transition-transform group-hover:scale-110 shadow-sm border border-border/50">
                 {i + 1}
               </div>
-              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-4">{step.title}</h3>
-              <p className="text-[13px] md:text-base text-muted-foreground leading-relaxed text-balance">
+              <h3 className="text-base tracking-tight mb-2 md:mb-4">{step.title}</h3>
+              <p className="text-base text-muted-foreground leading-relaxed text-balance">
                 {step.description}
               </p>
             </div>

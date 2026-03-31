@@ -32,19 +32,19 @@ export function WhyUseIt() {
           <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
             A Working Network
           </h2>
-          <p className="max-w-[700px] text-sm md:text-lg text-muted-foreground font-medium text-balance">
+          <p className="max-w-[700px] text-base text-muted-foreground text-balance">
             Bridging the gap between students, freelancers, and professionals to accelerate the growth of our tech ecosystem.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border overflow-hidden rounded-sm">
           {benefits.map((benefit, i) => (
-            <div key={i} className="p-8 md:p-12 bg-background space-y-4 hover:bg-secondary/10 transition-colors group">
+            <div key={i} className="p-8 md:p-12 bg-background space-y-4 hover:bg-secondary/10 transition-colors group flex flex-col items-center text-center">
               <div className="h-10 w-10 md:h-12 md:w-12 rounded-sm bg-secondary flex items-center justify-center text-primary mb-4 md:mb-6 group-hover:scale-110 transition-transform">
                 {benefit.icon}
               </div>
-              <h3 className="text-lg md:text-2xl font-bold tracking-tight">{benefit.title}</h3>
-              <p className="text-[13px] md:text-base text-muted-foreground leading-relaxed">
+              <h3 className="text-base tracking-tight">{benefit.title}</h3>
+              <p className="text-base text-muted-foreground leading-relaxed">
                 {benefit.description}
               </p>
             </div>
