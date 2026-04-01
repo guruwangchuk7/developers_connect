@@ -39,7 +39,9 @@ export async function updateSession(request: NextRequest) {
     !user &&
     (request.nextUrl.pathname.startsWith('/dashboard') ||
      request.nextUrl.pathname.startsWith('/onboarding') ||
-     request.nextUrl.pathname.startsWith('/identity'))
+     request.nextUrl.pathname.startsWith('/identity') ||
+     request.nextUrl.pathname.startsWith('/settings') ||
+     request.nextUrl.pathname.startsWith('/profile'))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/join'
