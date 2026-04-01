@@ -10,7 +10,7 @@ import {
    ArrowRight, ShieldCheck, TrendingUp, Trophy, Bookmark,
    Send, MessageCircle, LinkIcon, Check, Fingerprint, X,
    ChevronRight, Heart, Bell, LayoutGrid, Search, User,
-   Settings, LogOut, ChevronDown, ExternalLink
+   Settings, LogOut, ChevronDown, ExternalLink, Clock
 } from "lucide-react"
 import { Suspense } from "react"
 
@@ -26,6 +26,9 @@ function DashboardContent() {
    const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
    const [posts, setPosts] = React.useState<any[]>([])
+   const [allProfiles, setAllProfiles] = React.useState<any[]>([])
+   const [discoverSearch, setDiscoverSearch] = React.useState("")
+   const [myConnections, setMyConnections] = React.useState<any[]>([])
    const [isPosting, setIsPosting] = React.useState(false)
    const [newPostType, setNewPostType] = React.useState("HELP")
    const [guidedFields, setGuidedFields] = React.useState<Record<string, string>>({
@@ -116,6 +119,7 @@ function DashboardContent() {
 
          setProfile(profileRecord)
          await fetchPosts()
+         await fetchMyConnections(session.user.id)
          setIsLoading(false)
       }
       getSession()
@@ -180,24 +184,101 @@ function DashboardContent() {
    }
 
    const handleConnect = async (targetUserId: string) => {
-      if (!user || user.id === targetUserId) return
+      // Get fresh session to ensure RLS is satisfied
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      
+      if (!currentUser || currentUser.id === targetUserId) {
+         console.warn('Connection aborted: No user or self-connection')
+         return
+      }
+      
+      // If mock user, handle locally
+      if (targetUserId.startsWith('mock')) {
+         console.log('Simulating request to mock profile:', targetUserId)
+         setMyConnections([...myConnections, { 
+            id: 'mock-conn-' + Date.now(), 
+            sender_id: currentUser.id, 
+            receiver_id: targetUserId, 
+            status: 'PENDING' 
+         }])
+         return
+      }
+
+      console.log('Attempting DB Insert:', { 
+         sender: currentUser.id, 
+         receiver: targetUserId,
+         auth_uid: currentUser.id
+      })
 
       const { error } = await supabase
          .from('connections')
          .insert([
             {
-               sender_id: user.id,
+               sender_id: currentUser.id,
                receiver_id: targetUserId,
                status: 'PENDING'
             }
          ])
 
       if (error) {
-         console.error('Error sending connection request:', error)
+         console.error('Connection Request Failure:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+         });
+         
+         if (error.code === '42501') {
+            console.error('RLS PERMISSION DENIED: Please ensure your profile exists and you are logged in correctly.');
+         }
       } else {
-         console.log('Connection request sent')
+         console.log('Connection successfully logged')
+         // Refresh connections
+         const { data: connData } = await supabase
+            .from('connections')
+            .select('*')
+            .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+         if (connData) setMyConnections(connData)
       }
    }
+
+   const getConnectionStatus = (profileId: string) => {
+      if (!user) return null
+      if (user.id === profileId) return 'SELF'
+      
+      const conn = myConnections.find(c => 
+        (c.sender_id === user.id && c.receiver_id === profileId) ||
+        (c.sender_id === profileId && c.receiver_id === user.id)
+      )
+      
+      if (!conn) return null
+      return conn.status // 'PENDING', 'ACCEPTED', 'REJECTED'
+   }
+
+   const fetchAllProfiles = async () => {
+      const { data, error } = await supabase
+         .from('profiles')
+         .select('*')
+         .order('updated_at', { ascending: false })
+
+      if (!error && data) {
+         setAllProfiles(data)
+      }
+   }
+
+   const fetchMyConnections = async (userId: string) => {
+      const { data } = await supabase
+         .from('connections')
+         .select('*')
+         .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      if (data) setMyConnections(data)
+   }
+
+   React.useEffect(() => {
+     if (activeTab === "discover" && allProfiles.length === 0) {
+       fetchAllProfiles()
+     }
+   }, [activeTab])
    const handleQuickAction = (type: string) => {
       setNewPostType(type)
       const textarea = document.querySelector('textarea')
@@ -609,44 +690,69 @@ function DashboardContent() {
                         </div>
                      </>
                   ) : activeTab === "discover" ? (
-                     <div className="space-y-12">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                           <div className="space-y-1">
-                              <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
-                              <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
-                           </div>
-                           <div className="flex items-center gap-2 font-inter">
-                              <input type="text" placeholder="Search by skill or name..." className="px-4 py-2 bg-background border border-border/40 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-64" />
-                           </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           {[
-                              { name: "Pema Dorji", role: "Backend Architect", skills: ["Rust", "Node", "Postgres"] },
-                              { name: "Yeshi Lhamo", role: "Product Designer", skills: ["Figma", "UI/UX", "Motion"] },
-                              { name: "Karma Tashi", role: "Mobile Engineer", skills: ["React Native", "Swift"] },
-                              { name: "Sonam Dema", role: "DevOps Specialist", skills: ["Docker", "K8s", "AWS"] },
-                           ].map((dev, i) => (
-                              <div key={i} className="p-8 bg-background border border-border/40 rounded-sm hover:border-primary/20 transition-all group">
-                                 <div className="flex items-center gap-5 mb-6">
-                                    <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase">{dev.name[0]}</div>
-                                    <div className="space-y-0.5 text-left">
-                                       <h4 className="text-[15px] font-medium text-foreground">{dev.name}</h4>
-                                       <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
+                      <div className="space-y-12">
+                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div className="space-y-1">
+                               <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
+                               <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
+                            </div>
+                            <div className="flex items-center gap-2 font-inter text-left">
+                               <input 
+                                 type="text" 
+                                 placeholder="Search by skill or name..." 
+                                 className="px-4 py-2 bg-background border border-border/40 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-64" 
+                                 value={discoverSearch}
+                                 onChange={(e) => setDiscoverSearch(e.target.value)}
+                               />
+                            </div>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {allProfiles.filter(p => p.id !== user?.id).filter(p => 
+                               p.full_name?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
+                               p.role?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
+                               p.skills?.some((s: string) => s.toLowerCase().includes(discoverSearch.toLowerCase()))
+                            ).map((dev) => (
+                               <div key={dev.id} className="p-8 bg-background border border-border/40 rounded-sm hover:border-primary/20 transition-all group">
+                                  <div className="flex items-center gap-5 mb-6">
+                                     <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase overflow-hidden">
+                                       {dev.full_name?.[0]}
+                                     </div>
+                                     <div className="space-y-0.5 text-left">
+                                        <h4 className="text-[15px] font-medium text-foreground">{dev.full_name}</h4>
+                                        <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
+                                     </div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 mb-8">
+                                     {dev.skills?.map((s: string) => (
+                                        <span key={s} className="px-2.5 py-1 bg-secondary/40 border border-border/20 text-[9px] font-bold text-muted-foreground/60 rounded-sm">{s}</span>
+                                     ))}
+                                  </div>
+                                  
+                                  {getConnectionStatus(dev.id) === "SELF" ? (
+                                    <div className="w-full py-3 text-[13px] font-bold border border-border/40 bg-secondary/20 text-muted-foreground/40 rounded-sm text-center">
+                                       Your Profile
                                     </div>
-                                 </div>
-                                 <div className="flex flex-wrap gap-2 mb-8">
-                                    {dev.skills.map(s => (
-                                       <span key={s} className="px-2.5 py-1 bg-secondary/40 border border-border/20 text-[9px] font-bold text-muted-foreground/60 rounded-sm">{s}</span>
-                                    ))}
-                                 </div>
-                                 <button className="w-full py-3 text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm">
-                                    Send Connection Request
-                                 </button>
-                              </div>
-                           ))}
-                        </div>
-                     </div>
-                  ) : activeTab === "leaderboard" ? (
+                                  ) : getConnectionStatus(dev.id) === "ACCEPTED" ? (
+                                    <div className="w-full py-3 text-[13px] font-bold border border-emerald-100 bg-emerald-50 text-emerald-600 rounded-sm text-center flex items-center justify-center gap-2">
+                                       <Check className="h-4 w-4" /> Connected
+                                    </div>
+                                  ) : getConnectionStatus(dev.id) === "PENDING" ? (
+                                    <div className="w-full py-3 text-[13px] font-bold border border-orange-100 bg-orange-50 text-orange-500 rounded-sm text-center flex items-center justify-center gap-2">
+                                       <Clock className="h-4 w-4" /> Request Sent
+                                    </div>
+                                  ) : (
+                                    <button 
+                                      onClick={() => handleConnect(dev.id)}
+                                      className="w-full py-3 text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm"
+                                    >
+                                       Send Connection Request
+                                    </button>
+                                  )}
+                               </div>
+                            ))}
+                         </div>
+                      </div>
+                   ) : activeTab === "leaderboard" ? (
                      <div className="space-y-12">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
@@ -783,3 +889,5 @@ export default function DashboardPage() {
       </Suspense>
    )
 }
+
+

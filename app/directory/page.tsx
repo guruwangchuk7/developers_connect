@@ -4,10 +4,12 @@ import * as React from "react"
 import { createClient } from "@/lib/supabase"
 import { GlobalHeader } from "@/components/common/global-header"
 import { GlobalFooter } from "@/components/common/global-footer"
-import { Globe, Briefcase, MapPin, Search, LinkIcon, Award } from "lucide-react"
+import { Globe, Briefcase, MapPin, Search, LinkIcon, Award, UserPlus, Check, Clock } from "lucide-react"
 import { Github } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Session } from "@supabase/supabase-js"
 
 const MOCK_PROFILES = [
   {
@@ -74,29 +76,112 @@ const MOCK_PROFILES = [
 
 export default function DirectoryPage() {
   const supabase = createClient()
+  const router = useRouter()
   const [profiles, setProfiles] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState("")
+  const [session, setSession] = React.useState<Session | null>(null)
+  const [myConnections, setMyConnections] = React.useState<any[]>([])
+  const [processingId, setProcessingId] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    async function fetchProfiles() {
-      const { data, error } = await supabase
+    async function init() {
+      // Get session
+      const { data: { session: currentSession } } = await supabase.auth.getSession()
+      setSession(currentSession)
+
+      // Fetch profiles
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .order('updated_at', { ascending: false })
 
-      if (!error && data && data.length > 0) {
-        // Interleave mock data with real data for a rich feel
-        setProfiles([...data, ...MOCK_PROFILES])
+      if (!profileError && profileData) {
+        // If we have enough real profiles, we can reduce mock data
+        if (profileData.length >= 6) {
+          setProfiles(profileData)
+        } else {
+          setProfiles([...profileData, ...MOCK_PROFILES.slice(0, 6 - profileData.length)])
+        }
       } else {
         setProfiles(MOCK_PROFILES)
       }
+
+      // Fetch my connections if logged in
+      if (currentSession) {
+        const { data: connData } = await supabase
+          .from('connections')
+          .select('*')
+          .or(`sender_id.eq.${currentSession.user.id},receiver_id.eq.${currentSession.user.id}`)
+        
+        if (connData) {
+          setMyConnections(connData)
+        }
+      }
+
       setIsLoading(false)
     }
-    fetchProfiles()
+    init()
   }, [supabase])
 
-  const filteredProfiles = profiles.filter(p =>
+  const handleConnect = async (targetId: string) => {
+    if (!session) {
+      router.push('/join')
+      return
+    }
+
+    if (session.user.id === targetId) return
+
+    // If mock user, handle locally
+    if (targetId.startsWith('mock')) {
+       console.log('Simulating request to mock profile:', targetId)
+       setMyConnections([...myConnections, { 
+          id: 'mock-conn-' + Date.now(), 
+          sender_id: session.user.id, 
+          receiver_id: targetId, 
+          status: 'PENDING' 
+       }])
+       return
+    }
+
+    setProcessingId(targetId)
+    const { error } = await supabase
+      .from('connections')
+      .insert([
+        {
+          sender_id: session.user.id,
+          receiver_id: targetId,
+          status: 'PENDING'
+        }
+      ])
+
+    if (error) {
+      console.error('Database Connection Error:', error.message, error.details || '')
+    } else {
+      // Refresh connections
+      const { data: connData } = await supabase
+        .from('connections')
+        .select('*')
+        .or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
+      if (connData) setMyConnections(connData)
+    }
+    setProcessingId(null)
+  }
+
+  const getConnectionStatus = (profileId: string) => {
+    if (!session) return null
+    if (session.user.id === profileId) return 'SELF'
+    
+    const conn = myConnections.find(c => 
+      (c.sender_id === session.user.id && c.receiver_id === profileId) ||
+      (c.sender_id === profileId && c.receiver_id === session.user.id)
+    )
+    
+    if (!conn) return null
+    return conn.status // 'PENDING', 'ACCEPTED', 'REJECTED'
+  }
+
+  const filteredProfiles = profiles.filter(p => !session || p.id !== session.user.id).filter(p =>
     p.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.role?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.skills?.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -176,23 +261,34 @@ export default function DirectoryPage() {
                     {p.skills?.length > 4 && <span className="text-[11px] font-bold text-muted-foreground/40 self-center">+{p.skills.length - 4}</span>}
                   </div>
 
-                  <div className="pt-8 border-t flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-5">
-                      {p.github_url && (
-                        <Link href={p.github_url} className="text-muted-foreground hover:text-foreground transition-colors">
-                          <Github className="h-4 w-4" />
-                        </Link>
+                    <div className="flex items-center gap-3">
+                      {getConnectionStatus(p.id) === 'SELF' ? (
+                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
+                          Your Profile
+                        </span>
+                      ) : getConnectionStatus(p.id) === 'ACCEPTED' ? (
+                        <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase tracking-widest">
+                          <Check className="h-3 w-3" /> Connected
+                        </div>
+                      ) : getConnectionStatus(p.id) === 'PENDING' ? (
+                        <div className="flex items-center gap-1.5 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
+                          <Clock className="h-3 w-3" /> Request Sent
+                        </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleConnect(p.id)}
+                          disabled={processingId === p.id}
+                          className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
+                        >
+                          <UserPlus className="h-3.5 w-3.5" /> 
+                          {processingId === p.id ? "Sending..." : "Connect"}
+                        </button>
                       )}
-                      {p.portfolio_url && (
-                        <Link href={p.portfolio_url} className="text-muted-foreground hover:text-foreground transition-colors">
-                          <Globe className="h-4 w-4" />
-                        </Link>
-                      )}
+                      
+                      <button className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors">
+                        View Profile →
+                      </button>
                     </div>
-                    <button className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors">
-                      View Profile →
-                    </button>
-                  </div>
 
                   {/* Decorative background element */}
                   <div className="absolute -right-4 -bottom-4 h-24 w-24 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
@@ -221,3 +317,4 @@ export default function DirectoryPage() {
     </div>
   )
 }
+
