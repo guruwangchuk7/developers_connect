@@ -42,7 +42,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
   const showMarketingLinks = !isDashboard && !children;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
         <div className="w-full px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
           <div className="flex items-center gap-6 lg:gap-12 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 group shrink-0">
@@ -78,7 +78,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               )}
 
               {session && (
-                <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest")}>
+                <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[12px] uppercase tracking-widest")}>
                   Dashboard
                 </Link>
               )}
@@ -97,7 +97,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
       {/* Mobile Menu */}
       <div className={cn(
-        "lg:hidden fixed left-0 right-0 top-16 h-[calc(100dvh-4rem)] z-40 bg-background transition-transform duration-300 ease-in-out overflow-y-auto border-t",
+        "lg:hidden fixed left-0 right-0 top-[calc(4rem+env(safe-area-inset-top))] h-[calc(100dvh-4rem-env(safe-area-inset-top))] z-40 bg-background transition-transform duration-300 ease-in-out overflow-y-auto border-t",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <nav className="flex flex-col p-6 gap-6 min-h-full">

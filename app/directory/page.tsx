@@ -90,11 +90,12 @@ export default function DirectoryPage() {
       const { data: { session: currentSession } } = await supabase.auth.getSession()
       setSession(currentSession)
 
-      // Fetch profiles
+      // Fetch profiles with limit for performance
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .order('updated_at', { ascending: false })
+        .limit(12)
 
       if (!profileError && profileData) {
         // If we have enough real profiles, we can reduce mock data
@@ -188,7 +189,7 @@ export default function DirectoryPage() {
   )
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-[100dvh] bg-background flex flex-col">
       <GlobalHeader />
 
       <main className="flex-1 container mx-auto py-12 md:py-24 px-4 md:px-6">
@@ -226,7 +227,7 @@ export default function DirectoryPage() {
               {filteredProfiles.map((p) => (
                 <div key={p.id} className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group relative overflow-hidden">
                   <div className="flex items-start justify-between relative z-10">
-                    <div className="flex flex-col items-center justify-center h-14 w-14 rounded-sm bg-secondary italic font-black text-muted-foreground/40 text-lg border border-border/50 group-hover:scale-110 transition-transform">
+                    <div className="flex flex-col items-center justify-center h-14 w-14 rounded-full bg-secondary italic font-black text-muted-foreground/40 text-lg border border-border/50 group-hover:scale-110 transition-transform">
                       {p.full_name?.split(' ').map((n: string) => n[0]).join('')}
                     </div>
                     <span className={cn(
@@ -245,7 +246,7 @@ export default function DirectoryPage() {
                         <h3 className="text-2xl font-bold tracking-tight">{p.full_name}</h3>
                         {p.id.startsWith('mock') && <Award className="h-4 w-4 text-primary/40" />}
                       </div>
-                      <div className="flex items-center gap-2 text-primary/60 text-[10px] font-bold uppercase tracking-[0.2em]">
+                      <div className="flex items-center gap-2 text-primary/60 text-[11px] font-bold uppercase tracking-[0.2em]">
                         {p.role}
                       </div>
                     </div>
@@ -285,9 +286,12 @@ export default function DirectoryPage() {
                         </button>
                       )}
                       
-                      <button className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors">
+                      <Link 
+                        href={`/profile/${p.id}`}
+                        className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors"
+                      >
                         View Profile →
-                      </button>
+                      </Link>
                     </div>
 
                   {/* Decorative background element */}

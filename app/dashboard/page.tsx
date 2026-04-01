@@ -13,6 +13,7 @@ import {
    Settings, LogOut, ChevronDown, ExternalLink, Clock
 } from "lucide-react"
 import { Suspense } from "react"
+import { toast } from "sonner"
 
 function DashboardContent() {
    const supabase = createClient()
@@ -71,6 +72,7 @@ function DashboardContent() {
             )
          `)
          .order('created_at', { ascending: false })
+         .limit(20)
 
       if (error) {
          console.error('Error fetching posts:', error.message, error.details, error.hint)
@@ -141,7 +143,19 @@ function DashboardContent() {
          postType = "PROJECT"
       }
 
-      if (!content.trim() || isPosting) return
+      if (activeTab === "all") {
+         content = `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`
+         postType = "HELP"
+      }
+
+      if (!content.trim() || !user?.id) {
+         toast.error("Fragment sync failed", {
+            description: !user?.id ? "Session lost. Please log in again." : "Guided fields cannot be empty. Please synchronize your context."
+         })
+         return
+      }
+
+      if (isPosting) return
 
       // Ensure user and profile exist before posting
       if (!user?.id) {
@@ -179,6 +193,7 @@ function DashboardContent() {
             projectName: "", description: "", link: ""
          })
          await fetchPosts()
+         toast.success("Fragment synchronized successfully")
       }
       setIsPosting(false)
    }
@@ -186,26 +201,26 @@ function DashboardContent() {
    const handleConnect = async (targetUserId: string) => {
       // Get fresh session to ensure RLS is satisfied
       const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
+
       if (!currentUser || currentUser.id === targetUserId) {
          console.warn('Connection aborted: No user or self-connection')
          return
       }
-      
+
       // If mock user, handle locally
       if (targetUserId.startsWith('mock')) {
          console.log('Simulating request to mock profile:', targetUserId)
-         setMyConnections([...myConnections, { 
-            id: 'mock-conn-' + Date.now(), 
-            sender_id: currentUser.id, 
-            receiver_id: targetUserId, 
-            status: 'PENDING' 
+         setMyConnections([...myConnections, {
+            id: 'mock-conn-' + Date.now(),
+            sender_id: currentUser.id,
+            receiver_id: targetUserId,
+            status: 'PENDING'
          }])
          return
       }
 
-      console.log('Attempting DB Insert:', { 
-         sender: currentUser.id, 
+      console.log('Attempting DB Insert:', {
+         sender: currentUser.id,
          receiver: targetUserId,
          auth_uid: currentUser.id
       })
@@ -227,7 +242,7 @@ function DashboardContent() {
             details: error.details,
             hint: error.hint
          });
-         
+
          if (error.code === '42501') {
             console.error('RLS PERMISSION DENIED: Please ensure your profile exists and you are logged in correctly.');
          }
@@ -245,12 +260,12 @@ function DashboardContent() {
    const getConnectionStatus = (profileId: string) => {
       if (!user) return null
       if (user.id === profileId) return 'SELF'
-      
-      const conn = myConnections.find(c => 
-        (c.sender_id === user.id && c.receiver_id === profileId) ||
-        (c.sender_id === profileId && c.receiver_id === user.id)
+
+      const conn = myConnections.find(c =>
+         (c.sender_id === user.id && c.receiver_id === profileId) ||
+         (c.sender_id === profileId && c.receiver_id === user.id)
       )
-      
+
       if (!conn) return null
       return conn.status // 'PENDING', 'ACCEPTED', 'REJECTED'
    }
@@ -275,9 +290,9 @@ function DashboardContent() {
    }
 
    React.useEffect(() => {
-     if (activeTab === "discover" && allProfiles.length === 0) {
-       fetchAllProfiles()
-     }
+      if (activeTab === "discover" && allProfiles.length === 0) {
+         fetchAllProfiles()
+      }
    }, [activeTab])
    const handleQuickAction = (type: string) => {
       setNewPostType(type)
@@ -325,7 +340,7 @@ function DashboardContent() {
    })) : []
 
    return (
-      <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-primary selection:text-background text-foreground/80">
+      <div className="min-h-[100dvh] bg-[#fafafa] flex flex-col font-sans selection:bg-primary selection:text-background text-foreground/80 pb-[env(safe-area-inset-bottom)]">
          <GlobalHeader>
             <div className="flex items-center gap-6">
                <div className="h-4 w-px bg-border/40" />
@@ -373,13 +388,13 @@ function DashboardContent() {
                </div>
             </div>
 
-          </GlobalHeader>
+         </GlobalHeader>
 
          <main className="flex-1 flex justify-center w-full">
             <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 pb-24 lg:pb-0">
 
                {/* LEFT SIDEBAR: NAVIGATION */}
-               <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100vh-120px)] sticky top-24">
+               <div className="lg:col-span-2 hidden lg:flex flex-col h-[calc(100dvh-120px)] sticky top-24">
                   <div className="flex-1 space-y-8">
                      <div className="space-y-4">
                         <div className="space-y-6">
@@ -504,8 +519,7 @@ function DashboardContent() {
                   </div>
 
                   {/* SUB-NAVIGATION / FILTER BAR */}
-                  {activeTab === "all" && (
-                  <div className="flex items-center w-full md:gap-8 border-b border-border/20 mt-4 px-1 md:px-0">
+                  <div className="hidden lg:flex items-center w-full overflow-x-auto lg:overflow-visible scrollbar-hide md:gap-8 border-b border-border/10 md:border-border/20 mt-4 px-1 md:px-0">
                      {[
                         { id: "all", label: "Feed", icon: LayoutGrid },
                         { id: "discover", label: "Devs", icon: Search },
@@ -520,8 +534,8 @@ function DashboardContent() {
                               key={tab.id}
                               onClick={() => setActiveTab(tab.id)}
                               className={cn(
-                                 "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-1.5 md:gap-2.5 px-0.5 py-4 text-[11px] md:text-[14px] font-medium transition-all whitespace-nowrap relative group",
-                                 isActive ? "text-primary" : "text-muted-foreground/60 hover:text-foreground"
+                                 "flex-1 md:flex-none flex items-center justify-center md:justify-start gap-1.5 md:gap-2.5 px-4 md:px-0 py-4 text-[11px] md:text-[14px] font-bold md:font-medium transition-all whitespace-nowrap relative group uppercase md:normal-case tracking-wider md:tracking-normal",
+                                 isActive ? "text-primary" : "text-muted-foreground/40 md:text-muted-foreground/60 hover:text-foreground"
                               )}
                            >
                               <Icon className={cn("h-3.5 w-3.5 md:h-4 md:w-4", isActive ? "opacity-100" : "opacity-60")} />
@@ -530,13 +544,12 @@ function DashboardContent() {
                                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
                               )}
                               {!isActive && (
-                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent group-hover:bg-primary/20 transition-all" />
+                                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-transparent group-hover:bg-primary/20 transition-all md:block hidden" />
                               )}
                            </button>
                         )
                      })}
                   </div>
-                  )}
 
                   {activeTab === "all" || activeTab === "teams" || activeTab === "projects" || activeTab === "help" ? (
                      <>
@@ -550,7 +563,7 @@ function DashboardContent() {
                               </div>
 
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-                                 {activeTab === "help" && (
+                                 {(activeTab === "help" || activeTab === "all") && (
                                     <>
                                        <div className="space-y-3">
                                           <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Primary Blocker</label>
@@ -660,7 +673,7 @@ function DashboardContent() {
                                     </p>
                                     <div className="flex flex-wrap gap-2">
                                        {post.tags.map((tag: string) => (
-                                          <span key={tag} className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
+                                          <span key={tag} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-2.5 py-1 bg-secondary/60 rounded-sm border border-border/20 transition-colors hover:border-primary/20">
                                              #{tag}
                                           </span>
                                        ))}
@@ -690,69 +703,69 @@ function DashboardContent() {
                         </div>
                      </>
                   ) : activeTab === "discover" ? (
-                      <div className="space-y-12">
-                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <div className="space-y-1">
-                               <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
-                               <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
-                            </div>
-                            <div className="flex items-center gap-2 font-inter text-left">
-                               <input 
-                                 type="text" 
-                                 placeholder="Search by skill or name..." 
-                                 className="px-4 py-2 bg-background border border-border/40 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-64" 
+                     <div className="space-y-12">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                           <div className="space-y-1">
+                              <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
+                              <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
+                           </div>
+                           <div className="flex items-center gap-2 font-inter text-left">
+                              <input
+                                 type="text"
+                                 placeholder="Search by skill or name..."
+                                 className="px-4 py-2 bg-background border border-border/40 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-64"
                                  value={discoverSearch}
                                  onChange={(e) => setDiscoverSearch(e.target.value)}
-                               />
-                            </div>
-                         </div>
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {allProfiles.filter(p => p.id !== user?.id).filter(p => 
-                               p.full_name?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
-                               p.role?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
-                               p.skills?.some((s: string) => s.toLowerCase().includes(discoverSearch.toLowerCase()))
-                            ).map((dev) => (
-                               <div key={dev.id} className="p-8 bg-background border border-border/40 rounded-sm hover:border-primary/20 transition-all group">
-                                  <div className="flex items-center gap-5 mb-6">
-                                     <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase overflow-hidden">
+                              />
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                           {allProfiles.filter(p => p.id !== user?.id).filter(p =>
+                              p.full_name?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
+                              p.role?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
+                              p.skills?.some((s: string) => s.toLowerCase().includes(discoverSearch.toLowerCase()))
+                           ).map((dev) => (
+                              <div key={dev.id} className="p-8 bg-background border border-border/40 rounded-sm hover:border-primary/20 transition-all group">
+                                 <div className="flex items-center gap-5 mb-6">
+                                    <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase overflow-hidden">
                                        {dev.full_name?.[0]}
-                                     </div>
-                                     <div className="space-y-0.5 text-left">
-                                        <h4 className="text-[15px] font-medium text-foreground">{dev.full_name}</h4>
-                                        <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
-                                     </div>
-                                  </div>
-                                  <div className="flex flex-wrap gap-2 mb-8">
-                                     {dev.skills?.map((s: string) => (
-                                        <span key={s} className="px-2.5 py-1 bg-secondary/40 border border-border/20 text-[9px] font-bold text-muted-foreground/60 rounded-sm">{s}</span>
-                                     ))}
-                                  </div>
-                                  
-                                  {getConnectionStatus(dev.id) === "SELF" ? (
+                                    </div>
+                                    <div className="space-y-0.5 text-left">
+                                       <h4 className="text-[15px] font-medium text-foreground">{dev.full_name}</h4>
+                                       <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
+                                    </div>
+                                 </div>
+                                 <div className="flex flex-wrap gap-2 mb-8">
+                                    {dev.skills?.map((s: string) => (
+                                       <span key={s} className="px-2.5 py-1 bg-secondary/40 border border-border/20 text-[9px] font-bold text-muted-foreground/60 rounded-sm">{s}</span>
+                                    ))}
+                                 </div>
+
+                                 {getConnectionStatus(dev.id) === "SELF" ? (
                                     <div className="w-full py-3 text-[13px] font-bold border border-border/40 bg-secondary/20 text-muted-foreground/40 rounded-sm text-center">
                                        Your Profile
                                     </div>
-                                  ) : getConnectionStatus(dev.id) === "ACCEPTED" ? (
+                                 ) : getConnectionStatus(dev.id) === "ACCEPTED" ? (
                                     <div className="w-full py-3 text-[13px] font-bold border border-emerald-100 bg-emerald-50 text-emerald-600 rounded-sm text-center flex items-center justify-center gap-2">
                                        <Check className="h-4 w-4" /> Connected
                                     </div>
-                                  ) : getConnectionStatus(dev.id) === "PENDING" ? (
+                                 ) : getConnectionStatus(dev.id) === "PENDING" ? (
                                     <div className="w-full py-3 text-[13px] font-bold border border-orange-100 bg-orange-50 text-orange-500 rounded-sm text-center flex items-center justify-center gap-2">
                                        <Clock className="h-4 w-4" /> Request Sent
                                     </div>
-                                  ) : (
-                                    <button 
-                                      onClick={() => handleConnect(dev.id)}
-                                      className="w-full py-3 text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm"
+                                 ) : (
+                                    <button
+                                       onClick={() => handleConnect(dev.id)}
+                                       className="w-full py-3 text-[13px] font-bold border border-border/40 hover:bg-primary hover:text-background transition-all rounded-sm"
                                     >
                                        Send Connection Request
                                     </button>
-                                  )}
-                               </div>
-                            ))}
-                         </div>
-                      </div>
-                   ) : activeTab === "leaderboard" ? (
+                                 )}
+                              </div>
+                           ))}
+                        </div>
+                     </div>
+                  ) : activeTab === "leaderboard" ? (
                      <div className="space-y-12">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                            <div className="space-y-1">
@@ -860,7 +873,7 @@ function DashboardContent() {
                   className={cn(
                      "flex flex-col items-center gap-1 transition-all ",
                      activeTab === "messages" ? "text-primary scale-110" : "text-muted-foreground/40"
-                   )}
+                  )}
                >
                   <MessageSquare className="h-4.5 w-4.5" />
                   <span className="text-[14px] font-medium">Messages</span>
@@ -868,7 +881,7 @@ function DashboardContent() {
                <button
                   onClick={() => router.push('/identity')}
                   className="flex flex-col items-center gap-1 text-muted-foreground/40"
-                >
+               >
                   <Settings className="h-4.5 w-4.5" />
                   <span className="text-[14px] font-medium">Settings</span>
                </button>

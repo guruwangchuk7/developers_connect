@@ -102,7 +102,7 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background py-16 px-4 md:py-24">
+    <div className="flex min-h-[100dvh] flex-col items-center bg-background px-4 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:py-24">
       <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary mb-8"></div>
       
       <div className="w-full max-w-4xl space-y-16">
@@ -138,7 +138,7 @@ export default function OnboardingPage() {
                   </h2>
                 </div>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                    {PREDEFINED_ROLES.map((role) => {
                      const Icon = role.icon
                      const isSelected = selectedRole === role.name

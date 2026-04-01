@@ -27,6 +27,14 @@ export const metadata: Metadata = {
   description: "A working network for builders in Bhutan.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
 import { Toaster } from "sonner";
 
 export default function RootLayout({
