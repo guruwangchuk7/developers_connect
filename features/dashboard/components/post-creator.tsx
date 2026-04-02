@@ -18,36 +18,66 @@ export function PostCreator({
   isPosting,
   handlePost
 }: PostCreatorProps) {
-  if (!["help", "teams", "projects"].includes(activeTab)) return null
+  const isHelpType = ["help", "post-update", "dev-needed", "all"].includes(activeTab)
+  const isTeamType = ["teams", "team-needed"].includes(activeTab)
+  const isProjectType = ["projects", "share-project"].includes(activeTab)
+
+  if (!isHelpType && !isTeamType && !isProjectType) return null
+
+  const getHelpLabels = () => {
+    if (activeTab === "post-update") {
+      return {
+        title: "Project Sync",
+        blocker: "Primary Milestone",
+        context: "Update details to help others synchronize with your progress..."
+      }
+    }
+    return {
+      title: "Guided Synthesis",
+      blocker: "Primary Blocker",
+      context: "Provide details to help others synchronize with your issue..."
+    }
+  }
+
+  const helpLabels = getHelpLabels()
 
   return (
     <div className="p-8 md:p-10 bg-background border border-border/40 rounded-sm shadow-xl shadow-black/[0.02] space-y-8 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="flex items-center gap-4">
         <div className="h-0.5 w-8 bg-primary/30" />
         <h3 className="text-[13px] font-semibold uppercase tracking-widest text-primary/60">
-          Guided Synthesis
+          {isHelpType ? helpLabels.title : isTeamType ? "Team Formation" : "Project Launch"}
         </h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-        {activeTab === "help" && (
+        {isHelpType && (
           <>
-            <div className="space-y-3">
-              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Primary Blocker</label>
-              <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
+            <div className={`space-y-3 ${activeTab === 'post-update' ? 'md:col-span-2' : ''}`}>
+              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">{helpLabels.blocker}</label>
+              {activeTab === 'post-update' ? (
+                <textarea 
+                  placeholder="Share a specific technical update or milestone..." 
+                  className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[100px] resize-none" 
+                  value={guidedFields.blocker} 
+                  onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} 
+                />
+              ) : (
+                <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
+              )}
             </div>
             <div className="space-y-3">
               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Tech Stack</label>
               <input type="text" placeholder="e.g. Next.js 14, Tailwind" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.stack} onChange={e => setGuidedFields({ ...guidedFields, stack: e.target.value })} />
             </div>
-            <div className="space-y-3 md:col-span-2">
-              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Full Context</label>
-              <textarea placeholder="Provide details to help others synchronize with your issue..." className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
+            <div className="space-y-3 md:col-span-1">
+               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Full Context</label>
+               <textarea placeholder={helpLabels.context} className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
             </div>
           </>
         )}
 
-        {activeTab === "teams" && (
+        {isTeamType && (
           <>
             <div className="space-y-3">
               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Role Needed</label>
@@ -64,7 +94,7 @@ export function PostCreator({
           </>
         )}
 
-        {activeTab === "projects" && (
+        {isProjectType && (
           <>
             <div className="space-y-3">
               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Project Name</label>

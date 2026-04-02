@@ -29,11 +29,11 @@ import { Suspense } from "react"
 import { toast } from "sonner"
 
 import { DashboardNavigation } from "@/features/dashboard/components/dashboard-navigation"
-import { MobileNavPill } from "@/features/dashboard/components/mobile-nav-pill"
 import { PostCreator } from "@/features/dashboard/components/post-creator"
 import { ContentFeed } from "@/features/dashboard/components/content-feed"
 import { DiscoverDevelopers } from "@/features/dashboard/components/discover-developers"
 import { MessagesOverlay } from "@/features/dashboard/components/messages-overlay"
+import { Sidebar } from "@/features/dashboard/components/sidebar"
 
 function DashboardContent() {
    const [user, setUser] = React.useState<any>(null)
@@ -64,13 +64,65 @@ function DashboardContent() {
          case "discover":
             return { title: "Discover Developers", subtitle: "Connect with technical experts across Bhutan" }
          case "teams":
+         case "team-needed":
             return { title: "Project Teams", subtitle: "Find the right partners for your next build" }
          case "leaderboard":
             return { title: "Networking Leaderboard", subtitle: "Recognizing high-impact technical contributors" }
+         case "post-update":
+            return { title: "Guided Update", subtitle: "Share your latest technical breakthrough" }
+         case "dev-needed":
+            return { title: "Find Developers", subtitle: "Recruit technical talent for your blockers" }
+         case "share-project":
+            return { title: "Launch Project", subtitle: "Showcase your work to the network" }
          default:
             return { title: <>Developer <span className="text-primary">Dashboard</span></>, subtitle: null }
       }
    }, [activeTab])
+
+   const feedItems = React.useMemo(() => {
+      const basePosts = posts.map((p: any) => {
+         // Remap HELP posts containing "MILESTONE:" to "UPDATE" type for UI distinction
+         if (p.type === 'HELP' && p.content?.includes('MILESTONE:')) {
+            return { ...p, type: 'UPDATE' };
+         }
+         return p;
+      }).filter((p: any) => {
+         if (activeTab === 'all') return true;
+         const isHelpType = ["help", "dev-needed"].includes(activeTab);
+         const isTeamType = ["teams", "team-needed"].includes(activeTab);
+         const isProjectType = ["projects", "share-project"].includes(activeTab);
+         
+         if (activeTab === 'post-update') return p.type === 'UPDATE';
+         if (isHelpType) return p.type === 'HELP';
+         if (isTeamType) return p.type === 'TEAM';
+         if (isProjectType) return p.type === 'PROJECT';
+         return false;
+      });
+
+      if (activeTab !== 'all') return basePosts;
+
+      // Aggregated Feed (Network View)
+      const memberUpdates = allProfiles.slice(0, 3).map(p => ({
+         id: `dev-${p.id}`,
+         userId: p.id,
+         user: p.full_name || 'Anonymous',
+         role: p.role || 'Developer',
+         timestamp: new Date(p.updated_at).toLocaleTimeString(),
+         created_at: p.updated_at,
+         content: p.bio || "Building the tech future of Bhutan.",
+         type: 'DEVELOPER' as const,
+         likes: 0,
+         comments: 0,
+         tags: [],
+         skills: p.skills || []
+      }));
+
+      return [...basePosts, ...memberUpdates].sort((a, b) => {
+         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+         return dateB - dateA;
+      });
+   }, [posts, allProfiles, activeTab])
 
    const setActiveTab = (tab: string) => {
       setActiveTabRaw(tab)
@@ -93,19 +145,84 @@ function DashboardContent() {
          .order('created_at', { ascending: false })
          .limit(20)
 
-      if (!error && data) {
+      if (!error && data && data.length > 0) {
          setPosts(data.map((p: any) => ({
             id: p.id,
             userId: p.user_id,
             user: p.profiles?.full_name || 'Anonymous',
             role: p.profiles?.role || 'Developer',
             timestamp: new Date(p.created_at).toLocaleDateString(),
+            created_at: p.created_at,
             content: p.content,
             type: p.type,
             likes: p.likes_count || 0,
             comments: p.comments_count || 0,
             tags: p.tags || []
          })))
+      } else {
+         // High-quality mock posts for Bhutanese Developer Network
+         setPosts([
+            {
+               id: 'mock-1',
+               userId: 'm-1',
+               user: 'Karma Wangchuk',
+               role: 'Lead Architect',
+               timestamp: 'Just now',
+               content: 'Just deployed the BhutanDevs-Auth v2.0 update. We finally have biometric passkeys integrated! 🚀 #Passkeys #Auth',
+               type: 'PROJECT',
+               likes: 12,
+               comments: 4,
+               tags: ['Passkeys', 'Auth']
+            },
+            {
+               id: 'mock-2',
+               userId: 'm-2',
+               user: 'Pema Lhaden',
+               role: 'Full-stack Dev',
+               timestamp: '2h ago',
+               content: 'Blocking on a Deep Linking issue with React Native and Supabase Auth. Has anyone in the network solved the domain verification for our locally hosted instances? #Supabase #ReactNative #HelpNeeded',
+               type: 'HELP',
+               likes: 5,
+               comments: 8,
+               tags: ['Supabase', 'ReactNative', 'HelpNeeded']
+            },
+            {
+               id: 'mock-3',
+               userId: 'm-3',
+               user: 'Sonam Namgay',
+               role: 'DevOps Engineer',
+               timestamp: '5h ago',
+               content: 'ROLE NEEDED: Senior Frontend Developer\\nPROJECT: AgriTech Bhutan Dashboard\\nMISSION: Build a real-time data visualization platform for local farmers using Next.js and Tremor. DM if interested! #Hiring #AgriTech',
+               type: 'TEAM',
+               likes: 21,
+               comments: 6,
+               tags: ['Hiring', 'AgriTech']
+            },
+            {
+               id: 'mock-4',
+               userId: 'm-4',
+               user: 'Dechen Dorji',
+               role: 'Product Manager',
+               timestamp: '1d ago',
+               content: 'Check out our new Dzongkha Natural Language Processing API! We spent 6 months fine-tuning this model at the Thimphu AI Lab. Looking for beta testers! #AI #Dzongkha #NLP',
+               type: 'PROJECT',
+               likes: 45,
+               comments: 12,
+               tags: ['AI', 'Dzongkha', 'NLP']
+            },
+            {
+               id: 'mock-5',
+               userId: 'm-5',
+               user: 'Tashi Tshering',
+               role: 'UI Designer',
+               timestamp: '2d ago',
+               content: 'Just published the "Bhutanese Modern" design kit for Figma. Includes cultural icons and high-contrast accessibility themes! #DesignSystem #UI #Bhutan',
+               type: 'PROJECT',
+               likes: 33,
+               comments: 7,
+               tags: ['DesignSystem', 'UI', 'Bhutan']
+            }
+         ])
       }
    }
 
@@ -158,13 +275,20 @@ function DashboardContent() {
       let content = ""
       let postType = "HELP"
 
-      if (activeTab === "help" || activeTab === "all") {
+      const isHelpType = ["help", "post-update", "dev-needed", "all"].includes(activeTab)
+      const isTeamType = ["teams", "team-needed"].includes(activeTab)
+      const isProjectType = ["projects", "share-project"].includes(activeTab)
+
+      if (activeTab === "post-update") {
+         content = `MILESTONE: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`
+         postType = "HELP" // Stored as HELP for DB check, remapped in UI
+      } else if (isHelpType) {
          content = `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`
          postType = "HELP"
-      } else if (activeTab === "teams") {
+      } else if (isTeamType) {
          content = `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`
          postType = "TEAM"
-      } else if (activeTab === "projects") {
+      } else if (isProjectType) {
          content = `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`
          postType = "PROJECT"
       }
@@ -266,10 +390,8 @@ function DashboardContent() {
    }
 
    React.useEffect(() => {
-      if (activeTab === "discover" && allProfiles.length === 0) {
-         fetchAllProfiles()
-      }
-   }, [activeTab])
+      fetchAllProfiles()
+   }, [])
 
    const handleDeletePost = async (postId: string) => {
       const { error } = await supabase.from('posts').delete().eq('id', postId)
@@ -291,55 +413,24 @@ function DashboardContent() {
    }
 
    return (
-      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-outfit selection:bg-primary/20 overflow-y-scroll">
+      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-outfit selection:bg-primary/20 overflow-y-auto scrollbar-hide">
          <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 pb-24 lg:pb-0">
-               <div className="hidden lg:block lg:col-span-3 space-y-10">
-                  <div className="space-y-10 px-2">
-                     <div className="space-y-4">
-                        <h4 className="text-[14px] font-normal text-primary/40 px-3">Network</h4>
-                        <nav className="flex flex-col gap-1">
-                           <button onClick={() => setActiveTab("all")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "all" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
-                              <LayoutGrid className="h-4 w-4" />
-                              Feed
-                           </button>
-                           <button onClick={() => setActiveTab("discover")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "discover" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
-                              <Search className="h-4 w-4" />
-                              Developers
-                           </button>
-                           <button onClick={() => setActiveTab("teams")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "teams" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
-                              <Users className="h-4 w-4" />
-                              Teams
-                           </button>
-                           <button onClick={() => setActiveTab("leaderboard")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "leaderboard" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
-                              <Trophy className="h-4 w-4" />
-                              Leaderboard
-                           </button>
-                        </nav>
-                     </div>
-
-                     <div className="space-y-4">
-                        <h4 className="text-[14px] font-normal text-primary/40 px-3">Workspace</h4>
-                        <nav className="flex flex-col gap-1">
-                           <button onClick={() => setIsMessagesOpen(true)} className="flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground">
-                              <MessageSquare className="h-4 w-4" />
-                              Messages
-                           </button>
-                           <button onClick={() => router.push('/identity')} className="flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground">
-                              <Settings className="h-4 w-4" />
-                              Settings
-                           </button>
-                        </nav>
-                     </div>
-                  </div>
+            <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
+               <div className="hidden lg:block lg:col-span-3">
+                  <Sidebar
+                     activeTab={activeTab}
+                     setActiveTab={setActiveTab}
+                     setIsMessagesOpen={setIsMessagesOpen}
+                     className="sticky top-20"
+                  />
                </div>
 
-               <div className="lg:col-span-9 space-y-8">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pb-6 min-h-[90px] md:min-h-[80px]">
+               <div className="lg:col-span-9 space-y-10">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
                      <div className="flex flex-col justify-center space-y-1 text-left">
-                        <h1 className="text-[26px] md:text-[36px] font-medium tracking-tighter leading-none">
+                        <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">
                            {headerInfo.title}
                         </h1>
                         <div className="h-[20px]">
@@ -397,7 +488,7 @@ function DashboardContent() {
                            handlePost={handlePost}
                         />
                         <ContentFeed
-                           posts={posts.filter((p: any) => activeTab === 'all' || p.type === (activeTab === 'projects' ? 'PROJECT' : 'HELP'))}
+                           posts={feedItems}
                            user={user}
                            userLikes={userLikes}
                            handleDeletePost={handleDeletePost}
@@ -410,7 +501,6 @@ function DashboardContent() {
             </div>
          </main>
 
-         <MobileNavPill activeTab={activeTab} setActiveTab={setActiveTab} setIsMessagesOpen={setIsMessagesOpen} router={router} />
 
          <MessagesOverlay isOpen={isMessagesOpen} setIsOpen={setIsMessagesOpen} />
 

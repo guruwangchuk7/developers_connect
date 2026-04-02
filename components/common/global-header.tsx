@@ -42,8 +42,8 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
   const showMarketingLinks = !isDashboard && !children;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)]">
-        <div className="w-full px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)] flex justify-center">
+        <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
           <div className="flex items-center gap-6 lg:gap-12 shrink-0">
             <Link href="/" className="flex items-center gap-2.5 group shrink-0">
               <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
@@ -114,40 +114,60 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           {isDashboard && (
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
-                <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-1">Network</p>
-                <div className="flex flex-col gap-2">
-                  <Link href="/dashboard?tab=all" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <LayoutGrid className="h-5 w-5 opacity-30" /> Feed
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Network</p>
+                <div className="flex flex-col gap-3">
+                  <Link href="/dashboard?tab=all" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-5 w-5 text-muted-foreground/40" /> Feed
                   </Link>
-                  <Link href="/dashboard?tab=discover" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <Search className="h-5 w-5 opacity-30" /> Developers
+                  <Link href="/dashboard?tab=discover" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Search className="h-5 w-5 text-muted-foreground/40" /> Developers
                   </Link>
-                  <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <Users className="h-5 w-5 opacity-30" /> Teams
+                  <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Users className="h-5 w-5 text-muted-foreground/40" /> Teams
                   </Link>
-                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <Trophy className="h-5 w-5 opacity-30" /> Leaderboard
+                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Trophy className="h-5 w-5 text-muted-foreground/40" /> Leaderboard
                   </Link>
                 </div>
               </div>
+
               <div className="flex flex-col gap-4">
-                <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-1">Workspace</p>
-                <div className="flex flex-col gap-2">
-                  <Link href="/messages" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <MessageSquare className="h-5 w-5 opacity-30" /> Messages
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Contribute</p>
+                <div className="flex flex-col gap-3">
+                  <Link href="/dashboard?tab=post-update" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-5 w-5 text-muted-foreground/40" /> Post Update
                   </Link>
-                  <Link href="/identity" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
-                    <Settings className="h-5 w-5 opacity-30" /> Settings
+                  <Link href="/dashboard?tab=dev-needed" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Search className="h-5 w-5 text-muted-foreground/40" /> Developers Needed
+                  </Link>
+                  <Link href="/dashboard?tab=share-project" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Users className="h-5 w-5 text-muted-foreground/40" /> Share Project
+                  </Link>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Workspace</p>
+                <div className="flex flex-col gap-3">
+                  <Link href="/messages" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <MessageSquare className="h-5 w-5 text-muted-foreground/40" /> Messages
+                  </Link>
+                  <Link href="/identity" className="flex items-center gap-4 text-[15px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <Settings className="h-5 w-5 text-muted-foreground/40" /> Settings
                   </Link>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="flex flex-col gap-3 mt-auto pt-8 pb-4">
+          <div className="flex flex-col gap-4 mt-auto pt-8 pb-6">
             {session ? (
               <div className="flex flex-col gap-3">
-                <Link href="/dashboard" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>
+                <Link 
+                   href="/dashboard" 
+                   className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-foreground text-background font-bold text-[13px] rounded-none h-12 hover:opacity-90")} 
+                   onClick={() => setIsOpen(false)}
+                >
                   Dashboard Home
                 </Link>
                 <button
@@ -156,16 +176,16 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                     setIsOpen(false);
                     window.location.href = "/";
                   }}
-                  className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-sm")}
+                  className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-none h-12 border-border/20 text-[13px] font-bold hover:bg-secondary/50")}
                 >
                   Sign out
                 </button>
               </div>
             ) : (
-              <>
-                <Link href="/join" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm")} onClick={() => setIsOpen(false)}>Join Network</Link>
-                <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-sm")} onClick={() => setIsOpen(false)}>Sign in</Link>
-              </>
+              <div className="flex flex-col gap-3">
+                <Link href="/join" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-none h-12 font-bold")} onClick={() => setIsOpen(false)}>Join Network</Link>
+                <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-none h-12 font-bold border-border/20")} onClick={() => setIsOpen(false)}>Sign in</Link>
+              </div>
             )}
           </div>
         </nav>
