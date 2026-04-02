@@ -315,12 +315,9 @@ function DashboardContent() {
                <div className="lg:col-span-9 space-y-8">
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/10 pb-6">
                      <div className="space-y-2">
-                        <div className="flex items-center gap-4">
-                           <div className="h-1 w-12 bg-primary/20" />
-                           <p className="text-[11px] font-black uppercase tracking-[0.4em] text-primary/40">Technical Ecosystem</p>
-                        </div>
-                        <h1 className="text-[32px] md:text-[44px] font-medium tracking-tighter leading-none">
-                           Developer <span className="text-primary italic">Dashboard</span>
+
+                        <h1 className="text-[26px] md:text-[36px] font-medium tracking-tighter leading-none">
+                           Developer <span className="text-primary">Dashboard</span>
                         </h1>
                      </div>
                   </div>
