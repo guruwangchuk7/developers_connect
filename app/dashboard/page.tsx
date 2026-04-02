@@ -427,7 +427,7 @@ function DashboardContent() {
                   />
                </div>
 
-               <div className="lg:col-span-9 space-y-10">
+               <div className="lg:col-span-9 space-y-8">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
                      <div className="flex flex-col justify-center space-y-1 text-left">
                         <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">

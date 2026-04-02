@@ -18,7 +18,7 @@ export function PostCreator({
   isPosting,
   handlePost
 }: PostCreatorProps) {
-  const isHelpType = ["help", "post-update", "dev-needed", "all"].includes(activeTab)
+  const isHelpType = ["help", "post-update", "dev-needed"].includes(activeTab)
   const isTeamType = ["teams", "team-needed"].includes(activeTab)
   const isProjectType = ["projects", "share-project"].includes(activeTab)
 
