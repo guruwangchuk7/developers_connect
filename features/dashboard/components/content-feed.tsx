@@ -24,6 +24,7 @@ interface ContentFeedProps {
   handleDeletePost: (id: string) => void
   handleConnect: (id: string) => void
   handleLike: (postId: string) => void
+  isGrid?: boolean
 }
 
 export function ContentFeed({
@@ -32,10 +33,11 @@ export function ContentFeed({
   userLikes,
   handleDeletePost,
   handleConnect,
-  handleLike
+  handleLike,
+  isGrid = false
 }: ContentFeedProps) {
   return (
-    <div className="grid grid-cols-1 gap-6 md:gap-10">
+    <div className={cn("grid gap-6", isGrid ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:gap-10")}>
       {posts.map((post) => {
         const isLiked = userLikes.includes(post.id)
         return (

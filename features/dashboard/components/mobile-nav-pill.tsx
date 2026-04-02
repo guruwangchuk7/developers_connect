@@ -7,12 +7,14 @@ import { MessageSquare, Users, Settings, User } from "lucide-react"
 interface MobileNavPillProps {
   activeTab: string
   setActiveTab: (id: string) => void
+  setIsMessagesOpen: (val: boolean) => void
   router: any
 }
 
 export function MobileNavPill({
   activeTab,
   setActiveTab,
+  setIsMessagesOpen,
   router
 }: MobileNavPillProps) {
   return (
@@ -39,10 +41,10 @@ export function MobileNavPill({
           <span className="text-[14px] font-medium">Network</span>
         </button>
         <button
-          onClick={() => setActiveTab("messages")}
+          onClick={() => setIsMessagesOpen(true)}
           className={cn(
             "flex flex-col items-center gap-1 transition-all",
-            activeTab === "messages" ? "text-primary scale-110" : "text-muted-foreground/40"
+            "text-muted-foreground/40"
           )}
         >
           <MessageSquare className="h-4.5 w-4.5" />

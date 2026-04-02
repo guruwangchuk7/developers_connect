@@ -5,25 +5,25 @@ import { createClient } from "@/lib/supabase"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { GlobalHeader } from "@/components/common/global-header"
-import { 
-  Plus, 
-  Users, 
-  Check, 
-  Clock, 
-  UserPlus, 
-  Search, 
-  LayoutGrid, 
-  MessageCircle, 
-  Heart, 
-  X, 
-  MessageSquare, 
-  Settings, 
-  LogOut, 
-  Trophy, 
-  Flame, 
-  Sparkles, 
-  Send, 
-  Link as LinkIcon 
+import {
+   Plus,
+   Users,
+   Check,
+   Clock,
+   UserPlus,
+   Search,
+   LayoutGrid,
+   MessageCircle,
+   Heart,
+   X,
+   MessageSquare,
+   Settings,
+   LogOut,
+   Trophy,
+   Flame,
+   Sparkles,
+   Send,
+   Link as LinkIcon
 } from "lucide-react"
 import { Suspense } from "react"
 import { toast } from "sonner"
@@ -40,8 +40,9 @@ function DashboardContent() {
    const [profile, setProfile] = React.useState<any>(null)
    const [isLoading, setIsLoading] = React.useState(true)
    const [activeTab, setActiveTabRaw] = React.useState<string>("all")
-   const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
+
    const [posts, setPosts] = React.useState<any[]>([])
+   const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [allProfiles, setAllProfiles] = React.useState<any[]>([])
    const [discoverSearch, setDiscoverSearch] = React.useState("")
    const [myConnections, setMyConnections] = React.useState<any[]>([])
@@ -57,6 +58,19 @@ function DashboardContent() {
    const router = useRouter()
    const pathname = usePathname()
    const searchParams = useSearchParams()
+
+   const headerInfo = React.useMemo(() => {
+      switch (activeTab) {
+         case "discover":
+            return { title: "Discover Developers", subtitle: "Connect with technical experts across Bhutan" }
+         case "teams":
+            return { title: "Project Teams", subtitle: "Find the right partners for your next build" }
+         case "leaderboard":
+            return { title: "Networking Leaderboard", subtitle: "Recognizing high-impact technical contributors" }
+         default:
+            return { title: <>Developer <span className="text-primary">Dashboard</span></>, subtitle: null }
+      }
+   }, [activeTab])
 
    const setActiveTab = (tab: string) => {
       setActiveTabRaw(tab)
@@ -186,20 +200,20 @@ function DashboardContent() {
 
    const handleLike = async (postId: string) => {
       if (!user) return
-      
+
       const isLiked = userLikes.includes(postId)
-      
+
       if (isLiked) {
          // Optimistic UI update
          setUserLikes(prev => prev.filter(id => id !== postId))
          setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: Math.max(0, p.likes - 1) } : p))
-         
+
          const { error } = await supabase
             .from('post_likes')
             .delete()
             .eq('post_id', postId)
             .eq('user_id', user.id)
-            
+
          if (error) {
             // Revert on error
             await fetchUserLikes(user.id)
@@ -209,11 +223,11 @@ function DashboardContent() {
          // Optimistic UI update
          setUserLikes(prev => [...prev, postId])
          setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes: p.likes + 1 } : p))
-         
+
          const { error } = await supabase
             .from('post_likes')
             .insert([{ post_id: postId, user_id: user.id }])
-            
+
          if (error) {
             // Revert on error
             await fetchUserLikes(user.id)
@@ -277,52 +291,78 @@ function DashboardContent() {
    }
 
    return (
-      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-outfit selection:bg-primary/20">
-         <GlobalHeader>
-            <div className="hidden lg:flex items-center gap-10">
-               <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-sm bg-primary flex items-center justify-center text-background font-black text-xs">
-                     {profile?.full_name?.[0] || 'U'}
-                  </div>
-                  <div className="flex flex-col items-start leading-none">
-                     <p className="text-[14px] font-bold tracking-tight text-foreground">{profile?.full_name}</p>
-                     <p className="text-[10px] font-medium text-muted-foreground/40 uppercase tracking-widest mt-0.5">{profile?.role || 'Technical Peer'}</p>
-                  </div>
-               </div>
-               <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)] animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30">Node Active</span>
-               </div>
-            </div>
-         </GlobalHeader>
+      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-outfit selection:bg-primary/20 overflow-y-scroll">
+         <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
             <div className="w-full max-w-[1440px] px-4 md:px-6 py-6 md:py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 pb-24 lg:pb-0">
-               <div className="hidden lg:block lg:col-span-3 space-y-8">
-                  <div className="p-8 bg-secondary/20 border border-border/10 rounded-sm space-y-6">
-                     <div className="space-y-1">
-                        <h3 className="text-[12px] font-black uppercase tracking-widest text-primary/60">Professional Node</h3>
-                        <p className="text-[20px] font-medium text-foreground tracking-tight">{profile?.full_name}</p>
+               <div className="hidden lg:block lg:col-span-3 space-y-10">
+                  <div className="space-y-10 px-2">
+                     <div className="space-y-4">
+                        <h4 className="text-[14px] font-normal text-primary/40 px-3">Network</h4>
+                        <nav className="flex flex-col gap-1">
+                           <button onClick={() => setActiveTab("all")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "all" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
+                              <LayoutGrid className="h-4 w-4" />
+                              Feed
+                           </button>
+                           <button onClick={() => setActiveTab("discover")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "discover" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
+                              <Search className="h-4 w-4" />
+                              Developers
+                           </button>
+                           <button onClick={() => setActiveTab("teams")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "teams" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
+                              <Users className="h-4 w-4" />
+                              Teams
+                           </button>
+                           <button onClick={() => setActiveTab("leaderboard")} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal", activeTab === "leaderboard" ? "bg-primary/10 text-primary" : "text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground")}>
+                              <Trophy className="h-4 w-4" />
+                              Leaderboard
+                           </button>
+                        </nav>
                      </div>
-                     <div className="flex flex-wrap gap-2">
-                        {profile?.skills?.map((skill: string) => (
-                           <span key={skill} className="px-2 py-1 bg-background/50 border border-border/20 text-[9px] font-bold text-muted-foreground/60 rounded-sm">{skill}</span>
-                        ))}
+
+                     <div className="space-y-4">
+                        <h4 className="text-[14px] font-normal text-primary/40 px-3">Workspace</h4>
+                        <nav className="flex flex-col gap-1">
+                           <button onClick={() => setIsMessagesOpen(true)} className="flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground">
+                              <MessageSquare className="h-4 w-4" />
+                              Messages
+                           </button>
+                           <button onClick={() => router.push('/identity')} className="flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all text-[14px] font-normal text-muted-foreground/60 hover:bg-secondary/40 hover:text-foreground">
+                              <Settings className="h-4 w-4" />
+                              Settings
+                           </button>
+                        </nav>
                      </div>
                   </div>
                </div>
 
                <div className="lg:col-span-9 space-y-8">
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/10 pb-6">
-                     <div className="space-y-2">
-
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pb-6 min-h-[90px] md:min-h-[80px]">
+                     <div className="flex flex-col justify-center space-y-1 text-left">
                         <h1 className="text-[26px] md:text-[36px] font-medium tracking-tighter leading-none">
-                           Developer <span className="text-primary">Dashboard</span>
+                           {headerInfo.title}
                         </h1>
+                        <div className="h-[20px]">
+                           {headerInfo.subtitle && (
+                              <p className="text-[14px] font-medium text-muted-foreground/50 animate-in fade-in duration-300">{headerInfo.subtitle}</p>
+                           )}
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-2 min-w-0 md:min-w-[256px] justify-end">
+                        {["discover", "teams"].includes(activeTab) && (
+                           <div className="relative w-full md:w-auto animate-in fade-in slide-in-from-right-2 duration-300">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30" />
+                              <input
+                                 type="text"
+                                 placeholder={activeTab === "teams" ? "Search teams or projects..." : "Search by skill or name..."}
+                                 className="pl-10 pr-4 py-2 bg-secondary/20 border border-border/10 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
+                                 value={discoverSearch}
+                                 onChange={(e) => setDiscoverSearch(e.target.value)}
+                              />
+                           </div>
+                        )}
                      </div>
                   </div>
-
-                  <DashboardNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
                   {activeTab === "discover" ? (
                      <DiscoverDevelopers
@@ -333,8 +373,20 @@ function DashboardContent() {
                         handleConnect={handleConnect}
                         getConnectionStatus={getConnectionStatus}
                      />
+                  ) : activeTab === "teams" ? (
+                     <div className="space-y-10">
+                        <ContentFeed
+                           isGrid={true}
+                           posts={posts.filter((p: any) => p.type === 'TEAM' && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
+                           user={user}
+                           userLikes={userLikes}
+                           handleDeletePost={handleDeletePost}
+                           handleConnect={handleConnect}
+                           handleLike={handleLike}
+                        />
+                     </div>
                   ) : activeTab === "leaderboard" ? (
-                      <div className="p-12 text-center text-muted-foreground">Networking Leaderboard coming soon.</div>
+                     <div className="p-12 text-center text-muted-foreground animate-in fade-in duration-500">Networking Leaderboard coming soon.</div>
                   ) : (
                      <div className="space-y-10">
                         <PostCreator
@@ -345,7 +397,7 @@ function DashboardContent() {
                            handlePost={handlePost}
                         />
                         <ContentFeed
-                           posts={posts.filter((p: any) => activeTab === 'all' || p.type === (activeTab === 'teams' ? 'TEAM' : activeTab === 'projects' ? 'PROJECT' : 'HELP'))}
+                           posts={posts.filter((p: any) => activeTab === 'all' || p.type === (activeTab === 'projects' ? 'PROJECT' : 'HELP'))}
                            user={user}
                            userLikes={userLikes}
                            handleDeletePost={handleDeletePost}
@@ -358,8 +410,10 @@ function DashboardContent() {
             </div>
          </main>
 
-         <MobileNavPill activeTab={activeTab} setActiveTab={setActiveTab} router={router} />
+         <MobileNavPill activeTab={activeTab} setActiveTab={setActiveTab} setIsMessagesOpen={setIsMessagesOpen} router={router} />
+
          <MessagesOverlay isOpen={isMessagesOpen} setIsOpen={setIsMessagesOpen} />
+
       </div>
    )
 }

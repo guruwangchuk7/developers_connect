@@ -133,7 +133,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               <div className="flex flex-col gap-4">
                 <p className="text-[12px] font-medium uppercase tracking-widest text-muted-foreground/40 px-1">Workspace</p>
                 <div className="flex flex-col gap-2">
-                  <Link href="/dashboard?tab=messages" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
+                  <Link href="/messages" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>
                     <MessageSquare className="h-5 w-5 opacity-30" /> Messages
                   </Link>
                   <Link href="/identity" className="flex items-center gap-4 text-[15px] font-medium py-2" onClick={() => setIsOpen(false)}>

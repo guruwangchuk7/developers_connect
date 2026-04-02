@@ -29,21 +29,6 @@ export function DiscoverDevelopers({
 }: DiscoverDevelopersProps) {
   return (
     <div className="space-y-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1 text-left">
-          <h2 className="text-[20px] md:text-[24px] font-medium tracking-tight text-foreground">Discover Developers</h2>
-          <p className="text-[13px] font-medium text-muted-foreground/50">Connect with technical experts across Bhutan</p>
-        </div>
-        <div className="flex items-center gap-2 font-inter text-left">
-          <input
-            type="text"
-            placeholder="Search by skill or name..."
-            className="px-4 py-2 bg-background border border-border/40 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
-            value={discoverSearch}
-            onChange={(e) => setDiscoverSearch(e.target.value)}
-          />
-        </div>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {allProfiles.filter(p => p.id !== user?.id).filter(p =>
           p.full_name?.toLowerCase().includes(discoverSearch.toLowerCase()) ||
