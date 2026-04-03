@@ -16,15 +16,28 @@ interface GlobalHeaderProps {
 export function GlobalHeader({ children }: GlobalHeaderProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [session, setSession] = React.useState<Session | null>(null);
+  const [profile, setProfile] = React.useState<any>(null);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
   const supabase = createClient();
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith('/dashboard');
 
   React.useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then((response: any) => {
-      setSession(response.data?.session ?? null);
-    });
+    async function initSession() {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url, role, skills')
+          .eq('id', currentSession.user.id)
+          .single();
+        if (data) setProfile(data);
+      }
+    }
+    initSession();
   }, [supabase]);
 
   React.useEffect(() => {
@@ -33,35 +46,45 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
     } else {
       document.body.style.overflow = "";
     }
+    const handleClickOutside = () => setIsProfileMenuOpen(false);
+    if (isProfileMenuOpen) {
+      window.addEventListener('click', handleClickOutside);
+    }
     return () => {
       document.body.style.overflow = "";
+      window.removeEventListener('click', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, isProfileMenuOpen]);
 
   // Hide marketing links if on dashboard or if custom children are provided
   const showMarketingLinks = !isDashboard && !children;
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)] flex justify-center">
-        <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
-          <div className="flex items-center gap-6 lg:gap-12 shrink-0">
-            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
-              <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
-            </Link>
-          </div>
+      <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
+        <div className="flex items-center gap-6 lg:gap-12 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
+            <span className="text-lg md:text-xl font-semibold tracking-tighter">BDN</span>
+          </Link>
+        </div>
 
-          {showMarketingLinks && (
-            <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-[13px] font-medium text-muted-foreground/80">
-              <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
-              <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
-              <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
-              <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
-              <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
-            </nav>
-          )}
+        {showMarketingLinks && (
+          <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-[13px] font-medium text-muted-foreground/80">
+            <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
+            <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
+            <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
+            <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
+            <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+          </nav>
+        )}
 
-          <div className="flex items-center gap-3 lg:gap-8 shrink-0">
+        <div className="flex items-center gap-3 lg:gap-8 shrink-0">
           {children ? (
             children
           ) : (
@@ -78,9 +101,111 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               )}
 
               {session && (
-                <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[12px] uppercase tracking-widest")}>
-                  Dashboard
-                </Link>
+                <div className="flex items-center gap-4 relative">
+                  <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}>
+                    Dashboard
+                  </Link>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsProfileMenuOpen(!isProfileMenuOpen);
+                    }}
+                    className="group focus:outline-none"
+                  >
+                    {profile?.avatar_url || (session.user as any).user_metadata?.picture ? (
+                      <img 
+                        src={profile?.avatar_url || (session.user as any).user_metadata?.picture} 
+                        alt="Profile" 
+                        className="h-9 w-9 rounded-full object-cover border border-border/50 group-hover:border-primary transition-all ring-offset-background group-hover:ring-2 group-hover:ring-primary/20"
+                      />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-secondary flex items-center justify-center text-[12px] font-bold text-foreground border border-border/50 group-hover:border-primary transition-all group-hover:ring-2 group-hover:ring-primary/20">
+                        {profile?.full_name?.[0] || session.user.email?.[0].toUpperCase()}
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Profile Dropdown Menu */}
+                  {isProfileMenuOpen && (
+                    <div 
+                      className="absolute right-0 top-12 w-64 bg-background border border-border/40 shadow-2xl rounded-sm py-3 animate-in fade-in slide-in-from-top-2 duration-200 z-50 overflow-hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {/* Section: Profile Info */}
+                      <div className="px-5 pb-3 border-b border-border/10">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-12 w-12 rounded-full overflow-hidden border border-border/40">
+                            {profile?.avatar_url || (session.user as any).user_metadata?.picture ? (
+                              <img 
+                                src={profile?.avatar_url || (session.user as any).user_metadata?.picture} 
+                                alt="User" 
+                                className="h-full w-full object-cover" 
+                              />
+                            ) : (
+                              <div className="h-full w-full bg-secondary flex items-center justify-center text-[16px] font-semibold text-foreground">
+                                {profile?.full_name?.[0] || session.user.email?.[0].toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+                          <div className="space-y-0.5 overflow-hidden">
+                            <h4 className="text-[14px] font-semibold tracking-tight text-foreground truncate">{profile?.full_name || (session.user as any).user_metadata?.full_name || "Synchronizing Node..."}</h4>
+                            <p className="text-[11px] text-muted-foreground/60 truncate">
+                              {profile?.role || "Active Member"}
+                            </p>
+                          </div>
+                        </div>
+                        <Link 
+                          href="/identity" 
+                          className="w-full flex items-center justify-center h-8 text-[12px] font-medium text-primary border border-primary/20 rounded-full hover:bg-primary/5 transition-all hover:border-primary"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          View profile
+                        </Link>
+                      </div>
+
+                      {/* Section: Account */}
+                      <div className="py-2 border-b border-border/10">
+                        <p className="px-5 py-1 text-[10px] uppercase font-medium tracking-wide text-muted-foreground/40">Account</p>
+                        <Link 
+                          href="/identity" 
+                          className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Settings & Privacy
+                        </Link>
+                        <Link 
+                          href="/dashboard?tab=help" 
+                          className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Help
+                        </Link>
+                      </div>
+
+                      {/* Section: Manage */}
+                      <div className="py-2 border-b border-border/10">
+                        <p className="px-5 py-1 text-[10px] uppercase font-medium tracking-wide text-muted-foreground/40">Manage</p>
+                        <Link 
+                          href="/dashboard?tab=all" 
+                          className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Posts & Activity
+                        </Link>
+                      </div>
+
+                      {/* Section: Sign Out */}
+                      <div className="pt-1">
+                        <button 
+                          onClick={handleSignOut}
+                          className="w-full flex items-center px-5 py-2.5 text-[13px] font-medium text-red-500/80 hover:bg-red-500/5 hover:text-red-500 transition-all"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </>
           )}
@@ -163,10 +288,10 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           <div className="flex flex-col gap-4 mt-auto pt-8 pb-16">
             {session ? (
               <div className="flex flex-col gap-3">
-                <Link 
-                   href="/dashboard" 
-                   className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-foreground text-background font-bold text-[12px] rounded-none h-11 hover:opacity-90")} 
-                   onClick={() => setIsOpen(false)}
+                <Link
+                  href="/dashboard"
+                  className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-foreground text-background font-bold text-[12px] rounded-none h-11 hover:opacity-90")}
+                  onClick={() => setIsOpen(false)}
                 >
                   Dashboard Home
                 </Link>

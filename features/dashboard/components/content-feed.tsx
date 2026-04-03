@@ -45,7 +45,7 @@ export function ContentFeed({
           return (
             <article key={post.id} className="p-6 md:p-8 bg-secondary/5 border border-border/20 rounded-sm hover:border-primary/20 transition-all group/card relative overflow-hidden backdrop-blur-sm">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-50" />
-              
+
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
                 <div className="flex items-center gap-4">
                   <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-background border border-primary/20 p-1 group-hover/card:border-primary transition-all duration-500">

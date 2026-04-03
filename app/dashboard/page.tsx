@@ -91,7 +91,7 @@ function DashboardContent() {
          const isHelpType = ["help", "dev-needed"].includes(activeTab);
          const isTeamType = ["teams", "team-needed"].includes(activeTab);
          const isProjectType = ["projects", "share-project"].includes(activeTab);
-         
+
          if (activeTab === 'post-update') return p.type === 'UPDATE';
          if (isHelpType) return p.type === 'HELP';
          if (isTeamType) return p.type === 'TEAM';

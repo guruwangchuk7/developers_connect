@@ -20,6 +20,8 @@ import {
   Share2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface SidebarProps {
   activeTab: string
@@ -29,6 +31,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className }: SidebarProps) {
+  const router = useRouter()
   const sections = [
     {
       title: "Network",
@@ -56,8 +59,8 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
   ]
 
   const bottomItems = [
-    { id: "help", label: "Help", icon: HelpCircle },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "help", label: "Help", icon: HelpCircle, href: null },
+    { id: "settings", label: "Settings", icon: Settings, href: "/identity" },
   ]
 
   return (
@@ -73,7 +76,7 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
               {section.items.map((item) => {
                 const Icon = item.icon
                 const isActive = activeTab === item.id
-                
+
                 return (
                   <button
                     key={item.id}
@@ -86,8 +89,8 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
                     }}
                     className={cn(
                       "w-full flex items-center gap-3 pl-0 pr-4 py-2.5 rounded-xl transition-all duration-200 group",
-                      isActive 
-                        ? "bg-secondary text-foreground shadow-sm ring-1 ring-border/20" 
+                      isActive
+                        ? "bg-secondary text-foreground shadow-sm ring-1 ring-border/20"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/30"
                     )}
                   >
@@ -114,13 +117,40 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
         <nav className="space-y-0.5">
           {bottomItems.map((item) => {
             const Icon = item.icon
+            const isActive = activeTab === item.id
+            
+            if (item.href) {
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="w-full flex items-center gap-3 pl-0 pr-4 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+                >
+                  <Icon className="h-5 w-5 text-muted-foreground/70 group-hover:text-foreground transition-colors shrink-0" />
+                  <span className="text-[14px] font-semibold tracking-tight truncate">{item.label}</span>
+                </Link>
+              )
+            }
+
             return (
               <button
                 key={item.id}
-                className="w-full flex items-center gap-3 pl-0 pr-4 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-200 group"
+                onClick={() => setActiveTab(item.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 pl-0 pr-4 py-2.5 rounded-xl transition-all duration-200 group",
+                  isActive 
+                    ? "bg-secondary text-foreground shadow-sm ring-1 ring-border/20" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                )}
               >
-                <Icon className="h-5 w-5 text-muted-foreground/70 group-hover:text-foreground transition-colors shrink-0" />
-                <span className="text-[14px] font-semibold tracking-tight truncate">{item.label}</span>
+                <Icon className={cn(
+                   "h-5 w-5 transition-colors shrink-0",
+                   isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-foreground"
+                )} />
+                <span className={cn(
+                   "text-[14px] font-semibold tracking-tight truncate",
+                   isActive ? "text-foreground" : "text-muted-foreground"
+                )}>{item.label}</span>
               </button>
             )
           })}
