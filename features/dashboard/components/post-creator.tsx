@@ -56,11 +56,11 @@ export function PostCreator({
             <div className={`space-y-3 ${activeTab === 'post-update' ? 'md:col-span-2' : ''}`}>
               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">{helpLabels.blocker}</label>
               {activeTab === 'post-update' ? (
-                <textarea 
-                  placeholder="Share a specific technical update or milestone..." 
-                  className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[100px] resize-none" 
-                  value={guidedFields.blocker} 
-                  onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} 
+                <textarea
+                  placeholder="Share a specific technical update or milestone..."
+                  className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[100px] resize-none"
+                  value={guidedFields.blocker}
+                  onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })}
                 />
               ) : (
                 <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
@@ -71,8 +71,8 @@ export function PostCreator({
               <input type="text" placeholder="e.g. Next.js 14, Tailwind" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.stack} onChange={e => setGuidedFields({ ...guidedFields, stack: e.target.value })} />
             </div>
             <div className="space-y-3 md:col-span-1">
-               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Full Context</label>
-               <textarea placeholder={helpLabels.context} className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
+              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Full Context</label>
+              <textarea placeholder={helpLabels.context} className="w-full bg-secondary/40 border border-transparent px-4 py-4 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30 min-h-[120px] resize-none" value={guidedFields.context} onChange={e => setGuidedFields({ ...guidedFields, context: e.target.value })} />
             </div>
           </>
         )}
