@@ -34,6 +34,7 @@ import { ContentFeed } from "@/features/dashboard/components/content-feed"
 import { DiscoverDevelopers } from "@/features/dashboard/components/discover-developers"
 import { MessagesOverlay } from "@/features/dashboard/components/messages-overlay"
 import { Sidebar } from "@/features/dashboard/components/sidebar"
+import { Leaderboard } from "@/features/dashboard/components/leaderboard"
 
 function DashboardContent() {
    const [user, setUser] = React.useState<any>(null)
@@ -413,7 +414,7 @@ function DashboardContent() {
    }
 
    return (
-      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-outfit selection:bg-primary/20 overflow-y-auto scrollbar-hide">
+      <div className="min-h-[100dvh] bg-background text-foreground flex flex-col font-sans selection:bg-primary/20 overflow-y-auto scrollbar-hide">
          <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
@@ -477,7 +478,7 @@ function DashboardContent() {
                         />
                      </div>
                   ) : activeTab === "leaderboard" ? (
-                     <div className="p-12 text-center text-muted-foreground animate-in fade-in duration-500">Networking Leaderboard coming soon.</div>
+                     <Leaderboard allProfiles={allProfiles} />
                   ) : (
                      <div className="space-y-10">
                         <PostCreator
