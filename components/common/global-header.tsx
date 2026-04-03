@@ -27,7 +27,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
     async function initSession() {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
-      
+
       if (currentSession?.user) {
         const { data } = await supabase
           .from('profiles')
@@ -105,7 +105,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}>
                     Dashboard
                   </Link>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsProfileMenuOpen(!isProfileMenuOpen);
@@ -113,9 +113,9 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                     className="group focus:outline-none"
                   >
                     {profile?.avatar_url || (session.user as any).user_metadata?.picture ? (
-                      <img 
-                        src={profile?.avatar_url || (session.user as any).user_metadata?.picture} 
-                        alt="Profile" 
+                      <img
+                        src={profile?.avatar_url || (session.user as any).user_metadata?.picture}
+                        alt="Profile"
                         className="h-9 w-9 rounded-full object-cover border border-border/50 group-hover:border-primary transition-all ring-offset-background group-hover:ring-2 group-hover:ring-primary/20"
                       />
                     ) : (
@@ -127,7 +127,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
                   {/* Profile Dropdown Menu */}
                   {isProfileMenuOpen && (
-                    <div 
+                    <div
                       className="absolute right-0 top-12 w-64 bg-background border border-border/40 shadow-2xl rounded-sm py-3 animate-in fade-in slide-in-from-top-2 duration-200 z-50 overflow-hidden"
                       onClick={(e) => e.stopPropagation()}
                     >
@@ -136,10 +136,10 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                         <div className="flex items-center gap-3 mb-4">
                           <div className="h-12 w-12 rounded-full overflow-hidden border border-border/40">
                             {profile?.avatar_url || (session.user as any).user_metadata?.picture ? (
-                              <img 
-                                src={profile?.avatar_url || (session.user as any).user_metadata?.picture} 
-                                alt="User" 
-                                className="h-full w-full object-cover" 
+                              <img
+                                src={profile?.avatar_url || (session.user as any).user_metadata?.picture}
+                                alt="User"
+                                className="h-full w-full object-cover"
                               />
                             ) : (
                               <div className="h-full w-full bg-secondary flex items-center justify-center text-[16px] font-semibold text-foreground">
@@ -154,8 +154,8 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                             </p>
                           </div>
                         </div>
-                        <Link 
-                          href="/identity" 
+                        <Link
+                          href="/identity"
                           className="w-full flex items-center justify-center h-8 text-[12px] font-medium text-primary border border-primary/20 rounded-full hover:bg-primary/5 transition-all hover:border-primary"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
@@ -166,15 +166,15 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                       {/* Section: Account */}
                       <div className="py-2 border-b border-border/10">
                         <p className="px-5 py-1 text-[10px] uppercase font-medium tracking-wide text-muted-foreground/40">Account</p>
-                        <Link 
-                          href="/identity" 
+                        <Link
+                          href="/identity"
                           className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
                           Settings & Privacy
                         </Link>
-                        <Link 
-                          href="/dashboard?tab=help" 
+                        <Link
+                          href="/dashboard?tab=help"
                           className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
@@ -185,8 +185,8 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                       {/* Section: Manage */}
                       <div className="py-2 border-b border-border/10">
                         <p className="px-5 py-1 text-[10px] uppercase font-medium tracking-wide text-muted-foreground/40">Manage</p>
-                        <Link 
-                          href="/dashboard?tab=all" 
+                        <Link
+                          href="/dashboard?tab=all"
                           className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
@@ -196,7 +196,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
                       {/* Section: Sign Out */}
                       <div className="pt-1">
-                        <button 
+                        <button
                           onClick={handleSignOut}
                           className="w-full flex items-center px-5 py-2.5 text-[13px] font-medium text-red-500/80 hover:bg-red-500/5 hover:text-red-500 transition-all"
                         >

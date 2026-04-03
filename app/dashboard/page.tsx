@@ -487,14 +487,16 @@ function DashboardContent() {
                            isPosting={isPosting}
                            handlePost={handlePost}
                         />
-                        <ContentFeed
-                           posts={feedItems}
-                           user={user}
-                           userLikes={userLikes}
-                           handleDeletePost={handleDeletePost}
-                           handleConnect={handleConnect}
-                           handleLike={handleLike}
-                        />
+                        {activeTab === "all" && (
+                           <ContentFeed
+                              posts={feedItems}
+                              user={user}
+                              userLikes={userLikes}
+                              handleDeletePost={handleDeletePost}
+                              handleConnect={handleConnect}
+                              handleLike={handleLike}
+                           />
+                        )}
                      </div>
                   )}
                </div>

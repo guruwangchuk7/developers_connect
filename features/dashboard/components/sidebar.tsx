@@ -118,7 +118,7 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
           {bottomItems.map((item) => {
             const Icon = item.icon
             const isActive = activeTab === item.id
-            
+
             if (item.href) {
               return (
                 <Link
@@ -138,18 +138,18 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
                   "w-full flex items-center gap-3 pl-0 pr-4 py-2.5 rounded-xl transition-all duration-200 group",
-                  isActive 
-                    ? "bg-secondary text-foreground shadow-sm ring-1 ring-border/20" 
+                  isActive
+                    ? "bg-secondary text-foreground shadow-sm ring-1 ring-border/20"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                 )}
               >
                 <Icon className={cn(
-                   "h-5 w-5 transition-colors shrink-0",
-                   isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-foreground"
+                  "h-5 w-5 transition-colors shrink-0",
+                  isActive ? "text-foreground" : "text-muted-foreground/70 group-hover:text-foreground"
                 )} />
                 <span className={cn(
-                   "text-[14px] font-semibold tracking-tight truncate",
-                   isActive ? "text-foreground" : "text-muted-foreground"
+                  "text-[14px] font-semibold tracking-tight truncate",
+                  isActive ? "text-foreground" : "text-muted-foreground"
                 )}>{item.label}</span>
               </button>
             )
