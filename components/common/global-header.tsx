@@ -102,9 +102,11 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
               {session && (
                 <div className="flex items-center gap-4 relative">
-                  <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}>
-                    Dashboard
-                  </Link>
+                  {pathname === "/" && (
+                    <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}>
+                      Dashboard
+                    </Link>
+                  )}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -288,13 +290,15 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           <div className="flex flex-col gap-4 mt-auto pt-8 pb-16">
             {session ? (
               <div className="flex flex-col gap-3">
-                <Link
-                  href="/dashboard"
-                  className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-foreground text-background font-bold text-[12px] rounded-none h-11 hover:opacity-90")}
-                  onClick={() => setIsOpen(false)}
-                >
-                  Dashboard Home
-                </Link>
+                {pathname === "/" && (
+                  <Link
+                    href="/dashboard"
+                    className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-foreground text-background font-bold text-[12px] rounded-none h-11 hover:opacity-90")}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Dashboard Home
+                  </Link>
+                )}
                 <button
                   onClick={async () => {
                     await supabase.auth.signOut();
