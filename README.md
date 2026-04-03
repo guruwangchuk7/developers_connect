@@ -1,6 +1,6 @@
 # 🇧🇹 Bhutan Developer Network (BDN)
 
-**Tagline:** *A working network for builders in Bhutan.*
+**Tagline:** A working network for builders in Bhutan.
 
 ---
 

@@ -56,7 +56,6 @@ export function ContentFeed({
                   <div className="space-y-0.5 text-left">
                     <div className="flex items-center gap-2.5">
                       <h4 className="text-[16px] md:text-[18px] font-semibold tracking-tight text-foreground">{post.user}</h4>
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold uppercase tracking-widest rounded-full">Spotlight</span>
                     </div>
                     <p className="text-[13px] font-medium text-muted-foreground/60">{post.role}</p>
                   </div>
@@ -71,7 +70,7 @@ export function ContentFeed({
               </div>
 
               <div className="space-y-3 text-left">
-                <p className="text-[14px] leading-relaxed font-medium text-foreground/70 italic">
+                <p className="text-[14px] leading-relaxed font-medium text-foreground/70">
                   "{post.content}"
                 </p>
                 <div className="flex flex-wrap gap-1.5">
