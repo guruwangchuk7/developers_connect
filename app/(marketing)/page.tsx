@@ -20,7 +20,7 @@ export default function Home() {
         <section id="capabilities" className="min-h-[100dvh] flex items-center justify-center bg-background py-16 md:py-20 lg:py-32 border-t">
           <div className="container mx-auto px-4 md:px-6">
             <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-24 lg:mb-32">
-              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tighter text-foreground text-balance">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tighter text-foreground text-balance">
                 Where Identity Meets Collaboration
               </h2>
               <p className="max-w-[700px] text-sm md:text-base text-muted-foreground/70 leading-relaxed text-balance">
