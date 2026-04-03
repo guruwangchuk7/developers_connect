@@ -35,6 +35,7 @@ import { DiscoverDevelopers } from "@/features/dashboard/components/discover-dev
 import { MessagesOverlay } from "@/features/dashboard/components/messages-overlay"
 import { Sidebar } from "@/features/dashboard/components/sidebar"
 import { Leaderboard } from "@/features/dashboard/components/leaderboard"
+import { Help } from "@/features/dashboard/components/help"
 
 function DashboardContent() {
    const [user, setUser] = React.useState<any>(null)
@@ -75,6 +76,8 @@ function DashboardContent() {
             return { title: "Find Developers", subtitle: "Recruit technical talent for your blockers" }
          case "share-project":
             return { title: "Launch Project", subtitle: "Showcase your work to the network" }
+         case "help":
+            return { title: "Synchronization Guide", subtitle: "Maximizing your professional impact in the network" }
          default:
             return { title: <>Developer <span className="text-primary">Dashboard</span></>, subtitle: null }
       }
@@ -479,6 +482,8 @@ function DashboardContent() {
                      </div>
                   ) : activeTab === "leaderboard" ? (
                      <Leaderboard allProfiles={allProfiles} />
+                  ) : activeTab === "help" ? (
+                     <Help />
                   ) : (
                      <div className="space-y-10">
                         <PostCreator

@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { LayoutGrid, Search, Users, MessageCircle } from "lucide-react"
+import { LayoutGrid, Search, Users, MessageCircle, HelpCircle } from "lucide-react"
 
 interface DashboardNavigationProps {
   activeTab: string
@@ -18,7 +18,7 @@ export function DashboardNavigation({
     { id: "discover", label: "Devs", icon: Search },
     { id: "teams", label: "Teams", icon: Users },
     { id: "projects", label: "Project", icon: LayoutGrid },
-    { id: "help", label: "Help", icon: MessageCircle },
+    { id: "help", label: "Help", icon: HelpCircle },
   ]
 
   return (

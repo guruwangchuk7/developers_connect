@@ -279,6 +279,9 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   <Link href="/messages" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <MessageSquare className="h-4.5 w-4.5 text-muted-foreground/40" /> Messages
                   </Link>
+                  <Link href="/dashboard?tab=help" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <MessageSquare className="h-4.5 w-4.5 text-muted-foreground/40" /> Help Guide
+                  </Link>
                   <Link href="/identity" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Settings className="h-4.5 w-4.5 text-muted-foreground/40" /> Settings
                   </Link>
