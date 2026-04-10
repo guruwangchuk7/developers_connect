@@ -71,6 +71,8 @@ function DashboardContent() {
             return { title: "Guided Update", subtitle: "Share your latest technical breakthrough" }
          case "dev-needed":
             return { title: "Find Developers", subtitle: "Recruit technical talent for your blockers" }
+         case "ask-help":
+            return { title: "Request Assistance", subtitle: "Get technical help from the community for your project" }
          case "share-project":
             return { title: "Launch Project", subtitle: "Showcase your work to the network" }
          case "help":
@@ -89,7 +91,7 @@ function DashboardContent() {
          return p;
       }).filter((p: any) => {
          if (activeTab === 'all') return true;
-         const isHelpType = ["help", "dev-needed"].includes(activeTab);
+         const isHelpType = ["help", "dev-needed", "ask-help"].includes(activeTab);
          const isTeamType = ["teams", "team-needed"].includes(activeTab);
          const isProjectType = ["projects", "share-project"].includes(activeTab);
 
@@ -276,7 +278,7 @@ function DashboardContent() {
       let content = ""
       let postType = "HELP"
 
-      const isHelpType = ["help", "post-update", "dev-needed", "all"].includes(activeTab)
+      const isHelpType = ["help", "post-update", "dev-needed", "ask-help", "all"].includes(activeTab)
       const isTeamType = ["teams", "team-needed"].includes(activeTab)
       const isProjectType = ["projects", "share-project"].includes(activeTab)
 

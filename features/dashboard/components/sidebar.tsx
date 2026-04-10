@@ -46,6 +46,7 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
       items: [
         { id: "post-update", label: "Post Update", icon: Share2 },
         { id: "dev-needed", label: "Developers Needed", icon: Search },
+        { id: "ask-help", label: "Ask Help", icon: MessageSquare },
         { id: "share-project", label: "Share Project", icon: Activity },
       ]
     },

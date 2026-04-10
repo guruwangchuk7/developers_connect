@@ -18,7 +18,7 @@ export function PostCreator({
   isPosting,
   handlePost
 }: PostCreatorProps) {
-  const isHelpType = ["help", "post-update", "dev-needed"].includes(activeTab)
+  const isHelpType = ["help", "post-update", "dev-needed", "ask-help"].includes(activeTab)
   const isTeamType = ["teams", "team-needed"].includes(activeTab)
   const isProjectType = ["projects", "share-project"].includes(activeTab)
 
@@ -30,6 +30,13 @@ export function PostCreator({
         title: "Project Sync",
         blocker: "Primary Milestone",
         context: "Update details to help others synchronize with your progress..."
+      }
+    }
+    if (activeTab === "ask-help") {
+      return {
+        title: "Project SOS",
+        blocker: "What's the blocker?",
+        context: "Provide details about your project and the specific help you need..."
       }
     }
     return {
