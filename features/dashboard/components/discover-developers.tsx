@@ -8,6 +8,7 @@ interface Profile {
   full_name?: string
   role?: string
   skills?: string[]
+  avatar_url?: string
 }
 
 interface DiscoverDevelopersProps {
@@ -38,7 +39,11 @@ export function DiscoverDevelopers({
           <div key={dev.id} className="p-8 bg-background border border-border/40 rounded-sm hover:border-primary/20 transition-all group">
             <div className="flex items-center gap-5 mb-6">
               <div className="h-14 w-14 rounded-full bg-secondary border border-border/20 flex items-center justify-center text-[14px] font-black uppercase overflow-hidden">
-                {dev.full_name?.[0]}
+                {dev.avatar_url ? (
+                  <img src={dev.avatar_url} alt={dev.full_name || ""} className="h-full w-full object-cover" />
+                ) : (
+                  dev.full_name?.[0]
+                )}
               </div>
               <div className="space-y-0.5 text-left">
                 <h4 className="text-[15px] font-medium text-foreground">{dev.full_name}</h4>

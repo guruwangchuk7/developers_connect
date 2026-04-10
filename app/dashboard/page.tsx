@@ -129,7 +129,7 @@ function DashboardContent() {
    const fetchPosts = async () => {
       const { data, error } = await supabase
          .from('posts')
-         .select(`*, profiles!user_id (full_name, role)`)
+         .select(`*, profiles!user_id (full_name, role, avatar_url)`)
          .order('created_at', { ascending: false })
          .limit(20)
 
@@ -139,6 +139,7 @@ function DashboardContent() {
             userId: p.user_id,
             user: p.profiles?.full_name || 'Anonymous',
             role: p.profiles?.role || 'Developer',
+            avatar_url: p.profiles?.avatar_url,
             timestamp: new Date(p.created_at).toLocaleDateString(),
             created_at: p.created_at,
             content: p.content,

@@ -15,6 +15,7 @@ interface Post {
   likes: number
   comments: number
   tags: string[]
+  avatar_url?: string
   skills?: string[] // For DEVELOPER type items
 }
 
@@ -48,10 +49,18 @@ export function ContentFeed({
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-background border border-primary/20 p-1 group-hover/card:border-primary transition-all duration-500">
-                    <div className="h-full w-full rounded-full bg-secondary flex items-center justify-center text-[16px] md:text-[18px] font-bold uppercase text-primary/60 group-hover/card:bg-primary group-hover/card:text-background transition-all">
-                      {post.user[0]}
-                    </div>
+                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-background border border-primary/20 p-1 group-hover/card:border-primary transition-all duration-500 overflow-hidden">
+                    {post.avatar_url ? (
+                      <img
+                        src={post.avatar_url}
+                        alt={post.user}
+                        className="h-full w-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full rounded-full bg-secondary flex items-center justify-center text-[16px] md:text-[18px] font-bold uppercase text-primary/60 group-hover/card:bg-primary group-hover/card:text-background transition-all">
+                        {post.user[0]}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-0.5 text-left">
                     <div className="flex items-center gap-2.5">
@@ -91,8 +100,12 @@ export function ContentFeed({
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-sm bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:bg-primary group-hover/card:text-background transition-all">
-                  {post.user[0]}
+                <div className="h-10 w-10 rounded-sm bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary transition-all overflow-hidden shrink-0">
+                  {post.avatar_url ? (
+                    <img src={post.avatar_url} alt={post.user} className="h-full w-full object-cover" />
+                  ) : (
+                    post.user[0]
+                  )}
                 </div>
                 <div className="space-y-0.5 text-left">
                   <h4 className="text-[14px] md:text-[15px] font-semibold tracking-tight text-foreground">{post.user}</h4>

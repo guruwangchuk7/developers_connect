@@ -35,14 +35,18 @@ export default function OnboardingPage() {
   const [selectedSkills, setSelectedSkills] = React.useState<string[]>([])
   const [customSkill, setCustomSkill] = React.useState("")
   const [fullName, setFullName] = React.useState("")
+  const [avatarUrl, setAvatarUrl] = React.useState("")
   const [showOtherSkills, setShowOtherSkills] = React.useState(false)
   const [showOtherRole, setShowOtherRole] = React.useState(false)
 
   React.useEffect(() => {
     async function getInitialData() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user?.user_metadata?.full_name) {
-        setFullName(session.user.user_metadata.full_name)
+      if (session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name) {
+        setFullName(session.user.user_metadata.full_name || session.user.user_metadata.name)
+      }
+      if (session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture) {
+        setAvatarUrl(session.user.user_metadata.avatar_url || session.user.user_metadata.picture)
       }
     }
     getInitialData()
@@ -94,6 +98,7 @@ export default function OnboardingPage() {
         .upsert({
           id: user.id,
           full_name: fullName,
+          avatar_url: avatarUrl,
           role: finalRole,
           skills: selectedSkills,
           updated_at: new Date().toISOString()

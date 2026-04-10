@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
   async headers() {
     return [
       {
@@ -12,7 +26,7 @@ const nextConfig: NextConfig = {
               "default-src 'self' https://*.supabase.co",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-              "img-src 'self' data: https://*.supabase.co https://images.unsplash.com",
+              "img-src 'self' data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "frame-ancestors 'none'",

@@ -114,8 +114,8 @@ BEGIN
   INSERT INTO public.profiles (id, full_name, avatar_url)
   VALUES (
     new.id,
-    new.raw_user_meta_data->>'full_name',
-    new.raw_user_meta_data->>'avatar_url'
+    COALESCE(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', 'New Member'),
+    COALESCE(new.raw_user_meta_data->>'avatar_url', new.raw_user_meta_data->>'picture')
   );
   RETURN new;
 END;
