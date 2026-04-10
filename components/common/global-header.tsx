@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings } from "lucide-react";
+import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings, HelpCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -78,6 +78,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-[13px] font-medium text-muted-foreground/80">
             <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
             <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
+            <Link href="/team-needed" className="hover:text-foreground transition-colors">Teams</Link>
             <Link href="/#plans" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
             <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
@@ -233,6 +234,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             <>
               <Link href="/directory" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Developers</Link>
               <Link href="/projects" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Projects</Link>
+              <Link href="/team-needed" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Team Needed</Link>
               <Link href="/#plans" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Pricing</Link>
               <Link href="/feed" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Help</Link>
               <Link href="/events" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Events</Link>
@@ -254,6 +256,15 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Users className="h-4.5 w-4.5 text-muted-foreground/40" /> Teams
                   </Link>
+                  <Link href="/dashboard?tab=projects" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-4.5 w-4.5 text-muted-foreground/40" /> Projects
+                  </Link>
+                  <Link href="/dashboard?tab=help" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-4.5 w-4.5 text-muted-foreground/40" /> Help
+                  </Link>
+                  <Link href="/dashboard?tab=events" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <LayoutGrid className="h-4.5 w-4.5 text-muted-foreground/40" /> Events
+                  </Link>
                 </div>
               </div>
 
@@ -266,6 +277,9 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   <Link href="/dashboard?tab=dev-needed" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Search className="h-4.5 w-4.5 text-muted-foreground/40" /> Developers Needed
                   </Link>
+                  <Link href="/dashboard?tab=ask-help" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <MessageSquare className="h-4.5 w-4.5 text-muted-foreground/40" /> Ask Help
+                  </Link>
                   <Link href="/dashboard?tab=share-project" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Users className="h-4.5 w-4.5 text-muted-foreground/40" /> Share Project
                   </Link>
@@ -275,11 +289,11 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               <div className="flex flex-col gap-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Workspace</p>
                 <div className="flex flex-col gap-3">
-                  <Link href="/messages" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                  <Link href="/dashboard?tab=messages" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <MessageSquare className="h-4.5 w-4.5 text-muted-foreground/40" /> Messages
                   </Link>
-                  <Link href="/dashboard?tab=help" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
-                    <MessageSquare className="h-4.5 w-4.5 text-muted-foreground/40" /> Help Guide
+                  <Link href="/dashboard?tab=help-guide" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <HelpCircle className="h-4.5 w-4.5 text-muted-foreground/40" /> Help Guide
                   </Link>
                   <Link href="/identity" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Settings className="h-4.5 w-4.5 text-muted-foreground/40" /> Settings

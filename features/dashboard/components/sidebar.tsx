@@ -39,6 +39,9 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
         { id: "all", label: "Feed", icon: LayoutGrid },
         { id: "discover", label: "Developers", icon: Search },
         { id: "teams", label: "Teams", icon: Users },
+        { id: "projects", label: "Projects", icon: Activity },
+        { id: "help", label: "Help", icon: HelpCircle },
+        { id: "events", label: "Events", icon: TrendingUp },
       ]
     },
     {
@@ -48,20 +51,20 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
         { id: "dev-needed", label: "Developers Needed", icon: Search },
         { id: "ask-help", label: "Ask Help", icon: MessageSquare },
         { id: "share-project", label: "Share Project", icon: Activity },
+        { id: "organize-event", label: "Organize Event", icon: Trophy },
       ]
     },
     {
       title: "Workspace",
       items: [
         { id: "messages", label: "Messages", icon: MessageSquare },
+        { id: "help-guide", label: "Help", icon: HelpCircle },
+        { id: "settings", label: "Settings", icon: Settings, href: "/identity" },
       ]
     }
   ]
 
-  const bottomItems = [
-    { id: "help", label: "Help", icon: HelpCircle, href: null },
-    { id: "settings", label: "Settings", icon: Settings, href: "/identity" },
-  ]
+  const bottomItems: any[] = []
 
   return (
     <aside className={cn("flex flex-col w-full pt-4 pb-6 pl-0 pr-4", className)}>

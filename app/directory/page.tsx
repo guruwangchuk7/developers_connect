@@ -11,68 +11,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Session } from "@supabase/supabase-js"
 
-const MOCK_PROFILES = [
-  {
-    id: "mock-1",
-    full_name: "Tashi Dorji",
-    role: "Senior Frontend Engineer",
-    bio: "Passionate about building accessible and high-performance web applications for the national digital economy. Expert in React and Tailwind v4.",
-    availability: "Open to work",
-    skills: ["React", "TypeScript", "Tailwind CSS", "Next.js"],
-    github_url: "#",
-    portfolio_url: "#"
-  },
-  {
-    id: "mock-2",
-    full_name: "Pema Yangzom",
-    role: "Full Stack Developer",
-    bio: "Specializing in scalable backend architectures and secure data exchange protocols. Building the future of Bhutan's fintech ecosystem.",
-    availability: "Full-time",
-    skills: ["Node.js", "PostgreSQL", "Supabase", "Go"],
-    github_url: "#",
-    portfolio_url: "#"
-  },
-  {
-    id: "mock-3",
-    full_name: "Karma Wangchuk",
-    role: "UI/UX Designer & Developer",
-    bio: "Bridging the gap between aesthetics and functionality. Focused on creating a standardized design system for Bhutanese digital services.",
-    availability: "Contract",
-    skills: ["Figma", "React", "Framer Motion", "CSS"],
-    github_url: "#",
-    portfolio_url: "#"
-  },
-  {
-    id: "mock-4",
-    full_name: "Sonam Pelden",
-    role: "Data Scientist",
-    bio: "Applying machine learning to optimize public service delivery and agricultural yield predictions in the national context.",
-    availability: "Open to work",
-    skills: ["Python", "PyTorch", "Pandas", "GROQ"],
-    github_url: "#",
-    portfolio_url: "#"
-  },
-  {
-    id: "mock-5",
-    full_name: "Jigme Tenzin",
-    role: "Mobile App Developer",
-    bio: "Developing cross-platform mobile solutions for local businesses and community-driven initiatives. React Native specialist.",
-    availability: "Full-time",
-    skills: ["React Native", "Expo", "Firebase", "Swift"],
-    github_url: "#",
-    portfolio_url: "#"
-  },
-  {
-    id: "mock-6",
-    full_name: "Yangchen Lhamo",
-    role: "SecOps Engineer",
-    bio: "Securing the national technical grid through rigorous audits and automated threat detection systems.",
-    availability: "Contract",
-    skills: ["AWS", "Docker", "Terraform", "Security"],
-    github_url: "#",
-    portfolio_url: "#"
-  }
-];
 
 export default function DirectoryPage() {
   const supabase = createClient()
@@ -98,14 +36,9 @@ export default function DirectoryPage() {
         .limit(12)
 
       if (!profileError && profileData) {
-        // If we have enough real profiles, we can reduce mock data
-        if (profileData.length >= 6) {
-          setProfiles(profileData)
-        } else {
-          setProfiles([...profileData, ...MOCK_PROFILES.slice(0, 6 - profileData.length)])
-        }
+        setProfiles(profileData)
       } else {
-        setProfiles(MOCK_PROFILES)
+        setProfiles([])
       }
 
       // Fetch my connections if logged in
@@ -114,7 +47,7 @@ export default function DirectoryPage() {
           .from('connections')
           .select('*')
           .or(`sender_id.eq.${currentSession.user.id},receiver_id.eq.${currentSession.user.id}`)
-        
+
         if (connData) {
           setMyConnections(connData)
         }
@@ -133,17 +66,6 @@ export default function DirectoryPage() {
 
     if (session.user.id === targetId) return
 
-    // If mock user, handle locally
-    if (targetId.startsWith('mock')) {
-       console.log('Simulating request to mock profile:', targetId)
-       setMyConnections([...myConnections, { 
-          id: 'mock-conn-' + Date.now(), 
-          sender_id: session.user.id, 
-          receiver_id: targetId, 
-          status: 'PENDING' 
-       }])
-       return
-    }
 
     setProcessingId(targetId)
     const { error } = await supabase
@@ -172,12 +94,12 @@ export default function DirectoryPage() {
   const getConnectionStatus = (profileId: string) => {
     if (!session) return null
     if (session.user.id === profileId) return 'SELF'
-    
-    const conn = myConnections.find(c => 
+
+    const conn = myConnections.find(c =>
       (c.sender_id === session.user.id && c.receiver_id === profileId) ||
       (c.sender_id === profileId && c.receiver_id === session.user.id)
     )
-    
+
     if (!conn) return null
     return conn.status // 'PENDING', 'ACCEPTED', 'REJECTED'
   }
@@ -244,7 +166,6 @@ export default function DirectoryPage() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h3 className="text-2xl font-bold tracking-tight">{p.full_name}</h3>
-                        {p.id.startsWith('mock') && <Award className="h-4 w-4 text-primary/40" />}
                       </div>
                       <div className="flex items-center gap-2 text-primary/60 text-[11px] font-bold uppercase tracking-[0.2em]">
                         {p.role}
@@ -262,37 +183,37 @@ export default function DirectoryPage() {
                     {p.skills?.length > 4 && <span className="text-[11px] font-bold text-muted-foreground/40 self-center">+{p.skills.length - 4}</span>}
                   </div>
 
-                    <div className="flex items-center gap-3">
-                      {getConnectionStatus(p.id) === 'SELF' ? (
-                        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
-                          Your Profile
-                        </span>
-                      ) : getConnectionStatus(p.id) === 'ACCEPTED' ? (
-                        <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase tracking-widest">
-                          <Check className="h-3 w-3" /> Connected
-                        </div>
-                      ) : getConnectionStatus(p.id) === 'PENDING' ? (
-                        <div className="flex items-center gap-1.5 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
-                          <Clock className="h-3 w-3" /> Request Sent
-                        </div>
-                      ) : (
-                        <button 
-                          onClick={() => handleConnect(p.id)}
-                          disabled={processingId === p.id}
-                          className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
-                        >
-                          <UserPlus className="h-3.5 w-3.5" /> 
-                          {processingId === p.id ? "Sending..." : "Connect"}
-                        </button>
-                      )}
-                      
-                      <Link 
-                        href={`/profile/${p.id}`}
-                        className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors"
+                  <div className="flex items-center gap-3">
+                    {getConnectionStatus(p.id) === 'SELF' ? (
+                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
+                        Your Profile
+                      </span>
+                    ) : getConnectionStatus(p.id) === 'ACCEPTED' ? (
+                      <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase tracking-widest">
+                        <Check className="h-3 w-3" /> Connected
+                      </div>
+                    ) : getConnectionStatus(p.id) === 'PENDING' ? (
+                      <div className="flex items-center gap-1.5 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
+                        <Clock className="h-3 w-3" /> Request Sent
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleConnect(p.id)}
+                        disabled={processingId === p.id}
+                        className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
                       >
-                        View Profile →
-                      </Link>
-                    </div>
+                        <UserPlus className="h-3.5 w-3.5" />
+                        {processingId === p.id ? "Sending..." : "Connect"}
+                      </button>
+                    )}
+
+                    <Link
+                      href={`/profile/${p.id}`}
+                      className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors"
+                    >
+                      View Profile →
+                    </Link>
+                  </div>
 
                   {/* Decorative background element */}
                   <div className="absolute -right-4 -bottom-4 h-24 w-24 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>

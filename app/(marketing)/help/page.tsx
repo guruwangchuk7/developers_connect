@@ -1,16 +1,58 @@
+"use client"
+
+import * as React from "react"
+import { createClient } from "@/lib/supabase"
 import { GlobalHeader } from "@/components/common/global-header";
 import { GlobalFooter } from "@/components/common/global-footer";
-import { Metadata } from "next";
 import { MessageSquare, ThumbsUp, Eye, Search, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = {
-  title: "Help Feed | Bhutan Developer Network",
-  description: "Get technical help and share knowledge with the Bhutanese developer community.",
-};
-
 export default function FeedPage() {
+  const supabase = createClient()
+  const [helpPosts, setHelpPosts] = React.useState<any[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [searchTerm, setSearchTerm] = React.useState("")
+
+  React.useEffect(() => {
+    async function fetchHelp() {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`*, profiles!user_id (full_name)`)
+        .eq('type', 'HELP')
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        setHelpPosts(data.map((p: any) => {
+          const contentLines = p.content.split('\n')
+          const title = contentLines[0]?.replace('BLOCKER: ', '').replace('MILESTONE: ', '') || p.content.substring(0, 50)
+          const description = contentLines[2]?.replace('CONTEXT: ', '') || p.content
+          const stack = contentLines[1]?.replace('STACK: ', '') || ''
+
+          return {
+            id: p.id,
+            title,
+            description,
+            author: p.profiles?.full_name || 'Anonymous',
+            category: stack || 'General',
+            replies: p.comments_count || 0,
+            likes: p.likes_count || 0,
+            tags: p.tags || [],
+            urgent: p.content.includes('URGENT')
+          }
+        }))
+      }
+      setIsLoading(false)
+    }
+    fetchHelp()
+  }, [])
+
+  const filteredPosts = helpPosts.filter((p: any) =>
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-primary/5">
       <GlobalHeader />
@@ -33,80 +75,52 @@ export default function FeedPage() {
                   type="text"
                   placeholder="Search technical questions..."
                   className="w-full bg-transparent border-b border-border/80 pl-10 py-3 focus:outline-none focus:border-primary transition-colors text-sm font-medium tracking-tight"
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
-              <HelpCard
-                title="Debugging Vite build errors in Next.js 16"
-                description="Encountering intermittent chunk loading failures during production builds with standard headers."
-                author="Dorji Namgay"
-                category="Infrastructure"
-                replies={12}
-                views={245}
-                tags={["Next.js", "Vite", "Build System"]}
-                urgent={true}
-              />
-              <HelpCard
-                title="Dzongkha font rendering issues on Safari"
-                description="Characters are being cut off in specific viewport widths despite overflow:visible."
-                author="Tashi Yangzom"
-                category="Frontend"
-                replies={5}
-                views={102}
-                tags={["CSS", "Fonts", "Safari"]}
-              />
-              <HelpCard
-                title="Supabase RLSPolicy best practices for teams"
-                description="How to structure policies for team-based access control without nested query overhead."
-                author="Karma Tobgay"
-                category="Database"
-                replies={8}
-                views={314}
-                tags={["PostgreSQL", "Supabase", "Security"]}
-              />
-              <HelpCard
-                title="Optimizing Python GROQ queries for Sanity CMS"
-                description="Looking for ways to improve local development startup times when fetching large blog trees."
-                author="Sonam Penjor"
-                category="Backend"
-                replies={3}
-                views={156}
-                tags={["Sanity", "GROQ", "Python"]}
-              />
-              <HelpCard
-                title="Implementing OAuth 2.0 with local identity providers"
-                description="Seeking guidance on integrating standard OAuth flows with existing G2C services."
-                author="Pema Wangmo"
-                category="Identity"
-                replies={15}
-                views={512}
-                tags={["Auth", "OAuth", "Identity"]}
-              />
-              <HelpCard
-                title="Tailwind v4 performance tuning on low-end hardware"
-                description="Noticing slight JIT lag during dev builds on older MacBook Airs. Any config optimizations?"
-                author="Jigme Dorji"
-                category="Frontend"
-                replies={7}
-                views={189}
-                tags={["Tailwind", "Performance", "DevOps"]}
-              />
-            </div>
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="h-80 bg-secondary/20 animate-pulse rounded-sm"></div>
+                ))}
+              </div>
+            ) : filteredPosts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
+                {filteredPosts.map((post) => (
+                  <HelpCard
+                    key={post.id}
+                    title={post.title}
+                    description={post.description}
+                    author={post.author}
+                    category={post.category}
+                    replies={post.replies}
+                    views={post.likes * 7 + 12} // Simulation of views
+                    tags={post.tags}
+                    urgent={post.urgent}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-24 text-center border border-dashed border-border rounded-sm">
+                <p className="text-muted-foreground font-medium underline underline-offset-4 decoration-primary/30">No active help requests found in the current synchronization cycle.</p>
+              </div>
+            )}
 
             <div className="mt-20 py-16 bg-secondary/10 px-8 flex flex-col md:flex-row items-center justify-between rounded-sm border border-border">
               <div className="space-y-4 max-w-xl text-center md:text-left mb-10 md:mb-0">
                 <h3 className="text-2xl md:text-3xl font-bold tracking-tight">Facing a technical blocker?</h3>
-                <p className="text-muted-foreground font-medium">
+                <p className="text-muted-foreground font-medium text-[14px]">
                   Join the network today to post your questions and get answers from our vetted pool of experts within hours.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/join" className="px-8 py-3 bg-primary text-primary-foreground font-bold rounded-sm hover:opacity-90 transition-opacity text-center text-sm uppercase tracking-widest">
+                <Link href="/join" className="px-8 py-3 bg-primary text-primary-foreground font-bold rounded-sm hover:opacity-90 transition-opacity text-center text-[10px] uppercase tracking-[0.2em]">
                   Sign in to post
                 </Link>
-                <Link href="/about" className="px-8 py-3 bg-background border border-border text-foreground font-bold rounded-sm hover:bg-secondary/50 transition-colors text-center text-sm uppercase tracking-widest">
+                <Link href="/about" className="px-8 py-3 bg-background border border-border text-foreground font-bold rounded-sm hover:bg-secondary/50 transition-colors text-center text-[10px] uppercase tracking-[0.2em]">
                   Learn how it works
                 </Link>
               </div>
@@ -143,8 +157,8 @@ function HelpCard({ title, description, author, category, replies, views, tags, 
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-xl font-bold tracking-tight group-hover:underline cursor-pointer decoration-2 decoration-primary/20">{title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 overflow-hidden text-ellipsis h-16">
+        <h3 className="text-xl font-bold tracking-tight group-hover:underline cursor-pointer decoration-2 decoration-primary/20 line-clamp-2">{title}</h3>
+        <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3 overflow-hidden text-ellipsis h-16">
           {description}
         </p>
       </div>
@@ -155,13 +169,14 @@ function HelpCard({ title, description, author, category, replies, views, tags, 
             #{tag.toLowerCase().replace(' ', '')}
           </span>
         ))}
+        {tags.length === 0 && <span className="text-[10px] font-bold text-muted-foreground/30 italic">No tags</span>}
       </div>
 
       <div className="pt-6 border-t flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic text-muted-foreground/60 border border-border/30">
-              {author.split(' ').map(n => n[0]).join('')}
+              {author[0]}
             </div>
             <span className="text-[11px] font-bold text-muted-foreground/70">{author}</span>
           </div>

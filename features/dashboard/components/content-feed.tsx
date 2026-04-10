@@ -112,7 +112,7 @@ export function ContentFeed({
                 )}>
                   {post.type === 'UPDATE' ? 'Sync' : post.type}
                 </div>
-                {post.id.startsWith('mock-') === false && post.userId === user?.id && (
+                {post.userId === user?.id && (
                   <button
                     onClick={() => handleDeletePost(post.id)}
                     className="p-1.5 text-muted-foreground/30 hover:text-red-500 transition-colors"

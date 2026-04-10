@@ -4,43 +4,50 @@ import * as React from "react"
 import { createClient } from "@/lib/supabase"
 import { GlobalHeader } from "@/components/common/global-header";
 import { GlobalFooter } from "@/components/common/global-footer";
-import { Code, Share2, Rocket, Search } from "lucide-react";
+import { Users, Search, Briefcase, Zap } from "lucide-react";
 import Link from "next/link";
 
-export default function ProjectsPage() {
+export default function TeamNeededPage() {
   const supabase = createClient()
-  const [projects, setProjects] = React.useState<any[]>([])
+  const [teams, setTeams] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState("")
 
   React.useEffect(() => {
-    async function fetchProjects() {
+    async function fetchTeams() {
       const { data, error } = await supabase
         .from('posts')
         .select(`*, profiles!user_id (full_name)`)
-        .eq('type', 'PROJECT')
+        .eq('type', 'TEAM')
         .order('created_at', { ascending: false })
 
       if (!error && data) {
-        setProjects(data.map((p: any) => ({
-          id: p.id,
-          title: p.content.split('\n')[0].replace('PROJECT: ', ''),
-          description: p.content.split('\n')[1]?.replace('DESCRIPTION: ', '') || p.content,
-          tags: p.tags || [],
-          contributors: 1, // Defaulting to 1 as we only track author for now
-          status: "Live", // Default status
-          author: p.profiles?.full_name || 'Anonymous'
-        })))
+        setTeams(data.map((p: any) => {
+          const contentLines = p.content.split('\n')
+          const role = contentLines[0]?.replace('ROLE NEEDED: ', '') || 'Developer'
+          const project = contentLines[1]?.replace('PROJECT: ', '') || 'New Initiative'
+          const mission = contentLines[2]?.replace('MISSION: ', '') || p.content
+          
+          return {
+            id: p.id,
+            role,
+            project,
+            mission,
+            author: p.profiles?.full_name || 'Anonymous',
+            created_at: p.created_at,
+            tags: p.tags || []
+          }
+        }))
       }
       setIsLoading(false)
     }
-    fetchProjects()
+    fetchTeams()
   }, [])
 
-  const filteredProjects = projects.filter((p: any) => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.tags.some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredTeams = teams.filter((t: any) => 
+    t.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.project.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.mission.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   return (
@@ -52,10 +59,10 @@ export default function ProjectsPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-24">
               <div className="space-y-4">
                 <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tighter">
-                  National Project Repository
+                  Team Formation
                 </h1>
                 <p className="text-muted-foreground text-sm font-medium leading-relaxed md:text-lg max-w-2xl">
-                  Discover initiatives, open-source tools, and collaborative ventures built on the national technical grid.
+                  Collaborate with other technical nodes to build high-impact solutions for the Bhutanese digital framework.
                 </p>
               </div>
 
@@ -63,7 +70,7 @@ export default function ProjectsPage() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder="Search projects..."
+                  placeholder="Search roles or projects..."
                   className="w-full bg-transparent border-b border-border/80 pl-10 py-3 focus:outline-none focus:border-primary transition-colors text-sm font-medium tracking-tight"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
@@ -77,38 +84,37 @@ export default function ProjectsPage() {
                   <div key={i} className="h-64 bg-secondary/20 animate-pulse rounded-sm"></div>
                 ))}
               </div>
-            ) : filteredProjects.length > 0 ? (
+            ) : filteredTeams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
-                {filteredProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    title={project.title}
-                    description={project.description}
-                    tags={project.tags}
-                    contributors={project.contributors}
-                    status={project.status}
-                    author={project.author}
+                {filteredTeams.map((team) => (
+                  <TeamCard
+                    key={team.id}
+                    role={team.role}
+                    project={team.project}
+                    mission={team.mission}
+                    author={team.author}
+                    tags={team.tags}
                   />
                 ))}
               </div>
             ) : (
               <div className="py-24 text-center border border-dashed border-border rounded-sm">
-                 <p className="text-muted-foreground font-medium underline underline-offset-4 decoration-primary/30">No projects found matching your synchronization parameters.</p>
+                 <p className="text-muted-foreground font-medium underline underline-offset-4 decoration-primary/30">No team requests currently synchronized in the network.</p>
               </div>
             )}
 
             <div className="mt-20 py-16 border-t border-dashed flex flex-col items-center text-center space-y-6">
               <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center">
-                <Rocket className="h-6 w-6 text-primary" />
+                <Zap className="h-6 w-6 text-primary" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-bold tracking-tight">Have a project to showcase?</h3>
+                <h3 className="text-xl font-bold tracking-tight">Building something big?</h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Join the network to list your project, find contributors, and scale your impact across the ecosystem.
+                  Post a request for developers, designers, or consultants and find your dream team within the network.
                 </p>
               </div>
               <Link href="/join" className="inline-flex items-center justify-center px-8 py-3 bg-primary text-primary-foreground font-bold rounded-sm hover:opacity-90 transition-opacity uppercase tracking-widest text-[11px]">
-                Start Collaborating
+                Recruit Talent
               </Link>
             </div>
           </div>
@@ -119,32 +125,31 @@ export default function ProjectsPage() {
   );
 }
 
-function ProjectCard({ title, description, tags, contributors, status, author }: {
-  title: string,
-  description: string,
-  tags: string[],
-  contributors: number,
-  status: string,
-  author?: string
+function TeamCard({ role, project, mission, author, tags }: {
+  role: string,
+  project: string,
+  mission: string,
+  author: string,
+  tags: string[]
 }) {
   return (
     <div className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group">
       <div className="flex items-start justify-between">
         <div className="h-10 w-10 bg-secondary/50 rounded-sm flex items-center justify-center border border-border/20 group-hover:scale-110 transition-transform">
-          <Code className="h-5 w-5 text-primary/70" />
+          <Briefcase className="h-5 w-5 text-primary/70" />
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 border border-border/60 rounded-full">
-          {status}
+        <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full">
+          Open Role
         </span>
       </div>
 
       <div className="space-y-4">
         <div className="space-y-1">
-          <h3 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors cursor-pointer line-clamp-1">{title}</h3>
-          {author && <p className="text-[11px] font-bold text-primary/60 uppercase tracking-widest">Built by {author}</p>}
+          <h3 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors cursor-pointer line-clamp-1">{role}</h3>
+          <p className="text-[11px] font-bold text-primary/60 uppercase tracking-widest">Project: {project}</p>
         </div>
         <p className="text-muted-foreground leading-relaxed line-clamp-3 h-20 text-[14px]">
-          {description}
+          {mission}
         </p>
       </div>
 
@@ -154,16 +159,15 @@ function ProjectCard({ title, description, tags, contributors, status, author }:
             {tag}
           </span>
         ))}
-        {tags.length === 0 && <span className="text-[11px] font-bold px-2 py-0.5 bg-secondary/10 rounded-sm italic text-muted-foreground/40">No tags</span>}
       </div>
 
       <div className="pt-6 border-t flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-          <Share2 className="h-3.5 w-3.5" />
-          <span>{contributors} {contributors === 1 ? 'Contributor' : 'Contributors'}</span>
+          <Users className="h-3.5 w-3.5" />
+          <span>Posted by {author}</span>
         </div>
         <button className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
-          View Details →
+          Apply to Team →
         </button>
       </div>
     </div>
