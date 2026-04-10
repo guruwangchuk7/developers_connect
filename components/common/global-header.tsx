@@ -78,6 +78,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
           <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-[13px] font-medium text-muted-foreground/80">
             <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
             <Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link>
+            <Link href="/#plans" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link href="/feed" className="hover:text-foreground transition-colors">Help</Link>
             <Link href="/events" className="hover:text-foreground transition-colors">Events</Link>
             <Link href="/contact" className="hover:text-foreground transition-colors">Contact</Link>
@@ -232,6 +233,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             <>
               <Link href="/directory" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Developers</Link>
               <Link href="/projects" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Projects</Link>
+              <Link href="/#plans" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Pricing</Link>
               <Link href="/feed" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Help</Link>
               <Link href="/events" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Events</Link>
               <Link href="/contact" className="text-base font-semibold border-b pb-4" onClick={() => setIsOpen(false)}>Contact</Link>

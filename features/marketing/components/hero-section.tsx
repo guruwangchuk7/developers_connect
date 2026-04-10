@@ -18,20 +18,7 @@ export function HeroSection() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 w-full sm:w-auto">
-            <Link
-              href="/#plans"
-              className={cn(buttonVariants({ size: "lg" }), "h-11 w-full sm:w-auto rounded-sm bg-primary px-8 text-[13px] font-bold tracking-tight shadow-md transition hover:opacity-90 active:scale-95")}
-            >
-              See pricing
-            </Link>
-            <Link
-              href="#capabilities"
-              className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "h-11 w-full sm:w-auto rounded-sm border px-8 text-[13px] font-bold tracking-tight transition hover:bg-secondary/50 active:scale-95")}
-            >
-              Learn more
-            </Link>
-          </div>
+
         </div>
       </div>
     </section>
