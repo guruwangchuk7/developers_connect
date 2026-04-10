@@ -39,7 +39,6 @@ export function Sidebar({ activeTab, setActiveTab, setIsMessagesOpen, className 
         { id: "all", label: "Feed", icon: LayoutGrid },
         { id: "discover", label: "Developers", icon: Search },
         { id: "teams", label: "Teams", icon: Users },
-        { id: "leaderboard", label: "Leaderboard", icon: TrendingUp },
       ]
     },
     {

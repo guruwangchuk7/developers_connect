@@ -254,9 +254,6 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   <Link href="/dashboard?tab=teams" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Users className="h-4.5 w-4.5 text-muted-foreground/40" /> Teams
                   </Link>
-                  <Link href="/dashboard?tab=leaderboard" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
-                    <Trophy className="h-4.5 w-4.5 text-muted-foreground/40" /> Leaderboard
-                  </Link>
                 </div>
               </div>
 

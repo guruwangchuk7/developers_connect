@@ -34,7 +34,6 @@ import { ContentFeed } from "@/features/dashboard/components/content-feed"
 import { DiscoverDevelopers } from "@/features/dashboard/components/discover-developers"
 import { MessagesOverlay } from "@/features/dashboard/components/messages-overlay"
 import { Sidebar } from "@/features/dashboard/components/sidebar"
-import { Leaderboard } from "@/features/dashboard/components/leaderboard"
 import { Help } from "@/features/dashboard/components/help"
 
 function DashboardContent() {
@@ -68,8 +67,6 @@ function DashboardContent() {
          case "teams":
          case "team-needed":
             return { title: "Project Teams", subtitle: "Find the right partners for your next build" }
-         case "leaderboard":
-            return { title: "Networking Leaderboard", subtitle: "Recognizing high-impact technical contributors" }
          case "post-update":
             return { title: "Guided Update", subtitle: "Share your latest technical breakthrough" }
          case "dev-needed":
@@ -480,8 +477,6 @@ function DashboardContent() {
                            handleLike={handleLike}
                         />
                      </div>
-                  ) : activeTab === "leaderboard" ? (
-                     <Leaderboard allProfiles={allProfiles} />
                   ) : activeTab === "help" ? (
                      <Help />
                   ) : (
