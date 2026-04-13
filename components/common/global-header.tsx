@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings, HelpCircle } from "lucide-react";
+import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings, HelpCircle, History } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -190,7 +190,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                       <div className="py-2 border-b border-border/10">
                         <p className="px-5 py-1 text-[10px] uppercase font-medium tracking-wide text-muted-foreground/40">Manage</p>
                         <Link
-                          href="/dashboard?tab=all"
+                          href="/identity/activity"
                           className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
@@ -294,6 +294,9 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                   </Link>
                   <Link href="/dashboard?tab=help-guide" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <HelpCircle className="h-4.5 w-4.5 text-muted-foreground/40" /> Help Guide
+                  </Link>
+                  <Link href="/identity/activity" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
+                    <History className="h-4.5 w-4.5 text-muted-foreground/40" /> Posts & Activity
                   </Link>
                   <Link href="/identity" className="flex items-center gap-4 text-[13px] font-bold py-1 px-1 hover:text-primary transition-colors" onClick={() => setIsOpen(false)}>
                     <Settings className="h-4.5 w-4.5 text-muted-foreground/40" /> Settings
