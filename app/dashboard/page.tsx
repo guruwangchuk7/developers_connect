@@ -50,6 +50,8 @@ function DashboardContent() {
    const [allProfiles, setAllProfiles] = React.useState<any[]>([])
    const [discoverSearch, setDiscoverSearch] = React.useState("")
    const [myConnections, setMyConnections] = React.useState<any[]>([])
+   const [notifications, setNotifications] = React.useState<any[]>([])
+   const [pendingRequests, setPendingRequests] = React.useState<any[]>([])
    const [userLikes, setUserLikes] = React.useState<string[]>([])
    const [events, setEvents] = React.useState<any[]>([])
    const [isPosting, setIsPosting] = React.useState(false)
@@ -174,9 +176,49 @@ function DashboardContent() {
    const fetchMyConnections = async (userId: string) => {
       const { data } = await supabase
          .from('connections')
-         .select('*')
+         .select(`*, 
+            sender:profiles!sender_id(id, full_name, avatar_url, role),
+            receiver:profiles!receiver_id(id, full_name, avatar_url, role)
+         `)
          .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-      if (data) setMyConnections(data)
+      
+      if (data) {
+         setMyConnections(data)
+         setPendingRequests(data.filter((c: any) => c.receiver_id === userId && c.status === 'PENDING'))
+      }
+   }
+
+   const fetchNotifications = async (userId: string) => {
+      const { data } = await supabase
+         .from('notifications')
+         .select('*')
+         .eq('user_id', userId)
+         .order('created_at', { ascending: false })
+      if (data) setNotifications(data)
+   }
+
+   const handleAcceptConnection = async (connectionId: string) => {
+      const { error } = await supabase
+         .from('connections')
+         .update({ status: 'ACCEPTED' })
+         .eq('id', connectionId)
+      
+      if (!error && user) {
+         toast.success("Connection accepted!")
+         await fetchMyConnections(user.id)
+      }
+   }
+
+   const handleDeclineConnection = async (connectionId: string) => {
+      const { error } = await supabase
+         .from('connections')
+         .delete()
+         .eq('id', connectionId)
+      
+      if (!error && user) {
+         toast.success("Request declined")
+         await fetchMyConnections(user.id)
+      }
    }
 
    const fetchAllProfiles = async () => {
@@ -236,6 +278,7 @@ function DashboardContent() {
             fetchEvents(),
             fetchUserLikes(session.user.id),
             fetchMyConnections(session.user.id),
+            fetchNotifications(session.user.id),
             fetchAllProfiles()
          ])
 
@@ -381,12 +424,25 @@ function DashboardContent() {
 
    const handleConnect = async (targetUserId: string) => {
       if (!user || user.id === targetUserId) return
+      
       const { error } = await supabase
          .from('connections')
          .insert([{ sender_id: user.id, receiver_id: targetUserId, status: 'PENDING' }])
 
       if (!error) {
+         // Create Notification for receiver
+         await supabase.from('notifications').insert([{
+            user_id: targetUserId,
+            type: 'CONNECTION',
+            actor_id: user.id,
+            content: `${user.user_metadata?.full_name || 'A developer'} wants to connect with you.`,
+            link: '/dashboard?tab=discover'
+         }])
+
          await fetchMyConnections(user.id)
+         toast.success("Connection request sent!")
+      } else {
+         toast.error("Failed to send request")
       }
    }
 
@@ -399,7 +455,16 @@ function DashboardContent() {
          .or(`and(sender_id.eq.${user.id},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${user.id})`)
 
       if (!error) {
+         // Remove notification if still unread
+         await supabase
+            .from('notifications')
+            .delete()
+            .eq('user_id', targetId)
+            .eq('actor_id', user.id)
+            .eq('type', 'CONNECTION')
+
          await fetchMyConnections(user.id)
+         toast.success("Request rescinded")
       }
    }
 
@@ -438,36 +503,38 @@ function DashboardContent() {
                </div>
 
                <div className="lg:col-span-9 space-y-8">
-                  {isInitializing ? (
-                     <HeaderSkeleton />
-                  ) : (
-                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
-                        <div className="flex flex-col justify-center space-y-1 text-left">
-                           <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">
-                              {headerInfo.title}
-                           </h1>
-                           <div className="h-[20px]">
-                              {headerInfo.subtitle && (
-                                 <p className="text-[14px] font-medium text-muted-foreground/50 animate-in fade-in duration-300">{headerInfo.subtitle}</p>
-                              )}
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-2 min-w-0 md:min-w-[256px] justify-end">
-                           {["discover", "teams"].includes(activeTab) && (
-                              <div className="relative w-full md:w-auto animate-in fade-in slide-in-from-right-2 duration-300">
-                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30" />
-                                 <input
-                                    type="text"
-                                    placeholder={activeTab === "teams" ? "Search teams or projects..." : "Search by skill or name..."}
-                                    className="pl-10 pr-4 py-2 bg-secondary/20 border border-border/10 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
-                                    value={discoverSearch}
-                                    onChange={(e) => setDiscoverSearch(e.target.value)}
-                                 />
-                              </div>
-                           )}
-                        </div>
-                     </div>
-                  )}
+                   {isInitializing ? (
+                      <HeaderSkeleton />
+                   ) : (
+                      <div className="space-y-6">
+                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
+                            <div className="flex flex-col justify-center space-y-1 text-left">
+                               <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">
+                                  {headerInfo.title}
+                               </h1>
+                               <div className="h-[20px]">
+                                  {headerInfo.subtitle && (
+                                     <p className="text-[14px] font-medium text-muted-foreground/50 animate-in fade-in duration-300">{headerInfo.subtitle}</p>
+                                  )}
+                               </div>
+                            </div>
+                            <div className="flex items-center gap-2 min-w-0 md:min-w-[256px] justify-end">
+                               {["discover", "teams"].includes(activeTab) && (
+                                  <div className="relative w-full md:w-auto animate-in fade-in slide-in-from-right-2 duration-300">
+                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30" />
+                                     <input
+                                        type="text"
+                                        placeholder={activeTab === "teams" ? "Search teams or projects..." : "Search by skill or name..."}
+                                        className="pl-10 pr-4 py-2 bg-secondary/20 border border-border/10 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
+                                        value={discoverSearch}
+                                        onChange={(e) => setDiscoverSearch(e.target.value)}
+                                     />
+                                  </div>
+                               )}
+                            </div>
+                         </div>
+                      </div>
+                   )}
 
                   {isDataLoading ? (
                      activeTab === "discover" ? <FeedSkeleton isGrid /> :
@@ -617,7 +684,15 @@ function DashboardContent() {
          </main>
 
 
-         <MessagesOverlay isOpen={isMessagesOpen} setIsOpen={setIsMessagesOpen} />
+         <MessagesOverlay 
+            isOpen={isMessagesOpen} 
+            setIsOpen={setIsMessagesOpen} 
+            pendingRequests={pendingRequests}
+            connections={myConnections.filter(c => c.status === 'ACCEPTED')}
+            onAccept={handleAcceptConnection}
+            onDecline={handleDeclineConnection}
+            user={user}
+         />
 
       </div>
    )

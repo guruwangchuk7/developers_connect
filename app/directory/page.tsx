@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Session } from "@supabase/supabase-js"
+import { toast } from "sonner"
 
 
 export default function DirectoryPage() {
@@ -78,15 +79,24 @@ export default function DirectoryPage() {
         }
       ])
 
-    if (error) {
-      console.error('Database Connection Error:', error.message, error.details || '')
-    } else {
-      // Refresh connections
+    if (!error) {
+      // Create Notification for receiver
+      await supabase.from('notifications').insert([{
+        user_id: targetId,
+        type: 'CONNECTION',
+        actor_id: session.user.id,
+        content: `${session.user.user_metadata?.full_name || 'A developer'} wants to connect with you.`,
+        link: '/directory'
+      }])
+
       const { data: connData } = await supabase
         .from('connections')
         .select('*')
         .or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
       if (connData) setMyConnections(connData)
+      toast.success("Connection request sent!")
+    } else {
+      toast.error("Failed to send request")
     }
     setProcessingId(null)
   }
@@ -102,12 +112,21 @@ export default function DirectoryPage() {
       .or(`and(sender_id.eq.${session.user.id},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${session.user.id})`)
 
     if (!error) {
+      // Remove notification if still unread
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', targetId)
+        .eq('actor_id', session.user.id)
+        .eq('type', 'CONNECTION')
+
       // Refresh connections
       const { data: connData } = await supabase
         .from('connections')
         .select('*')
         .or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
       if (connData) setMyConnections(connData)
+      toast.success("Request rescinded")
     }
     setProcessingId(null)
   }
