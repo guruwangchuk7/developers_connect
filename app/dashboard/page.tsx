@@ -390,6 +390,19 @@ function DashboardContent() {
       }
    }
 
+   const handleCancelConnection = async (targetId: string) => {
+      if (!user) return
+      const { error } = await supabase
+         .from('connections')
+         .delete()
+         .eq('status', 'PENDING')
+         .or(`and(sender_id.eq.${user.id},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${user.id})`)
+
+      if (!error) {
+         await fetchMyConnections(user.id)
+      }
+   }
+
    const getConnectionStatus = (profileId: string) => {
       if (!user) return null
       if (user.id === profileId) return 'SELF'
@@ -469,6 +482,7 @@ function DashboardContent() {
                            discoverSearch={discoverSearch}
                            setDiscoverSearch={setDiscoverSearch}
                            handleConnect={handleConnect}
+                           handleCancelConnection={handleCancelConnection}
                            getConnectionStatus={getConnectionStatus}
                         />
                      ) : activeTab === "teams" ? (

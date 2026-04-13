@@ -17,6 +17,7 @@ interface DiscoverDevelopersProps {
   discoverSearch: string
   setDiscoverSearch: (val: string) => void
   handleConnect: (id: string) => void
+  handleCancelConnection: (id: string) => void
   getConnectionStatus: (id: string) => string | null
 }
 
@@ -26,6 +27,7 @@ export function DiscoverDevelopers({
   discoverSearch,
   setDiscoverSearch,
   handleConnect,
+  handleCancelConnection,
   getConnectionStatus
 }: DiscoverDevelopersProps) {
   return (
@@ -65,9 +67,25 @@ export function DiscoverDevelopers({
                 <Check className="h-4 w-4" /> Connected
               </div>
             ) : getConnectionStatus(dev.id) === "PENDING" ? (
-              <div className="w-full py-3 text-[13px] font-bold border border-orange-100 bg-orange-50 text-orange-500 rounded-sm text-center flex items-center justify-center gap-2">
-                <Clock className="h-4 w-4" /> Request Sent
-              </div>
+              <button
+                onClick={() => handleCancelConnection(dev.id)}
+                onMouseEnter={(e) => {
+                  const span = e.currentTarget.querySelector('.status-text')
+                  if (span) span.innerHTML = 'Cancel Request?'
+                  e.currentTarget.classList.add('bg-red-500', 'text-white', 'border-red-600')
+                  e.currentTarget.classList.remove('bg-orange-50', 'text-orange-500', 'border-orange-100')
+                }}
+                onMouseLeave={(e) => {
+                  const span = e.currentTarget.querySelector('.status-text')
+                  if (span) span.innerHTML = 'Request Sent'
+                  e.currentTarget.classList.remove('bg-red-500', 'text-white', 'border-red-600')
+                  e.currentTarget.classList.add('bg-orange-50', 'text-orange-500', 'border-orange-100')
+                }}
+                className="w-full py-3 text-[13px] font-bold border border-orange-100 bg-orange-50 text-orange-500 rounded-sm transition-all text-center flex items-center justify-center gap-2"
+              >
+                <Clock className="h-4 w-4" />
+                <span className="status-text">Request Sent</span>
+              </button>
             ) : (
               <button
                 onClick={() => handleConnect(dev.id)}

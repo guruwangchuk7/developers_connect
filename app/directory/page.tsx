@@ -91,6 +91,27 @@ export default function DirectoryPage() {
     setProcessingId(null)
   }
 
+  const handleCancelConnection = async (targetId: string) => {
+    if (!session) return
+
+    setProcessingId(targetId)
+    const { error } = await supabase
+      .from('connections')
+      .delete()
+      .eq('status', 'PENDING')
+      .or(`and(sender_id.eq.${session.user.id},receiver_id.eq.${targetId}),and(sender_id.eq.${targetId},receiver_id.eq.${session.user.id})`)
+
+    if (!error) {
+      // Refresh connections
+      const { data: connData } = await supabase
+        .from('connections')
+        .select('*')
+        .or(`sender_id.eq.${session.user.id},receiver_id.eq.${session.user.id}`)
+      if (connData) setMyConnections(connData)
+    }
+    setProcessingId(null)
+  }
+
   const getConnectionStatus = (profileId: string) => {
     if (!session) return null
     if (session.user.id === profileId) return 'SELF'
@@ -197,9 +218,26 @@ export default function DirectoryPage() {
                         <Check className="h-3 w-3" /> Connected
                       </div>
                     ) : getConnectionStatus(p.id) === 'PENDING' ? (
-                      <div className="flex items-center gap-1.5 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
-                        <Clock className="h-3 w-3" /> Request Sent
-                      </div>
+                      <button 
+                        onClick={() => handleCancelConnection(p.id)}
+                        disabled={processingId === p.id}
+                        onMouseEnter={(e) => {
+                          const span = e.currentTarget.querySelector('.status-text')
+                          if (span) span.innerHTML = 'Cancel Request?'
+                          e.currentTarget.classList.add('bg-red-500', 'text-white', 'border-red-600')
+                          e.currentTarget.classList.remove('bg-orange-50/50', 'text-orange-500', 'border-orange-200')
+                        }}
+                        onMouseLeave={(e) => {
+                          const span = e.currentTarget.querySelector('.status-text')
+                          if (span) span.innerHTML = 'Request Sent'
+                          e.currentTarget.classList.remove('bg-red-500', 'text-white', 'border-red-600')
+                          e.currentTarget.classList.add('bg-orange-50/50', 'text-orange-500', 'border-orange-200')
+                        }}
+                        className="w-full h-11 border border-orange-200 bg-orange-50/50 text-orange-500 font-bold text-[10px] uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2 transition-all"
+                      >
+                        <Clock className="h-3.5 w-3.5" />
+                        <span className="status-text">Request Sent</span>
+                      </button>
                     ) : (
                       <button
                         onClick={() => handleConnect(p.id)}
