@@ -47,32 +47,37 @@ export default function IdentitySynthesisPage() {
 
    React.useEffect(() => {
       async function getSession() {
-         if (!supabase) return; 
-         const { data: { session } } = await supabase.auth.getSession()
-         if (!session) {
-            router.push('/join')
-            return
-         }
-         setUser(session.user)
-         fetchTeam(session.user.id)
+         try {
+            if (!supabase) return;
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+               router.push('/join')
+               return
+            }
+            setUser(session.user)
+            fetchTeam(session.user.id)
 
-         const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
+            const { data } = await supabase
+               .from('profiles')
+               .select('*')
+               .eq('id', session.user.id)
+               .single()
 
-         if (data) {
-            setProfile(data)
-            setPreviewUrl(data.avatar_url || session.user.user_metadata?.avatar_url || null)
-            setEditData({
-               bio: data.bio || "",
-               github_url: data.github_url || "",
-               portfolio_url: data.portfolio_url || "",
-               availability: data.availability || "Looking for team"
-            })
+            if (data) {
+               setProfile(data)
+               setPreviewUrl(data.avatar_url || session.user.user_metadata?.avatar_url || null)
+               setEditData({
+                  bio: data.bio || "",
+                  github_url: data.github_url || "",
+                  portfolio_url: data.portfolio_url || "",
+                  availability: data.availability || "Looking for team"
+               })
+            }
+         } catch (e) {
+            console.error(e)
+         } finally {
+            setIsLoading(false)
          }
-         setIsLoading(false)
       }
       getSession()
    }, [supabase, router])
@@ -167,25 +172,33 @@ export default function IdentitySynthesisPage() {
 
          <main className="flex-1 flex flex-col items-center w-full">
             <div className="w-full max-w-5xl px-4 md:px-8 pt-10 md:pt-16 pb-20 space-y-10">
-               
+
                {/* PAGE TITLE & TABS */}
                <div className="space-y-8">
-                  <h1 className="text-3xl font-semibold tracking-tight text-[#101828]">Settings</h1>
-                  
+                  <div className="space-y-2">
+                     <button
+                        onClick={() => router.back()}
+                        className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-4"
+                     >
+                        <ArrowLeft className="h-3 w-3" /> Back
+                     </button>
+                     <h1 className="text-3xl font-semibold tracking-tight text-[#101828]">Settings</h1>
+                  </div>
+
                   {/* Mobile Tab Selector */}
                   <div className="md:hidden w-full relative">
-                     <button 
+                     <button
                         onClick={() => setIsFilterOpen(!isFilterOpen)}
                         className="w-full bg-background border border-border rounded-lg p-3 text-sm font-semibold text-foreground flex items-center justify-between transition-all"
                      >
                         {activeTab}
                         <ChevronDown className="h-4 w-4" />
                      </button>
-                     
+
                      {isFilterOpen && (
                         <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden divide-y divide-border/40">
                            {["My details", "Profile", "Password", "Team", "Email"].map(tab => (
-                              <button 
+                              <button
                                  key={tab}
                                  onClick={() => {
                                     setActiveTab(tab)
@@ -202,26 +215,26 @@ export default function IdentitySynthesisPage() {
                         </div>
                      )}
                   </div>
-                  
-                   <nav className="hidden md:flex items-center gap-8 border-b border-border/60 overflow-x-auto pb-px">
-                      {["My details", "Profile", "Password", "Team", "Email"].map((tab, i) => (
-                         <button 
-                            key={tab} 
-                            onClick={() => setActiveTab(tab)}
-                            className={cn(
-                               "pb-4 text-[14px] font-semibold whitespace-nowrap transition-all border-b-2",
-                               activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
-                            )}
-                         >
-                            {tab}
-                         </button>
-                      ))}
-                   </nav>
+
+                  <nav className="hidden md:flex items-center gap-8 border-b border-border/60 overflow-x-auto pb-px">
+                     {["My details", "Profile", "Password", "Team", "Email"].map((tab, i) => (
+                        <button
+                           key={tab}
+                           onClick={() => setActiveTab(tab)}
+                           className={cn(
+                              "pb-4 text-[14px] font-semibold whitespace-nowrap transition-all border-b-2",
+                              activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                           )}
+                        >
+                           {tab}
+                        </button>
+                     ))}
+                  </nav>
                </div>
 
                {/* SECTION CONTENT */}
                <div className="bg-background border border-border/60 rounded-xl shadow-sm overflow-hidden">
-                  
+
                   {/* SECTION HEADER */}
                   <div className="p-6 md:p-8 border-b border-border/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
                      <div className="space-y-1">
@@ -229,13 +242,13 @@ export default function IdentitySynthesisPage() {
                         <p className="text-sm text-muted-foreground">Update your photo and personal technical details here.</p>
                      </div>
                      <div className="flex items-center gap-3">
-                        <button 
+                        <button
                            onClick={() => router.back()}
                            className="px-4 py-2 text-sm font-semibold border border-border rounded-lg hover:bg-secondary transition-colors"
                         >
                            Cancel
                         </button>
-                        <button 
+                        <button
                            onClick={handleFullUpdate}
                            disabled={saving}
                            className="px-4 py-2 text-sm font-semibold bg-primary text-background rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
@@ -246,7 +259,7 @@ export default function IdentitySynthesisPage() {
                   </div>
 
                   <div className="divide-y divide-border/40">
-                     
+
                      {/* MY DETAILS & PROFILE CONTENT */}
                      {(activeTab === "My details" || activeTab === "Profile") && (
                         <>
@@ -256,15 +269,15 @@ export default function IdentitySynthesisPage() {
                                  <label className="text-sm font-semibold text-[#344054]">Professional Name</label>
                               </div>
                               <div className="md:col-span-9 grid grid-cols-2 gap-4">
-                                 <input 
-                                    type="text" 
+                                 <input
+                                    type="text"
                                     placeholder="First name"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all"
                                     value={user.user_metadata?.full_name?.split(' ')[0] || ""}
                                     disabled
                                  />
-                                 <input 
-                                    type="text" 
+                                 <input
+                                    type="text"
                                     placeholder="Last name"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all"
                                     value={user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || ""}
@@ -287,14 +300,14 @@ export default function IdentitySynthesisPage() {
                                        <UserCircle2 className="h-full w-full text-muted-foreground/20 p-2" />
                                     )}
                                  </div>
-                                 <input 
-                                    type="file" 
-                                    ref={fileInputRef} 
-                                    className="hidden" 
+                                 <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    className="hidden"
                                     accept="image/*"
                                     onChange={e => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
                                  />
-                                 <div 
+                                 <div
                                     onClick={() => fileInputRef.current?.click()}
                                     onDragOver={onDragOver}
                                     onDragLeave={onDragLeave}
@@ -320,8 +333,8 @@ export default function IdentitySynthesisPage() {
                                  <p className="text-xs text-muted-foreground mt-1">Primary link to your ecosystem code.</p>
                               </div>
                               <div className="md:col-span-9 relative max-w-2xl">
-                                 <input 
-                                    type="text" 
+                                 <input
+                                    type="text"
                                     placeholder="github.com/username"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 pl-10 text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all"
                                     value={editData.github_url}
@@ -338,7 +351,7 @@ export default function IdentitySynthesisPage() {
                                  <p className="text-xs text-muted-foreground mt-1">Your current visibility in the network.</p>
                               </div>
                               <div className="md:col-span-9 max-w-2xl">
-                                 <select 
+                                 <select
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary/10 focus:border-primary outline-none transition-all appearance-none"
                                     value={editData.availability}
                                     onChange={e => setEditData({ ...editData, availability: e.target.value })}
@@ -367,7 +380,7 @@ export default function IdentitySynthesisPage() {
                                        </div>
                                     </div>
                                  </div>
-                                 <textarea 
+                                 <textarea
                                     placeholder="Describe your unique professional path..."
                                     className="w-full bg-background border border-border border-t-0 rounded-b-lg p-6 md:p-8 focus:outline-none focus:ring-0 text-[14px] font-medium min-h-[200px] resize-none leading-relaxed transition-all placeholder:text-muted-foreground/30 shadow-inner"
                                     value={editData.bio}
@@ -389,8 +402,8 @@ export default function IdentitySynthesisPage() {
                                  <label className="text-sm font-semibold text-[#344054]">Current password</label>
                               </div>
                               <div className="md:col-span-9 max-w-md w-full">
-                                 <input 
-                                    type="password" 
+                                 <input
+                                    type="password"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
                                     placeholder="••••••••"
                                  />
@@ -402,13 +415,13 @@ export default function IdentitySynthesisPage() {
                                  <p className="text-xs text-muted-foreground mt-1">Must be at least 8 characters.</p>
                               </div>
                               <div className="md:col-span-9 space-y-4 max-w-md w-full">
-                                 <input 
-                                    type="password" 
+                                 <input
+                                    type="password"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
                                     placeholder="••••••••"
                                  />
-                                 <input 
-                                    type="password" 
+                                 <input
+                                    type="password"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
                                     placeholder="Confirm new password"
                                  />
@@ -431,22 +444,22 @@ export default function IdentitySynthesisPage() {
                            <div className="p-6 bg-secondary/20 rounded-xl border border-border/40 space-y-6">
                               <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sync New Collaborator</h4>
                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                 <input 
-                                    type="text" 
+                                 <input
+                                    type="text"
                                     placeholder="Full name"
                                     className="bg-background border border-border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
                                     value={inviteData.name}
                                     onChange={e => setInviteData({ ...inviteData, name: e.target.value })}
                                  />
-                                 <input 
-                                    type="email" 
+                                 <input
+                                    type="email"
                                     placeholder="Gmail address"
                                     className="bg-background border border-border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
                                     value={inviteData.email}
                                     onChange={e => setInviteData({ ...inviteData, email: e.target.value })}
                                  />
                                  <div className="flex gap-2">
-                                    <select 
+                                    <select
                                        className="flex-1 bg-background border border-border rounded-lg p-2 text-sm outline-none"
                                        value={inviteData.role}
                                        onChange={e => setInviteData({ ...inviteData, role: e.target.value })}
@@ -455,7 +468,7 @@ export default function IdentitySynthesisPage() {
                                        <option>Editor</option>
                                        <option>Viewer</option>
                                     </select>
-                                    <button 
+                                    <button
                                        onClick={handleAddMember}
                                        disabled={isInviting || !inviteData.email}
                                        className="px-4 bg-primary text-background rounded-lg text-sm font-bold hover:opacity-90 transition-all disabled:opacity-30"
@@ -498,13 +511,13 @@ export default function IdentitySynthesisPage() {
                                     </div>
                                     <div className="flex items-center gap-6">
                                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 py-0.5 bg-secondary/50 rounded-md border border-border/40">{m.role}</span>
-                                       
-                                       <button 
+
+                                       <button
                                           onClick={() => handleRemoveMember(m.id)}
                                           className={cn(
                                              "text-[10px] font-bold uppercase tracking-widest transition-all px-3 py-1.5 rounded-md border",
-                                             confirmRemoveId === m.id 
-                                                ? "bg-red-500 text-white border-red-600 scale-105" 
+                                             confirmRemoveId === m.id
+                                                ? "bg-red-500 text-white border-red-600 scale-105"
                                                 : "text-muted-foreground/40 hover:text-red-500 hover:border-red-200"
                                           )}
                                        >
@@ -534,8 +547,8 @@ export default function IdentitySynthesisPage() {
                               </div>
                               <div className="md:col-span-9 max-w-xl w-full">
                                  <div className="relative group">
-                                    <input 
-                                       type="email" 
+                                    <input
+                                       type="email"
                                        className="w-full bg-secondary/20 border border-border rounded-lg p-2.5 pl-10 text-sm outline-none"
                                        value={user.email}
                                        disabled
@@ -551,8 +564,8 @@ export default function IdentitySynthesisPage() {
                                  <label className="text-sm font-semibold text-[#344054]">Update relay email</label>
                               </div>
                               <div className="md:col-span-9 max-w-xl w-full space-y-4">
-                                 <input 
-                                    type="email" 
+                                 <input
+                                    type="email"
                                     className="w-full bg-background border border-border rounded-lg p-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all font-medium"
                                     placeholder="newemail@domain.com"
                                  />

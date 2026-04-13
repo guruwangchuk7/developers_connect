@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings, HelpCircle, History } from "lucide-react";
+import { Menu, X, LayoutGrid, Search, Users, Trophy, MessageSquare, LogOut, Settings, HelpCircle, History, ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase";
 import { usePathname } from "next/navigation";
 import { Session } from "@supabase/supabase-js";
@@ -20,7 +20,10 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
   const supabase = createClient();
   const pathname = usePathname();
-  const isDashboard = pathname?.startsWith('/dashboard');
+  const isDashboard = pathname?.startsWith('/dashboard') ||
+    pathname?.startsWith('/identity') ||
+    pathname?.startsWith('/profile') ||
+    pathname?.startsWith('/apply');
 
   React.useEffect(() => {
     if (!supabase) return;
@@ -195,6 +198,13 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
                           Posts & Activity
+                        </Link>
+                        <Link
+                          href="/identity/connections"
+                          className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Sync Channels
                         </Link>
                       </div>
 
