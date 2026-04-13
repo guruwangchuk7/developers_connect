@@ -587,6 +587,8 @@ function DashboardContent() {
 
 export default function DashboardPage() {
    return (
-      <DashboardContent />
+      <Suspense fallback={null}>
+         <DashboardContent />
+      </Suspense>
    )
 }
