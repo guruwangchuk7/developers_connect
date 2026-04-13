@@ -36,11 +36,13 @@ import { DiscoverDevelopers } from "@/features/dashboard/components/discover-dev
 import { MessagesOverlay } from "@/features/dashboard/components/messages-overlay"
 import { Sidebar } from "@/features/dashboard/components/sidebar"
 import { Help } from "@/features/dashboard/components/help"
+import { FeedSkeleton, SidebarSkeleton, HeaderSkeleton, EventSkeleton } from "@/features/dashboard/components/skeletons"
 
 function DashboardContent() {
    const [user, setUser] = React.useState<any>(null)
    const [profile, setProfile] = React.useState<any>(null)
-   const [isLoading, setIsLoading] = React.useState(true)
+   const [isInitializing, setIsInitializing] = React.useState(true)
+   const [isDataLoading, setIsDataLoading] = React.useState(true)
    const [activeTab, setActiveTabRaw] = React.useState<string>("all")
 
    const [posts, setPosts] = React.useState<any[]>([])
@@ -177,41 +179,52 @@ function DashboardContent() {
       if (data) setMyConnections(data)
    }
 
+   const fetchAllProfiles = async () => {
+      const { data, error } = await supabase
+         .from('profiles')
+         .select('*')
+         .order('updated_at', { ascending: false })
+      if (!error && data) setAllProfiles(data)
+   }
+
    React.useEffect(() => {
-      async function getSession() {
+      async function init() {
          const { data: { session } } = await supabase.auth.getSession()
          if (!session) {
             router.push('/join')
             return
          }
          setUser(session.user)
+         setIsInitializing(false)
 
-         const { data: profileRecord, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
+         // Parallelize all data fetching
+         await Promise.all([
+            // 1. Fetch Profile
+            supabase
+               .from('profiles')
+               .select('*')
+               .eq('id', session.user.id)
+               .single()
+               .then(({ data }: { data: any }) => data && setProfile(data)),
+            
+            // 2. Fetch Content
+            fetchPosts(),
+            fetchEvents(),
+            fetchUserLikes(session.user.id),
+            fetchMyConnections(session.user.id),
+            fetchAllProfiles()
+         ])
 
-         if (profileError || !profileRecord) {
-            router.push('/onboarding')
-            return
-         }
-
-         setProfile(profileRecord)
-         await fetchPosts()
-         await fetchEvents()
-         await fetchUserLikes(session.user.id)
-         await fetchMyConnections(session.user.id)
+         setIsDataLoading(false)
 
          const interval = setInterval(() => {
             fetchPosts()
             fetchEvents()
-         }, 10000)
+         }, 20000) // Increased interval slightly for better performance
 
-         setIsLoading(false)
          return () => clearInterval(interval)
       }
-      getSession()
+      init()
    }, [])
 
    const handlePost = async () => {
@@ -363,35 +376,9 @@ function DashboardContent() {
       return conn ? conn.status : null
    }
 
-   const fetchAllProfiles = async () => {
-      const { data, error } = await supabase
-         .from('profiles')
-         .select('*')
-         .order('updated_at', { ascending: false })
-      if (!error && data) setAllProfiles(data)
-   }
-
-   React.useEffect(() => {
-      fetchAllProfiles()
-   }, [])
-
    const handleDeletePost = async (postId: string) => {
       const { error } = await supabase.from('posts').delete().eq('id', postId)
       if (!error) await fetchPosts()
-   }
-
-   if (isLoading) {
-      return (
-         <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-6">
-            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-t-2 border-primary animate-spin" />
-            <div className="space-y-1">
-               <p className="text-[12px] md:text-[13px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Initializing Data</p>
-               <div className="h-0.5 w-64 bg-secondary overflow-hidden">
-                  <div className="h-full bg-primary animate-progress" />
-               </div>
-            </div>
-         </div>
-      )
    }
 
    return (
@@ -401,176 +388,191 @@ function DashboardContent() {
          <main className="flex-1 flex justify-center w-full">
             <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
                <div className="hidden lg:block lg:col-span-3">
-                  <Sidebar
-                     activeTab={activeTab}
-                     setActiveTab={setActiveTab}
-                     setIsMessagesOpen={setIsMessagesOpen}
-                     className="sticky top-20"
-                  />
+                  {isInitializing ? (
+                     <SidebarSkeleton />
+                  ) : (
+                     <Sidebar
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                        setIsMessagesOpen={setIsMessagesOpen}
+                        className="sticky top-20"
+                     />
+                  )}
                </div>
 
                <div className="lg:col-span-9 space-y-8">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
-                     <div className="flex flex-col justify-center space-y-1 text-left">
-                        <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">
-                           {headerInfo.title}
-                        </h1>
-                        <div className="h-[20px]">
-                           {headerInfo.subtitle && (
-                              <p className="text-[14px] font-medium text-muted-foreground/50 animate-in fade-in duration-300">{headerInfo.subtitle}</p>
+                  {isInitializing ? (
+                     <HeaderSkeleton />
+                  ) : (
+                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/10 pt-2 pb-4">
+                        <div className="flex flex-col justify-center space-y-1 text-left">
+                           <h1 className="text-[26px] md:text-[34px] font-medium tracking-tighter leading-none">
+                              {headerInfo.title}
+                           </h1>
+                           <div className="h-[20px]">
+                              {headerInfo.subtitle && (
+                                 <p className="text-[14px] font-medium text-muted-foreground/50 animate-in fade-in duration-300">{headerInfo.subtitle}</p>
+                              )}
+                           </div>
+                        </div>
+                        <div className="flex items-center gap-2 min-w-0 md:min-w-[256px] justify-end">
+                           {["discover", "teams"].includes(activeTab) && (
+                              <div className="relative w-full md:w-auto animate-in fade-in slide-in-from-right-2 duration-300">
+                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30" />
+                                 <input
+                                    type="text"
+                                    placeholder={activeTab === "teams" ? "Search teams or projects..." : "Search by skill or name..."}
+                                    className="pl-10 pr-4 py-2 bg-secondary/20 border border-border/10 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
+                                    value={discoverSearch}
+                                    onChange={(e) => setDiscoverSearch(e.target.value)}
+                                 />
+                              </div>
                            )}
                         </div>
                      </div>
-                     <div className="flex items-center gap-2 min-w-0 md:min-w-[256px] justify-end">
-                        {["discover", "teams"].includes(activeTab) && (
-                           <div className="relative w-full md:w-auto animate-in fade-in slide-in-from-right-2 duration-300">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30" />
-                              <input
-                                 type="text"
-                                 placeholder={activeTab === "teams" ? "Search teams or projects..." : "Search by skill or name..."}
-                                 className="pl-10 pr-4 py-2 bg-secondary/20 border border-border/10 rounded-sm text-[13px] focus:outline-none focus:border-primary/40 w-full md:w-64"
-                                 value={discoverSearch}
-                                 onChange={(e) => setDiscoverSearch(e.target.value)}
-                              />
-                           </div>
-                        )}
-                     </div>
-                  </div>
+                  )}
 
-                  {activeTab === "discover" ? (
-                     <DiscoverDevelopers
-                        allProfiles={allProfiles}
-                        user={user}
-                        discoverSearch={discoverSearch}
-                        setDiscoverSearch={setDiscoverSearch}
-                        handleConnect={handleConnect}
-                        getConnectionStatus={getConnectionStatus}
-                     />
-                  ) : activeTab === "teams" ? (
-                     <div className="space-y-10">
-                        <ContentFeed
-                           isGrid={true}
-                           posts={posts.filter((p: any) => p.type === 'TEAM' && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
-                           user={user}
-                           userLikes={userLikes}
-                           handleDeletePost={handleDeletePost}
-                           handleConnect={handleConnect}
-                           handleLike={handleLike}
-                        />
-                     </div>
-                  ) : activeTab === "projects" ? (
-                     <div className="space-y-10">
-                        <ContentFeed
-                           isGrid={true}
-                           posts={posts.filter((p: any) => p.type === 'PROJECT' && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
-                           user={user}
-                           userLikes={userLikes}
-                           handleDeletePost={handleDeletePost}
-                           handleConnect={handleConnect}
-                           handleLike={handleLike}
-                        />
-                     </div>
-                  ) : activeTab === "help" ? (
-                     <div className="space-y-10">
-                        <ContentFeed
-                           posts={posts.filter((p: any) => p.type === 'HELP')}
-                           user={user}
-                           userLikes={userLikes}
-                           handleDeletePost={handleDeletePost}
-                           handleConnect={handleConnect}
-                           handleLike={handleLike}
-                        />
-                     </div>
-                  ) : activeTab === "events" ? (
-                     <div className="space-y-8">
-                        <div className="flex items-center justify-between">
-                           <h3 className="text-xl font-bold tracking-tight">Active synchronization nodes</h3>
-                           <button
-                              onClick={() => setActiveTab("organize-event")}
-                              className="px-6 py-2 bg-primary text-background text-[11px] font-bold rounded-sm hover:opacity-90 transition-all uppercase tracking-widest flex items-center gap-2"
-                           >
-                              <Plus className="h-3.5 w-3.5" /> Organize Event
-                           </button>
-                        </div>
-                        {events.length > 0 ? (
-                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                              {events.map((event) => {
-                                 const hasPoster = !!event.image_url
-                                 const endDateMatch = event.description?.match(/END_DATE: (.*)/)
-                                 const endDate = endDateMatch ? endDateMatch[1] : null
-                                 const cleanDescription = event.description?.replace(/END_DATE: (.*)/, '').trim()
-
-                                 return (
-                                    <div key={event.id} className="bg-background border border-border/40 rounded-sm overflow-hidden flex flex-col hover:border-primary/20 transition-all group">
-                                       {hasPoster && (
-                                          <div className="aspect-video w-full overflow-hidden border-b border-border/10">
-                                             <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                          </div>
-                                       )}
-                                       <div className="p-6 space-y-4 flex-1 flex flex-col">
-                                          <div className="flex justify-between items-start">
-                                             <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60">Community Event</span>
-                                             <div className="flex flex-col items-end gap-1">
-                                                <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 bg-secondary rounded-full">
-                                                   {new Date(event.event_date).toLocaleDateString()}
-                                                </span>
-                                                {endDate && (
-                                                   <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border border-border/40 rounded-full text-muted-foreground">
-                                                      Ends: {new Date(endDate).toLocaleDateString()}
-                                                   </span>
-                                                )}
-                                             </div>
-                                          </div>
-                                          <div className="space-y-2 flex-1">
-                                             <h4 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors line-clamp-1">{event.title}</h4>
-                                             <p className="text-[13px] text-muted-foreground line-clamp-3 leading-relaxed">{cleanDescription}</p>
-                                          </div>
-                                          <div className="pt-4 border-t border-border/20 flex items-center justify-between mt-auto">
-                                             <div className="flex items-center gap-2">
-                                                <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic">
-                                                   {event.profiles?.full_name?.[0] || 'A'}
-                                                </div>
-                                                <span className="text-[10px] font-bold text-muted-foreground/60">{event.profiles?.full_name || 'Anonymous'}</span>
-                                             </div>
-                                             <span className="text-[10px] font-bold text-muted-foreground/40">{event.venue}</span>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 )
-                              })}
-                           </div>
-                        ) : (
-                           <div className="py-24 text-center border border-dashed border-border/30 rounded-xl bg-secondary/5">
-                              <div className="h-12 w-12 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
-                                 <Trophy className="h-6 w-6 text-primary" />
-                              </div>
-                              <h3 className="text-xl font-bold tracking-tight mb-2">Upcoming Community Events</h3>
-                              <p className="text-muted-foreground max-w-sm mx-auto">No events scheduled. Be the first to organize a workshop or hackathon!</p>
-                           </div>
-                        )}
-                     </div>
-                  ) : activeTab === "help-guide" ? (
-                     <Help />
+                  {isDataLoading ? (
+                     activeTab === "discover" ? <FeedSkeleton isGrid /> :
+                     activeTab === "teams" || activeTab === "projects" ? <FeedSkeleton isGrid /> :
+                     activeTab === "events" ? <EventSkeleton /> :
+                     <FeedSkeleton />
                   ) : (
-                     <div className="space-y-10">
-                        <PostCreator
-                           activeTab={activeTab}
-                           guidedFields={guidedFields}
-                           setGuidedFields={setGuidedFields}
-                           isPosting={isPosting}
-                           handlePost={handlePost}
+                     activeTab === "discover" ? (
+                        <DiscoverDevelopers
+                           allProfiles={allProfiles}
+                           user={user}
+                           discoverSearch={discoverSearch}
+                           setDiscoverSearch={setDiscoverSearch}
+                           handleConnect={handleConnect}
+                           getConnectionStatus={getConnectionStatus}
                         />
-                        {activeTab === "all" && (
+                     ) : activeTab === "teams" ? (
+                        <div className="space-y-10">
                            <ContentFeed
-                              posts={feedItems}
+                              isGrid={true}
+                              posts={posts.filter((p: any) => p.type === 'TEAM' && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
                               user={user}
                               userLikes={userLikes}
                               handleDeletePost={handleDeletePost}
                               handleConnect={handleConnect}
                               handleLike={handleLike}
                            />
-                        )}
-                     </div>
+                        </div>
+                     ) : activeTab === "projects" ? (
+                        <div className="space-y-10">
+                           <ContentFeed
+                              isGrid={true}
+                              posts={posts.filter((p: any) => p.type === 'PROJECT' && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
+                              user={user}
+                              userLikes={userLikes}
+                              handleDeletePost={handleDeletePost}
+                              handleConnect={handleConnect}
+                              handleLike={handleLike}
+                           />
+                        </div>
+                     ) : activeTab === "help" ? (
+                        <div className="space-y-10">
+                           <ContentFeed
+                              posts={posts.filter((p: any) => p.type === 'HELP')}
+                              user={user}
+                              userLikes={userLikes}
+                              handleDeletePost={handleDeletePost}
+                              handleConnect={handleConnect}
+                              handleLike={handleLike}
+                           />
+                        </div>
+                     ) : activeTab === "events" ? (
+                        <div className="space-y-8">
+                           <div className="flex items-center justify-between">
+                              <h3 className="text-xl font-bold tracking-tight">Active synchronization nodes</h3>
+                              <button
+                                 onClick={() => setActiveTab("organize-event")}
+                                 className="px-6 py-2 bg-primary text-background text-[11px] font-bold rounded-sm hover:opacity-90 transition-all uppercase tracking-widest flex items-center gap-2"
+                              >
+                                 <Plus className="h-3.5 w-3.5" /> Organize Event
+                              </button>
+                           </div>
+                           {events.length > 0 ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                 {events.map((event) => {
+                                    const hasPoster = !!event.image_url
+                                    const endDateMatch = event.description?.match(/END_DATE: (.*)/)
+                                    const endDate = endDateMatch ? endDateMatch[1] : null
+                                    const cleanDescription = event.description?.replace(/END_DATE: (.*)/, '').trim()
+
+                                    return (
+                                       <div key={event.id} className="bg-background border border-border/40 rounded-sm overflow-hidden flex flex-col hover:border-primary/20 transition-all group">
+                                          {hasPoster && (
+                                             <div className="aspect-video w-full overflow-hidden border-b border-border/10">
+                                                <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                             </div>
+                                          )}
+                                          <div className="p-6 space-y-4 flex-1 flex flex-col">
+                                             <div className="flex justify-between items-start">
+                                                <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60">Community Event</span>
+                                                <div className="flex flex-col items-end gap-1">
+                                                   <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 bg-secondary rounded-full">
+                                                      {new Date(event.event_date).toLocaleDateString()}
+                                                   </span>
+                                                   {endDate && (
+                                                      <span className="text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 border border-border/40 rounded-full text-muted-foreground">
+                                                         Ends: {new Date(endDate).toLocaleDateString()}
+                                                      </span>
+                                                   )}
+                                                </div>
+                                             </div>
+                                             <div className="space-y-2 flex-1">
+                                                <h4 className="text-lg font-bold tracking-tight group-hover:text-primary transition-colors line-clamp-1">{event.title}</h4>
+                                                <p className="text-[13px] text-muted-foreground line-clamp-3 leading-relaxed">{cleanDescription}</p>
+                                             </div>
+                                             <div className="pt-4 border-t border-border/20 flex items-center justify-between mt-auto">
+                                                <div className="flex items-center gap-2">
+                                                   <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic">
+                                                      {event.profiles?.full_name?.[0] || 'A'}
+                                                   </div>
+                                                   <span className="text-[10px] font-bold text-muted-foreground/60">{event.profiles?.full_name || 'Anonymous'}</span>
+                                                </div>
+                                                <span className="text-[10px] font-bold text-muted-foreground/40">{event.venue}</span>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    )
+                                 })}
+                              </div>
+                           ) : (
+                              <div className="py-24 text-center border border-dashed border-border/30 rounded-xl bg-secondary/5">
+                                 <div className="h-12 w-12 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Trophy className="h-6 w-6 text-primary" />
+                                 </div>
+                                 <h3 className="text-xl font-bold tracking-tight mb-2">Upcoming Community Events</h3>
+                                 <p className="text-muted-foreground max-w-sm mx-auto">No events scheduled. Be the first to organize a workshop or hackathon!</p>
+                              </div>
+                           )}
+                        </div>
+                     ) : activeTab === "help-guide" ? (
+                        <Help />
+                     ) : (
+                        <div className="space-y-10">
+                           <PostCreator
+                              activeTab={activeTab}
+                              guidedFields={guidedFields}
+                              setGuidedFields={setGuidedFields}
+                              isPosting={isPosting}
+                              handlePost={handlePost}
+                           />
+                           {activeTab === "all" && (
+                              <ContentFeed
+                                 posts={feedItems}
+                                 user={user}
+                                 userLikes={userLikes}
+                                 handleDeletePost={handleDeletePost}
+                                 handleConnect={handleConnect}
+                                 handleLike={handleLike}
+                              />
+                           )}
+                        </div>
+                     )
                   )}
                </div>
             </div>
@@ -585,18 +587,6 @@ function DashboardContent() {
 
 export default function DashboardPage() {
    return (
-      <Suspense fallback={
-         <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-6">
-            <div className="h-16 w-16 md:h-20 md:w-20 rounded-full border-t-2 border-primary animate-spin" />
-            <div className="space-y-1 text-center">
-               <p className="text-[12px] md:text-[13px] font-black uppercase tracking-[0.3em] text-primary animate-pulse">Synchronizing Node</p>
-               <div className="h-0.5 w-64 bg-secondary overflow-hidden">
-                  <div className="h-full bg-primary animate-progress" />
-               </div>
-            </div>
-         </div>
-      }>
-         <DashboardContent />
-      </Suspense>
+      <DashboardContent />
    )
 }

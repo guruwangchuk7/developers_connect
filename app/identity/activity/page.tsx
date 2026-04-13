@@ -7,7 +7,7 @@ import { GlobalHeader } from "@/components/common/global-header"
 import { ContentFeed } from "@/features/dashboard/components/content-feed"
 import { cn } from "@/lib/utils"
 import { 
-  History, 
+  History as HistoryIcon, 
   Trash2, 
   Calendar, 
   ArrowLeft, 
@@ -20,13 +20,15 @@ import {
   ShieldAlert
 } from "lucide-react"
 import { toast } from "sonner"
+import { FeedSkeleton, HeaderSkeleton, EventSkeleton, Skeleton } from "@/features/dashboard/components/skeletons"
 
 export default function UserActivityPage() {
   const supabase = createClient()
   const router = useRouter()
   const [user, setUser] = React.useState<any>(null)
   const [profile, setProfile] = React.useState<any>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
+  const [isInitializing, setIsInitializing] = React.useState(true)
+  const [isDataLoading, setIsDataLoading] = React.useState(true)
   const [posts, setPosts] = React.useState<any[]>([])
   const [events, setEvents] = React.useState<any[]>([])
   const [activeView, setActiveView] = React.useState<'POSTS' | 'EVENTS'>('POSTS')
@@ -34,15 +36,26 @@ export default function UserActivityPage() {
   const [searchQuery, setSearchQuery] = React.useState("")
 
   const fetchUserContent = async (userId: string) => {
-    // Fetch Posts
-    const { data: postsData, error: postsError } = await supabase
-      .from('posts')
-      .select(`*, profiles!user_id (full_name, role, avatar_url)`)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+    // Parallelize fetches
+    const [postsRes, eventsRes, likesRes] = await Promise.all([
+      supabase
+        .from('posts')
+        .select(`*, profiles!user_id (full_name, role, avatar_url)`)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('events')
+        .select(`*, profiles!organizer_id (full_name)`)
+        .eq('organizer_id', userId)
+        .order('event_date', { ascending: false }),
+      supabase
+        .from('post_likes')
+        .select('post_id')
+        .eq('user_id', userId)
+    ])
 
-    if (!postsError && postsData) {
-      setPosts(postsData.map((p: any) => ({
+    if (!postsRes.error && postsRes.data) {
+      setPosts(postsRes.data.map((p: any) => ({
         id: p.id,
         userId: p.user_id,
         user: p.profiles?.full_name || 'Anonymous',
@@ -58,23 +71,11 @@ export default function UserActivityPage() {
       })))
     }
 
-    // Fetch Events
-    const { data: eventsData, error: eventsError } = await supabase
-      .from('events')
-      .select(`*, profiles!organizer_id (full_name)`)
-      .eq('organizer_id', userId)
-      .order('event_date', { ascending: false })
-
-    if (!eventsError && eventsData) {
-      setEvents(eventsData)
+    if (!eventsRes.error && eventsRes.data) {
+      setEvents(eventsRes.data)
     }
 
-    // Fetch Likes (to show in feed)
-    const { data: likesData } = await supabase
-      .from('post_likes')
-      .select('post_id')
-      .eq('user_id', userId)
-    if (likesData) setUserLikes(likesData.map((l: any) => l.post_id))
+    if (likesRes.data) setUserLikes(likesRes.data.map((l: any) => l.post_id))
   }
 
   React.useEffect(() => {
@@ -85,17 +86,19 @@ export default function UserActivityPage() {
         return
       }
       setUser(session.user)
+      setIsInitializing(false)
 
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
+      await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single()
+          .then(({ data }: { data: any }) => data && setProfile(data)),
+        fetchUserContent(session.user.id)
+      ])
       
-      if (profileData) setProfile(profileData)
-      
-      await fetchUserContent(session.user.id)
-      setIsLoading(false)
+      setIsDataLoading(false)
     }
     init()
   }, [])
@@ -145,15 +148,6 @@ export default function UserActivityPage() {
     e.description.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center space-y-4">
-        <div className="h-12 w-12 rounded-full border-t-2 border-primary animate-spin" />
-        <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground animate-pulse">Retrieving Activity Stream</p>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-primary/10">
       <GlobalHeader />
@@ -170,13 +164,24 @@ export default function UserActivityPage() {
               >
                 <ArrowLeft className="h-3 w-3" /> Back
               </button>
-              <h1 className="text-3xl font-semibold tracking-tight text-[#101828] flex items-center gap-3">
-                Posts & Activity
-                <span className="px-2 py-0.5 bg-secondary rounded-full text-[10px] font-bold text-muted-foreground">
-                  {posts.length + events.length} Total
-                </span>
-              </h1>
-              <p className="text-sm text-muted-foreground">Manage your contributions, help requests, and community events.</p>
+              {isInitializing ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-64" />
+                  <Skeleton className="h-4 w-48" />
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-3xl font-semibold tracking-tight text-[#101828] flex items-center gap-3">
+                    Posts & Activity
+                    {!isDataLoading && (
+                      <span className="px-2 py-0.5 bg-secondary rounded-full text-[10px] font-bold text-muted-foreground">
+                        {posts.length + events.length} Total
+                      </span>
+                    )}
+                  </h1>
+                  <p className="text-sm text-muted-foreground">Manage your contributions, help requests, and community events.</p>
+                </>
+              )}
             </div>
 
             <div className="flex items-center gap-2 bg-white border border-border/60 p-1 rounded-lg shadow-sm">
@@ -215,92 +220,96 @@ export default function UserActivityPage() {
 
           {/* Content Area */}
           <div className="space-y-6">
-            {activeView === 'POSTS' ? (
-              filteredPosts.length > 0 ? (
-                <div className="bg-white border border-border/60 rounded-xl overflow-hidden shadow-sm p-6 md:p-8">
-                  <ContentFeed 
-                    posts={filteredPosts}
-                    user={user}
-                    userLikes={userLikes}
-                    handleDeletePost={handleDeletePost}
-                    handleConnect={() => {}} // Not needed here as it's own post
-                    handleLike={handleLike}
-                  />
-                </div>
-              ) : (
-                <div className="py-32 text-center bg-white border border-dashed border-border/60 rounded-2xl flex flex-col items-center">
-                  <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-6">
-                    <History className="h-8 w-8 text-muted-foreground/40" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground/80">No posts found</h3>
-                  <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-1">
-                    {searchQuery ? "No matches for your search query." : "You haven't shared any technical updates or help requests yet."}
-                  </p>
-                  <button 
-                    onClick={() => router.push('/dashboard?tab=post-update')}
-                    className="mt-8 px-6 py-2.5 bg-primary text-background text-[11px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-lg shadow-primary/20"
-                  >
-                    Create first post
-                  </button>
-                </div>
-              )
+            {isDataLoading ? (
+              activeView === 'POSTS' ? <FeedSkeleton /> : <EventSkeleton />
             ) : (
-              filteredEvents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredEvents.map((event) => (
-                    <div key={event.id} className="bg-white border border-border/60 rounded-xl overflow-hidden flex flex-col hover:border-primary/20 transition-all group shadow-sm">
-                      {event.image_url && (
-                        <div className="aspect-video w-full overflow-hidden border-b border-border/10">
-                          <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        </div>
-                      )}
-                      <div className="p-6 space-y-4 flex-1 flex flex-col">
-                        <div className="flex justify-between items-start">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 bg-primary/5 text-primary border border-primary/10 rounded-full w-fit">
-                              {new Date(event.event_date).toLocaleDateString()}
-                            </span>
+              activeView === 'POSTS' ? (
+                filteredPosts.length > 0 ? (
+                  <div className="bg-white border border-border/60 rounded-xl overflow-hidden shadow-sm p-6 md:p-8">
+                    <ContentFeed 
+                      posts={filteredPosts}
+                      user={user}
+                      userLikes={userLikes}
+                      handleDeletePost={handleDeletePost}
+                      handleConnect={() => {}} // Not needed here as it's own post
+                      handleLike={handleLike}
+                    />
+                  </div>
+                ) : (
+                  <div className="py-32 text-center bg-white border border-dashed border-border/60 rounded-2xl flex flex-col items-center">
+                    <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-6">
+                      <HistoryIcon className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground/80">No posts found</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-1">
+                      {searchQuery ? "No matches for your search query." : "You haven't shared any technical updates or help requests yet."}
+                    </p>
+                    <button 
+                      onClick={() => router.push('/dashboard?tab=post-update')}
+                      className="mt-8 px-6 py-2.5 bg-primary text-background text-[11px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-lg shadow-primary/20"
+                    >
+                      Create first post
+                    </button>
+                  </div>
+                )
+              ) : (
+                filteredEvents.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {filteredEvents.map((event) => (
+                      <div key={event.id} className="bg-white border border-border/60 rounded-xl overflow-hidden flex flex-col hover:border-primary/20 transition-all group shadow-sm">
+                        {event.image_url && (
+                          <div className="aspect-video w-full overflow-hidden border-b border-border/10">
+                            <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                           </div>
-                          <button 
-                            onClick={() => handleDeleteEvent(event.id)}
-                            className="p-2 text-muted-foreground/30 hover:text-red-500 hover:bg-red-50/50 rounded-full transition-all"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        <div className="space-y-2 flex-1">
-                          <h4 className="text-lg font-bold tracking-tight text-[#101828] group-hover:text-primary transition-colors">{event.title}</h4>
-                          <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3">{event.description}</p>
-                        </div>
-                        <div className="pt-4 border-t border-border/10 flex items-center justify-between mt-auto">
-                          <div className="flex items-center gap-2">
-                             <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic">
-                                {profile?.full_name?.[0] || 'U'}
-                             </div>
-                             <span className="text-[10px] font-bold text-muted-foreground">{profile?.full_name || 'You'}</span>
+                        )}
+                        <div className="p-6 space-y-4 flex-1 flex flex-col">
+                          <div className="flex justify-between items-start">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 bg-primary/5 text-primary border border-primary/10 rounded-full w-fit">
+                                {new Date(event.event_date).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <button 
+                              onClick={() => handleDeleteEvent(event.id)}
+                              className="p-2 text-muted-foreground/30 hover:text-red-500 hover:bg-red-50/50 rounded-full transition-all"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
-                          <span className="text-[10px] font-bold text-muted-foreground/40">{event.venue}</span>
+                          <div className="space-y-2 flex-1">
+                            <h4 className="text-lg font-bold tracking-tight text-[#101828] group-hover:text-primary transition-colors">{event.title}</h4>
+                            <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3">{event.description}</p>
+                          </div>
+                          <div className="pt-4 border-t border-border/10 flex items-center justify-between mt-auto">
+                            <div className="flex items-center gap-2">
+                               <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic">
+                                  {profile?.full_name?.[0] || 'U'}
+                               </div>
+                               <span className="text-[10px] font-bold text-muted-foreground">{profile?.full_name || 'You'}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-muted-foreground/40">{event.venue}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-32 text-center bg-white border border-dashed border-border/60 rounded-2xl flex flex-col items-center">
-                  <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-6">
-                    <Calendar className="h-8 w-8 text-muted-foreground/40" />
+                    ))}
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground/80">No events found</h3>
-                  <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-1">
-                    {searchQuery ? "No matches for your search query." : "You haven't organized any technical events yet."}
-                  </p>
-                  <button 
-                    onClick={() => router.push('/dashboard?tab=organize-event')}
-                    className="mt-8 px-6 py-2.5 bg-primary text-background text-[11px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-lg shadow-primary/20"
-                  >
-                    Organize an event
-                  </button>
-                </div>
+                ) : (
+                  <div className="py-32 text-center bg-white border border-dashed border-border/60 rounded-2xl flex flex-col items-center">
+                    <div className="h-16 w-16 bg-secondary/50 rounded-full flex items-center justify-center mb-6">
+                      <Calendar className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground/80">No events found</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-1">
+                      {searchQuery ? "No matches for your search query." : "You haven't organized any technical events yet."}
+                    </p>
+                    <button 
+                      onClick={() => router.push('/dashboard?tab=organize-event')}
+                      className="mt-8 px-6 py-2.5 bg-primary text-background text-[11px] font-bold uppercase tracking-widest rounded-full hover:scale-105 transition-all shadow-lg shadow-primary/20"
+                    >
+                      Organize an event
+                    </button>
+                  </div>
+                )
               )
             )}
           </div>
