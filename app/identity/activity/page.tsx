@@ -94,7 +94,25 @@ export default function UserActivityPage() {
           .select('*')
           .eq('id', session.user.id)
           .single()
-          .then(({ data }: { data: any }) => data && setProfile(data)),
+          .then(async ({ data }: { data: any }) => {
+            if (data) {
+              setProfile(data);
+              // Identity Matrix: Sync avatar if missing in DB but present in metadata
+              const metaAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
+              if (!data.avatar_url && metaAvatar) {
+                const { error } = await supabase
+                  .from('profiles')
+                  .update({ avatar_url: metaAvatar })
+                  .eq('id', session.user.id);
+                
+                if (!error) {
+                  setProfile({ ...data, avatar_url: metaAvatar });
+                  // Refresh content to show the new avatar immediately
+                  fetchUserContent(session.user.id);
+                }
+              }
+            }
+          }),
         fetchUserContent(session.user.id)
       ])
       

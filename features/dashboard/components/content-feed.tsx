@@ -100,7 +100,7 @@ export function ContentFeed({
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between gap-6 mb-8">
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-sm bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary transition-all overflow-hidden shrink-0">
+                <div className="h-10 w-10 rounded-full bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary transition-all overflow-hidden shrink-0">
                   {post.avatar_url ? (
                     <img src={post.avatar_url} alt={post.user} className="h-full w-full object-cover" />
                   ) : (
