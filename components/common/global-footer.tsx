@@ -21,7 +21,7 @@ export function GlobalFooter() {
             <div className="space-y-4 md:space-y-5">
               <h4 className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.15em] text-foreground">Product</h4>
               <nav className="flex flex-col gap-2 md:gap-3 text-[12px] md:text-[13px] font-medium text-muted-foreground">
-                <Link href="/#plans" className="hover:text-foreground transition-colors">Pricing</Link>
+                <Link href="/careers" className="hover:text-foreground transition-colors">Careers</Link>
                 <Link href="/join" className="hover:text-foreground transition-colors">Login</Link>
                 <Link href="/directory" className="hover:text-foreground transition-colors">Developers</Link>
               </nav>
