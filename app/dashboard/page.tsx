@@ -208,17 +208,23 @@ function DashboardContent() {
                .then(async ({ data }: { data: any }) => {
                   if (data) {
                      setProfile(data);
-                     // Identity Matrix: Sync avatar if missing in DB but present in metadata
+                     // Identity Matrix: Sync avatar and email if missing in DB but present in metadata
                      const metaAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
-                     if (!data.avatar_url && metaAvatar) {
+                     const metaEmail = session.user.email;
+                     const needsUpdate = (!data.avatar_url && metaAvatar) || (!data.email && metaEmail);
+                     
+                     if (needsUpdate) {
                         const { error } = await supabase
                            .from('profiles')
-                           .update({ avatar_url: metaAvatar })
+                           .update({ 
+                              avatar_url: data.avatar_url || metaAvatar,
+                              email: data.email || metaEmail 
+                           })
                            .eq('id', session.user.id);
                         
                         if (!error) {
-                           setProfile({ ...data, avatar_url: metaAvatar });
-                           // Refresh posts to show the new avatar immediately
+                           setProfile({ ...data, avatar_url: data.avatar_url || metaAvatar, email: data.email || metaEmail });
+                           // Refresh posts to show the new identity details immediately
                            fetchPosts();
                         }
                      }

@@ -1,0 +1,56 @@
+import { NextResponse } from 'next/server';
+
+export async function POST(req: Request) {
+  try {
+    const { ownerEmail, applicantName, role, project, motivation, cvUrl } = await req.json();
+
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+    if (!RESEND_API_KEY) {
+      return NextResponse.json(
+        { error: 'Email service not configured (RESEND_API_KEY missing)' },
+        { status: 500 }
+      );
+    }
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'DevelopersConnect <onboarding@resend.dev>',
+        to: [ownerEmail],
+        subject: `[Team App] ${role} for ${project}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+            <h2 style="color: #000;">New Team Application synchronized!</h2>
+            <p><strong>${applicantName}</strong> has applied to join your team for the project <strong>${project}</strong>.</p>
+            
+            <div style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Motivation:</h3>
+              <p style="white-space: pre-wrap;">${motivation}</p>
+            </div>
+
+            <p>You can review their credentials and CV here:</p>
+            <a href="${cvUrl}" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">View Resume / CV</a>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
+            <p style="font-size: 12px; color: #666;">This is an automated synchronization from the DevelopersConnect network.</p>
+          </div>
+        `,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      return NextResponse.json({ success: true, id: data.id });
+    } else {
+      return NextResponse.json({ error: data.message }, { status: response.status });
+    }
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

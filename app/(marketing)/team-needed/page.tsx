@@ -4,14 +4,20 @@ import * as React from "react"
 import { createClient } from "@/lib/supabase"
 import { GlobalHeader } from "@/components/common/global-header";
 import { GlobalFooter } from "@/components/common/global-footer";
-import { Users, Search, Briefcase, Zap } from "lucide-react";
+import { Users, Search, Briefcase, Zap, Check } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function TeamNeededPage() {
   const supabase = createClient()
+  const router = useRouter()
   const [teams, setTeams] = React.useState<any[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [searchTerm, setSearchTerm] = React.useState("")
+  const [user, setUser] = React.useState<any>(null)
+  const [applications, setApplications] = React.useState<any[]>([])
 
   React.useEffect(() => {
     async function fetchTeams() {
@@ -30,6 +36,7 @@ export default function TeamNeededPage() {
           
           return {
             id: p.id,
+            userId: p.user_id,
             role,
             project,
             mission,
@@ -41,7 +48,21 @@ export default function TeamNeededPage() {
       }
       setIsLoading(false)
     }
+
+    async function checkUser() {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUser(session.user)
+        const { data } = await supabase
+          .from('applications')
+          .select('post_id')
+          .eq('applicant_id', session.user.id)
+        if (data) setApplications(data)
+      }
+    }
+
     fetchTeams()
+    checkUser()
   }, [])
 
   const filteredTeams = teams.filter((t: any) => 
@@ -86,16 +107,24 @@ export default function TeamNeededPage() {
               </div>
             ) : filteredTeams.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
-                {filteredTeams.map((team) => (
-                  <TeamCard
-                    key={team.id}
-                    role={team.role}
-                    project={team.project}
-                    mission={team.mission}
-                    author={team.author}
-                    tags={team.tags}
-                  />
-                ))}
+                {filteredTeams.map((team) => {
+                  const isOwnPost = user?.id === team.userId
+                  const isApplied = applications.some(a => a.post_id === team.id)
+                  
+                  return (
+                    <TeamCard
+                      key={team.id}
+                      role={team.role}
+                      project={team.project}
+                      mission={team.mission}
+                      author={team.author}
+                      tags={team.tags}
+                      onApply={() => router.push(`/apply/${team.id}`)}
+                      isOwnPost={isOwnPost}
+                      isApplied={isApplied}
+                    />
+                  )
+                })}
               </div>
             ) : (
               <div className="py-24 text-center border border-dashed border-border rounded-sm">
@@ -125,12 +154,17 @@ export default function TeamNeededPage() {
   );
 }
 
-function TeamCard({ role, project, mission, author, tags }: {
+function TeamCard({ 
+  role, project, mission, author, tags, onApply, isOwnPost, isApplied 
+}: {
   role: string,
   project: string,
   mission: string,
   author: string,
-  tags: string[]
+  tags: string[],
+  onApply: () => void,
+  isOwnPost: boolean,
+  isApplied: boolean
 }) {
   return (
     <div className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group">
@@ -138,8 +172,11 @@ function TeamCard({ role, project, mission, author, tags }: {
         <div className="h-10 w-10 bg-secondary/50 rounded-sm flex items-center justify-center border border-border/20 group-hover:scale-110 transition-transform">
           <Briefcase className="h-5 w-5 text-primary/70" />
         </div>
-        <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full">
-          Open Role
+        <span className={cn(
+          "text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border",
+          isOwnPost ? "bg-amber-50 text-amber-700 border-amber-100" : "bg-emerald-50 text-emerald-700 border-emerald-100"
+        )}>
+          {isOwnPost ? "Your Request" : "Open Role"}
         </span>
       </div>
 
@@ -166,8 +203,23 @@ function TeamCard({ role, project, mission, author, tags }: {
           <Users className="h-3.5 w-3.5" />
           <span>Posted by {author}</span>
         </div>
-        <button className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
-          Apply to Team →
+        <button 
+          onClick={onApply}
+          disabled={isOwnPost || isApplied}
+          className={cn(
+            "text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2",
+            isApplied ? "text-emerald-600 cursor-default" : 
+            isOwnPost ? "text-muted-foreground/40 cursor-default" : 
+            "text-primary/60 hover:text-primary active:scale-95"
+          )}
+        >
+          {isApplied ? (
+            <><Check className="h-3 w-3" /> Application Sent</>
+          ) : isOwnPost ? (
+            "Managing Post"
+          ) : (
+            "Apply to Team →"
+          )}
         </button>
       </div>
     </div>

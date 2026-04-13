@@ -149,8 +149,12 @@ export default function DirectoryPage() {
               {filteredProfiles.map((p) => (
                 <div key={p.id} className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group relative overflow-hidden">
                   <div className="flex items-start justify-between relative z-10">
-                    <div className="flex flex-col items-center justify-center h-14 w-14 rounded-full bg-secondary italic font-black text-muted-foreground/40 text-lg border border-border/50 group-hover:scale-110 transition-transform">
-                      {p.full_name?.split(' ').map((n: string) => n[0]).join('')}
+                    <div className="flex flex-col items-center justify-center h-14 w-14 rounded-full bg-secondary italic font-black text-muted-foreground/40 text-lg border border-border/50 group-hover:scale-110 transition-transform overflow-hidden shrink-0">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt={p.full_name} className="h-full w-full object-cover" />
+                      ) : (
+                        p.full_name?.split(' ').map((n: string) => n[0]).join('')
+                      )}
                     </div>
                     <span className={cn(
                       "px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm",

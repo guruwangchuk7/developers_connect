@@ -16,6 +16,10 @@ export default function IdentitySynthesisPage() {
    const [saving, setSaving] = React.useState(false)
    const [isMessagesOpen, setIsMessagesOpen] = React.useState(false)
    const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false)
+   const [team, setTeam] = React.useState<any[]>([])
+   const [inviteData, setInviteData] = React.useState({ name: "", email: "", role: "Contributor" })
+   const [confirmRemoveId, setConfirmRemoveId] = React.useState<string | null>(null)
+   const [isInviting, setIsInviting] = React.useState(false)
 
    // Edit State
    const [activeTab, setActiveTab] = React.useState("Profile")
@@ -32,15 +36,25 @@ export default function IdentitySynthesisPage() {
    const [isDragging, setIsDragging] = React.useState(false)
    const [isFilterOpen, setIsFilterOpen] = React.useState(false)
 
+   const fetchTeam = async (userId: string) => {
+      const { data } = await supabase
+         .from('team_members')
+         .select('*')
+         .eq('owner_id', userId)
+         .order('created_at', { ascending: true })
+      if (data) setTeam(data)
+   }
+
    React.useEffect(() => {
       async function getSession() {
-         if (!supabase) return; // Exit early if credentials missing during build
+         if (!supabase) return; 
          const { data: { session } } = await supabase.auth.getSession()
          if (!session) {
             router.push('/join')
             return
          }
          setUser(session.user)
+         fetchTeam(session.user.id)
 
          const { data } = await supabase
             .from('profiles')
@@ -104,6 +118,44 @@ export default function IdentitySynthesisPage() {
          router.push('/dashboard')
       }
       setSaving(false)
+   }
+   const handleAddMember = async () => {
+      if (!user || !inviteData.email || !inviteData.name) return
+      setIsInviting(true)
+      const { error } = await supabase
+         .from('team_members')
+         .insert([{
+            owner_id: user.id,
+            full_name: inviteData.name,
+            email: inviteData.email,
+            role: inviteData.role
+         }])
+
+      if (!error) {
+         setInviteData({ name: "", email: "", role: "Contributor" })
+         await fetchTeam(user.id)
+      }
+      setIsInviting(false)
+   }
+
+   const handleRemoveMember = async (id: string) => {
+      if (!user) return
+      if (confirmRemoveId !== id) {
+         setConfirmRemoveId(id)
+         // Reset after 3 seconds if not confirmed
+         setTimeout(() => setConfirmRemoveId(null), 3000)
+         return
+      }
+
+      const { error } = await supabase
+         .from('team_members')
+         .delete()
+         .eq('id', id)
+
+      if (!error) {
+         setTeam(team.filter(m => m.id !== id))
+         setConfirmRemoveId(null)
+      }
    }
 
 
@@ -367,42 +419,107 @@ export default function IdentitySynthesisPage() {
 
                      {/* TEAM CONTENT */}
                      {activeTab === "Team" && (
-                        <div className="p-6 md:p-8 space-y-8">
+                        <div className="p-6 md:p-8 space-y-10 animate-in fade-in duration-500">
                            <div className="flex items-center justify-between">
                               <div className="space-y-1">
-                                 <h3 className="text-sm font-semibold text-[#101828]">Team members</h3>
-                                 <p className="text-xs text-muted-foreground">Manage your team members and their account permissions.</p>
+                                 <h3 className="text-sm font-semibold text-[#101828]">Team synchronization</h3>
+                                 <p className="text-xs text-muted-foreground">Manage your technical collaborators and their ecosystem roles.</p>
                               </div>
                            </div>
-                           <div className="border border-border rounded-xl divide-y divide-border/40 overflow-hidden">
-                              {[
-                                 { name: user.user_metadata?.full_name || "Owner", email: user.email, role: "Owner" },
-                                 { name: "Kinley Wangmo", email: "kinley@devconnect.bt", role: "Contributor" },
-                                 { name: "Pema Dorji", email: "pema@devconnect.bt", role: "Viewer" },
-                                 { name: "Sonam Tashi", email: "sonam@devconnect.bt", role: "Editor" }
-                              ].map((m, i) => (
-                                 <div key={i} className="flex items-center justify-between p-4 bg-background hover:bg-secondary/20 transition-all">
-                                    <div className="flex items-center gap-3">
-                                       <div className="h-8 w-8 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                                          {m.name[0]}
+
+                           {/* INVITE FORM */}
+                           <div className="p-6 bg-secondary/20 rounded-xl border border-border/40 space-y-6">
+                              <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sync New Collaborator</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                 <input 
+                                    type="text" 
+                                    placeholder="Full name"
+                                    className="bg-background border border-border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+                                    value={inviteData.name}
+                                    onChange={e => setInviteData({ ...inviteData, name: e.target.value })}
+                                 />
+                                 <input 
+                                    type="email" 
+                                    placeholder="Gmail address"
+                                    className="bg-background border border-border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+                                    value={inviteData.email}
+                                    onChange={e => setInviteData({ ...inviteData, email: e.target.value })}
+                                 />
+                                 <div className="flex gap-2">
+                                    <select 
+                                       className="flex-1 bg-background border border-border rounded-lg p-2 text-sm outline-none"
+                                       value={inviteData.role}
+                                       onChange={e => setInviteData({ ...inviteData, role: e.target.value })}
+                                    >
+                                       <option>Contributor</option>
+                                       <option>Editor</option>
+                                       <option>Viewer</option>
+                                    </select>
+                                    <button 
+                                       onClick={handleAddMember}
+                                       disabled={isInviting || !inviteData.email}
+                                       className="px-4 bg-primary text-background rounded-lg text-sm font-bold hover:opacity-90 transition-all disabled:opacity-30"
+                                    >
+                                       {isInviting ? "..." : "Add"}
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <div className="border border-border/60 rounded-xl divide-y divide-border/40 overflow-hidden shadow-sm">
+                              {/* Own Entry */}
+                              <div className="flex items-center justify-between p-5 bg-secondary/10">
+                                 <div className="flex items-center gap-4">
+                                    <div className="h-10 w-10 rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center text-[10px] font-bold text-primary overflow-hidden shrink-0">
+                                       {user.user_metadata?.avatar_url ? (
+                                          <img src={user.user_metadata.avatar_url} className="h-full w-full object-cover" />
+                                       ) : (
+                                          user.user_metadata?.full_name?.[0] || user.email?.[0].toUpperCase()
+                                       )}
+                                    </div>
+                                    <div>
+                                       <p className="text-[13px] font-bold text-[#101828]">{user.user_metadata?.full_name || "You"}</p>
+                                       <p className="text-[11px] text-muted-foreground">{user.email}</p>
+                                    </div>
+                                 </div>
+                                 <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 bg-primary/10 text-primary rounded-full">Owner</span>
+                              </div>
+
+                              {team.map((m) => (
+                                 <div key={m.id} className="flex items-center justify-between p-5 bg-background hover:bg-secondary/20 transition-all relative group">
+                                    <div className="flex items-center gap-4">
+                                       <div className="h-10 w-10 rounded-full bg-secondary italic flex items-center justify-center text-[12px] font-black text-muted-foreground/30 border border-border/60">
+                                          {m.full_name[0]}
                                        </div>
                                        <div>
-                                          <p className="text-[13px] font-semibold text-[#101828]">{m.name}</p>
+                                          <p className="text-[13px] font-bold text-[#101828]">{m.full_name}</p>
                                           <p className="text-[11px] text-muted-foreground">{m.email}</p>
                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                       <span className="text-[11px] font-medium text-muted-foreground px-2 py-0.5 bg-secondary rounded-full border border-border/60">{m.role}</span>
-                                       <button className="text-muted-foreground hover:text-primary transition-colors">
-                                          <Settings className="h-3.5 w-3.5" />
+                                    <div className="flex items-center gap-6">
+                                       <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 py-0.5 bg-secondary/50 rounded-md border border-border/40">{m.role}</span>
+                                       
+                                       <button 
+                                          onClick={() => handleRemoveMember(m.id)}
+                                          className={cn(
+                                             "text-[10px] font-bold uppercase tracking-widest transition-all px-3 py-1.5 rounded-md border",
+                                             confirmRemoveId === m.id 
+                                                ? "bg-red-500 text-white border-red-600 scale-105" 
+                                                : "text-muted-foreground/40 hover:text-red-500 hover:border-red-200"
+                                          )}
+                                       >
+                                          {confirmRemoveId === m.id ? "Confirm Delete" : "Remove"}
                                        </button>
                                     </div>
                                  </div>
                               ))}
                            </div>
-                           <button className="w-full py-2.5 border border-dashed border-border rounded-lg text-xs font-semibold text-primary hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
-                              <UserPlus className="h-3.5 w-3.5" /> Invite new member
-                           </button>
+
+                           {team.length === 0 && (
+                              <div className="py-12 text-center border border-dashed border-border rounded-xl">
+                                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Isolated Node: No collaborators synchronized yet.</p>
+                              </div>
+                           )}
                         </div>
                      )}
 

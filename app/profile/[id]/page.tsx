@@ -68,8 +68,12 @@ export default function ProfileDetailPage() {
             {/* Left: Identity Card */}
             <div className="md:col-span-5 space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700">
               <div className="relative">
-                <div className="w-24 h-24 md:w-32 md:h-32 bg-secondary flex items-center justify-center text-3xl font-black italic text-muted-foreground/30 rounded-full border border-border overflow-hidden mb-8">
-                  {profile.full_name?.split(' ').map((n: string) => n[0]).join('')}
+                <div className="w-24 h-24 md:w-32 md:h-32 bg-secondary flex items-center justify-center text-3xl font-black italic text-muted-foreground/30 rounded-full border border-border overflow-hidden mb-8 group shadow-xl shadow-black/5">
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile.full_name} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                  ) : (
+                    profile.full_name?.split(' ').map((n: string) => n[0]).join('')
+                  )}
                 </div>
                 <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-2">{profile.full_name}</h1>
                 <p className="text-primary font-bold uppercase tracking-[0.3em] text-[10px] mb-8">{profile.role}</p>
