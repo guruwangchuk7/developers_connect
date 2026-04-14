@@ -3,13 +3,7 @@
 import * as React from "react"
 import { Search, Check, Clock } from "lucide-react"
 
-interface Profile {
-  id: string
-  full_name?: string
-  role?: string
-  skills?: string[]
-  avatar_url?: string
-}
+import { Profile } from "@/types"
 
 interface DiscoverDevelopersProps {
   allProfiles: Profile[]
@@ -18,7 +12,7 @@ interface DiscoverDevelopersProps {
   setDiscoverSearch: (val: string) => void
   handleConnect: (id: string) => void
   handleCancelConnection: (id: string) => void
-  getConnectionStatus: (id: string) => string | null
+  getConnectionStatus: (id: string) => string
 }
 
 export function DiscoverDevelopers({
@@ -62,11 +56,11 @@ export function DiscoverDevelopers({
               <div className="w-full py-3 text-[13px] font-bold border border-border/40 bg-secondary/20 text-muted-foreground/40 rounded-sm text-center">
                 Your Profile
               </div>
-            ) : getConnectionStatus(dev.id) === "ACCEPTED" ? (
+            ) : getConnectionStatus(dev.id) === "CONNECTED" ? (
               <div className="w-full py-3 text-[13px] font-bold border border-emerald-100 bg-emerald-50 text-emerald-600 rounded-sm text-center flex items-center justify-center gap-2">
                 <Check className="h-4 w-4" /> Connected
               </div>
-            ) : getConnectionStatus(dev.id) === "PENDING" ? (
+            ) : getConnectionStatus(dev.id) === "PENDING_SENT" ? (
               <button
                 onClick={() => handleCancelConnection(dev.id)}
                 onMouseEnter={(e) => {
@@ -86,6 +80,10 @@ export function DiscoverDevelopers({
                 <Clock className="h-4 w-4" />
                 <span className="status-text">Request Sent</span>
               </button>
+            ) : getConnectionStatus(dev.id) === "PENDING_RECEIVED" ? (
+              <div className="w-full py-3 text-[13px] font-bold border border-blue-100 bg-blue-50 text-blue-600 rounded-sm text-center flex items-center justify-center gap-2">
+                <Clock className="h-4 w-4" /> Respond in Messages
+              </div>
             ) : (
               <button
                 onClick={() => handleConnect(dev.id)}

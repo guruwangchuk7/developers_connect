@@ -4,24 +4,11 @@ import * as React from "react"
 import { Heart, MessageCircle, X, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface Post {
-  id: string
-  userId: string
-  user: string
-  role: string
-  timestamp: string
-  content: string
-  type: 'HELP' | 'TEAM' | 'PROJECT' | 'UPDATE' | 'DEVELOPER'
-  likes: number
-  comments: number
-  tags: string[]
-  avatar_url?: string
-  skills?: string[] // For DEVELOPER type items
-}
+import { FeedPost, Profile } from "@/types"
 
 interface ContentFeedProps {
-  posts: Post[]
-  user: any
+  posts: FeedPost[]
+  user: Profile | null
   userLikes: string[]
   handleDeletePost: (id: string) => void
   handleConnect: (id: string) => void
