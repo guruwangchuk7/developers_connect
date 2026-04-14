@@ -18,7 +18,7 @@ export default function Home() {
 
         {/* Core Capabilities Section */}
         <section id="capabilities" className="min-h-[100dvh] flex items-center justify-center bg-background py-16 md:py-20 lg:py-32 border-t">
-          <div className="container mx-auto px-4 md:px-6">
+          <div className="w-full px-[1cm]">
             <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-24 lg:mb-32">
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tighter text-foreground text-balance">
                 Where Identity Meets Collaboration

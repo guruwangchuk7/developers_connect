@@ -6,7 +6,7 @@ import guruPhoto from "../../../assets/guru.jpg"
 export function Founder() {
   return (
     <section id="founder" className="bg-background py-20 md:py-32 px-4 relative">
-      <div className="container mx-auto max-w-5xl px-0 sm:px-4">
+      <div className="w-full px-[1cm] mx-auto">
         <div className="flex flex-col items-center gap-8 md:gap-12 text-center mb-12 md:mb-16">
           <div className="flex flex-col items-center gap-5 md:gap-6">
             <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tighter text-foreground text-balance">Meet the Founder</h2>

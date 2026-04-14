@@ -71,7 +71,7 @@ export function PostCreator({
                   onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })}
                 />
               ) : (
-                <input type="text" placeholder="e.g. Supabase Auth Middleware" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker || ""} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
+                <input type="text" placeholder="e.g. Supabase Auth Proxy" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.blocker || ""} onChange={e => setGuidedFields({ ...guidedFields, blocker: e.target.value })} />
               )}
             </div>
             <div className="space-y-3">

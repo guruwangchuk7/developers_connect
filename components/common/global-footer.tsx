@@ -4,7 +4,7 @@ import { Twitter, Github, Linkedin } from "@/components/icons";
 export function GlobalFooter() {
   return (
     <footer className="bg-background pt-24 md:pt-32 pb-[calc(3rem+env(safe-area-inset-bottom))] md:pb-16 border-t">
-      <div className="w-full px-4 md:px-8 lg:px-12">
+      <div className="w-full px-[1cm]">
         <div className="flex flex-col items-center text-center gap-12 lg:gap-16 pb-16 md:pb-20 border-b">
           <div className="space-y-6 max-w-sm flex flex-col items-center">
             <Link href="/" className="flex items-center gap-2 group cursor-pointer justify-center">

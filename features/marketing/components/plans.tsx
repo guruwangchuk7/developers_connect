@@ -36,7 +36,7 @@ export function Plans() {
 
   return (
     <section id="plans" className="bg-background py-20 md:py-32 px-4 border-t">
-      <div className="container mx-auto max-w-6xl px-2 sm:px-4">
+      <div className="w-full px-[1cm] mx-auto">
         <div className="flex flex-col items-center gap-4 md:gap-6 text-center mb-16 md:mb-20">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-semibold tracking-tighter text-foreground text-balance">
             Simple, Scalable Plans

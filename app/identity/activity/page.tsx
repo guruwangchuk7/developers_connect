@@ -171,7 +171,7 @@ export default function UserActivityPage() {
       <GlobalHeader />
 
       <main className="flex-1 flex flex-col items-center w-full">
-        <div className="w-full max-w-5xl px-4 md:px-8 pt-8 md:pt-12 pb-20 space-y-8">
+        <div className="w-full px-[1cm] pt-8 md:pt-12 pb-20 space-y-8">
           
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

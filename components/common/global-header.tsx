@@ -69,7 +69,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)] flex justify-center">
-      <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 relative flex h-16 items-center justify-between">
+      <div className="w-full px-[1cm] relative flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 lg:gap-12 shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>

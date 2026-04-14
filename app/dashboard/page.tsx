@@ -488,7 +488,7 @@ function DashboardContent() {
          <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full max-w-[1440px] px-4 md:px-8 lg:px-12 py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
+            <div className="w-full px-[1cm] py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
                <div className="hidden lg:block lg:col-span-3">
                   {isInitializing ? (
                      <SidebarSkeleton />
