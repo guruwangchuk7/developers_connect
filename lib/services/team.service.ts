@@ -1,9 +1,8 @@
 import { createClient } from "@/lib/supabase"
 
-const supabase = createClient()
-
 export const TeamService = {
   async getByOwner(ownerId: string) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('team_members')
       .select('*')
@@ -15,6 +14,7 @@ export const TeamService = {
   },
 
   async addMember(ownerId: string, fullName: string, email: string, role: string) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('team_members')
       .insert([{
@@ -31,6 +31,7 @@ export const TeamService = {
   },
 
   async removeMember(id: string) {
+    const supabase = createClient()
     const { error } = await supabase
       .from('team_members')
       .delete()

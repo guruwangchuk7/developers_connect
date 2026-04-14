@@ -43,7 +43,7 @@ export function DiscoverDevelopers({
               </div>
               <div className="space-y-0.5 text-left">
                 <h4 className="text-[15px] font-medium text-foreground">{dev.full_name}</h4>
-                <p className="text-[12px] font-medium text-muted-foreground/50">{dev.role}</p>
+                <p className="text-[12px] font-medium text-muted-foreground/60">{dev.role}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mb-8">
@@ -53,7 +53,7 @@ export function DiscoverDevelopers({
             </div>
 
             {getConnectionStatus(dev.id) === "SELF" ? (
-              <div className="w-full py-3 text-[13px] font-bold border border-border/40 bg-secondary/20 text-muted-foreground/40 rounded-sm text-center">
+              <div className="w-full py-3 text-[13px] font-bold border border-border/40 bg-secondary/20 text-muted-foreground/60 rounded-sm text-center">
                 Your Profile
               </div>
             ) : getConnectionStatus(dev.id) === "CONNECTED" ? (

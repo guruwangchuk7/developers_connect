@@ -99,7 +99,7 @@ export function TeamManagement({
         {team.map((m) => (
           <div key={m.id} className="flex items-center justify-between p-5 bg-background hover:bg-secondary/20 transition-all relative group">
             <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-full bg-secondary italic flex items-center justify-center text-[12px] font-black text-muted-foreground/30 border border-border/60">
+              <div className="h-10 w-10 rounded-full bg-secondary italic flex items-center justify-center text-[12px] font-black text-muted-foreground/60 border border-border/60">
                 {m.full_name[0]}
               </div>
               <div>
@@ -110,15 +110,18 @@ export function TeamManagement({
             <div className="flex items-center gap-6">
               <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 py-0.5 bg-secondary/50 rounded-md border border-border/40">{m.role}</span>
               <button
-                onClick={() => handleRemoveMember(m.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveMember(m.id);
+                }}
                 className={cn(
-                  "text-[10px] font-bold uppercase tracking-widest transition-all px-3 py-1.5 rounded-md border",
+                  "text-[10px] font-bold uppercase tracking-widest transition-all px-4 py-2 rounded-md border min-w-[100px] text-center",
                   confirmRemoveId === m.id
-                    ? "bg-red-500 text-white border-red-600 scale-105"
-                    : "text-muted-foreground/40 hover:text-red-500 hover:border-red-200"
+                    ? "bg-red-500 text-white border-red-600 animate-pulse"
+                    : "text-muted-foreground/60 hover:text-red-500 hover:border-red-200"
                 )}
               >
-                {confirmRemoveId === m.id ? "Confirm Delete" : "Remove"}
+                {confirmRemoveId === m.id ? "Click to Confirm" : "Remove"}
               </button>
             </div>
           </div>

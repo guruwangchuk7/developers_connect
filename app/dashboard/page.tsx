@@ -110,7 +110,7 @@ function DashboardContent() {
          <GlobalHeader />
 
          <main className="flex-1 flex justify-center w-full">
-            <div className="w-full px-[1cm] py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
+            <div className="w-full px-4 md:px-10 py-2 md:py-4 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-24 lg:pb-0 relative">
                <div className="hidden lg:block lg:col-span-3">
                   <Sidebar
                      activeTab={activeTab}
@@ -146,7 +146,7 @@ function DashboardContent() {
                         <ContentFeed
                            isGrid={true}
                            posts={posts.filter((p: any) => p.type === (activeTab === "teams" ? 'TEAM' : 'PROJECT') && (discoverSearch === "" || p.content.toLowerCase().includes(discoverSearch.toLowerCase())))}
-                           user={user}
+                           user={profile}
                            userLikes={userLikes}
                            handleDeletePost={handleDeletePost}
                            handleConnect={handleConnect}
@@ -155,7 +155,7 @@ function DashboardContent() {
                      ) : activeTab === "help" ? (
                         <ContentFeed
                            posts={posts.filter((p: any) => p.type === 'HELP')}
-                           user={user}
+                           user={profile}
                            userLikes={userLikes}
                            handleDeletePost={handleDeletePost}
                            handleConnect={handleConnect}
@@ -180,7 +180,7 @@ function DashboardContent() {
                            {activeTab === "all" && (
                               <ContentFeed
                                  posts={feedItems}
-                                 user={user}
+                                 user={profile}
                                  userLikes={userLikes}
                                  handleDeletePost={handleDeletePost}
                                  handleConnect={handleConnect}

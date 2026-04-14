@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { Heart, MessageCircle, X, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -25,6 +26,20 @@ export function ContentFeed({
   handleLike,
   isGrid = false
 }: ContentFeedProps) {
+  if (posts.length === 0) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in duration-700">
+        <div className="h-12 w-12 rounded-full bg-secondary/30 flex items-center justify-center border border-border/20">
+          <MessageCircle className="h-5 w-5 text-muted-foreground/40" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-[15px] font-semibold text-foreground">No synchronization fragments found</h3>
+          <p className="text-[12px] text-muted-foreground/60">Be the first to broadcast a technical update to the network.</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={cn("grid gap-6", isGrid ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:gap-8")}>
       {posts.map((post) => {
@@ -35,13 +50,14 @@ export function ContentFeed({
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-50" />
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-background border border-primary/20 p-1 group-hover/card:border-primary transition-all duration-500 overflow-hidden">
+                <Link href={`/profile/${post.userId}`} className="flex items-center gap-4 group/user">
+                  <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-background border border-primary/20 p-1 group-hover/card:border-primary group-hover/user:ring-2 group-hover/user:ring-primary/20 transition-all duration-500 overflow-hidden">
                     {post.avatar_url ? (
                       <img
                         src={post.avatar_url}
                         alt={post.user}
                         className="h-full w-full rounded-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     ) : (
                       <div className="h-full w-full rounded-full bg-secondary flex items-center justify-center text-[16px] md:text-[18px] font-bold uppercase text-primary/60 group-hover/card:bg-primary group-hover/card:text-background transition-all">
@@ -51,11 +67,11 @@ export function ContentFeed({
                   </div>
                   <div className="space-y-0.5 text-left">
                     <div className="flex items-center gap-2.5">
-                      <h4 className="text-[16px] md:text-[18px] font-semibold tracking-tight text-foreground">{post.user}</h4>
+                      <h4 className="text-[16px] md:text-[18px] font-semibold tracking-tight text-foreground group-hover/user:text-primary transition-colors">{post.user}</h4>
                     </div>
                     <p className="text-[13px] font-medium text-muted-foreground/60">{post.role}</p>
                   </div>
-                </div>
+                </Link>
                 <button
                   onClick={() => handleConnect(post.userId)}
                   disabled={post.userId === user?.id}
@@ -71,7 +87,7 @@ export function ContentFeed({
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {post.skills?.map((skill) => (
-                    <span key={skill} className="text-[9px] font-bold uppercase tracking-widest text-primary/50 px-2 py-0.5 bg-primary/5 rounded-sm border border-primary/10">
+                    <span key={skill} className="text-[9px] font-bold uppercase tracking-widest text-primary/60 px-2 py-0.5 bg-primary/5 rounded-sm border border-primary/10">
                       {skill}
                     </span>
                   ))}
@@ -86,24 +102,24 @@ export function ContentFeed({
           <article key={post.id} className="p-6 md:p-10 bg-background border border-border/20 rounded-sm hover:border-primary/20 transition-all group/card relative overflow-hidden backdrop-blur-sm">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between gap-6 mb-8">
-              <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary transition-all overflow-hidden shrink-0">
+              <Link href={`/profile/${post.userId}`} className="flex items-center gap-4 group/user">
+                <div className="h-10 w-10 rounded-full bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary group-hover/user:ring-2 group-hover/user:ring-primary/20 transition-all overflow-hidden shrink-0">
                   {post.avatar_url ? (
-                    <img src={post.avatar_url} alt={post.user} className="h-full w-full object-cover" />
+                    <img src={post.avatar_url} alt={post.user} className="h-full w-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   ) : (
                     post.user[0]
                   )}
                 </div>
                 <div className="space-y-0.5 text-left">
-                  <h4 className="text-[14px] md:text-[15px] font-semibold tracking-tight text-foreground">{post.user}</h4>
+                  <h4 className="text-[14px] md:text-[15px] font-semibold tracking-tight text-foreground group-hover/user:text-primary transition-colors">{post.user}</h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/50">{post.role}</span>
+                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/60">{post.role}</span>
                     <span className="text-muted-foreground/20 text-[8px]">•</span>
-                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/30">{post.timestamp}</span>
+                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/60">{post.timestamp}</span>
                   </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
+              </Link>
+              <div className="flex items-center gap-1">
                 <div className={cn(
                   "px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase",
                   post.type === 'UPDATE' ? "bg-amber-500/10 text-amber-600" :
@@ -115,9 +131,10 @@ export function ContentFeed({
                 {post.userId === user?.id && (
                   <button
                     onClick={() => handleDeletePost(post.id)}
-                    className="p-1.5 text-muted-foreground/30 hover:text-red-500 transition-colors"
+                    className="p-3 -m-1.5 text-muted-foreground/40 hover:text-red-500 transition-colors"
+                    title="Delete Post"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-4 w-4" />
                   </button>
                 )}
               </div>
@@ -128,25 +145,25 @@ export function ContentFeed({
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {post.tags.map((tag: string) => (
-                  <span key={tag} className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50 px-2 py-0.5 bg-secondary/40 rounded-sm border border-border/10">
+                  <span key={tag} className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 py-0.5 bg-secondary/40 rounded-sm border border-border/10">
                     #{tag}
                   </span>
                 ))}
               </div>
             </div>
             <div className="pt-4 border-t border-border/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4 md:gap-6">
                 <button
                   onClick={() => handleLike(post.id)}
                   className={cn(
-                    "flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all",
-                    isLiked ? "text-primary" : "text-muted-foreground/30 hover:text-primary"
+                    "flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest transition-all p-2 -m-2",
+                    isLiked ? "text-primary" : "text-muted-foreground/40 hover:text-primary"
                   )}
                 >
-                  <Heart className={cn("h-3.5 w-3.5", isLiked && "fill-current")} /> {post.likes}
+                  <Heart className={cn("h-4 w-4", isLiked && "fill-current")} /> {post.likes}
                 </button>
-                <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30 hover:text-primary transition-all">
-                  <MessageCircle className="h-3.5 w-3.5" /> {post.comments}
+                <button className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all p-2 -m-2">
+                  <MessageCircle className="h-4 w-4" /> {post.comments}
                 </button>
               </div>
               <button
@@ -163,3 +180,4 @@ export function ContentFeed({
     </div>
   )
 }
+

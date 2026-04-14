@@ -7,12 +7,12 @@ import { Profile } from "@/types"
 
 import { ProfilesService } from "@/lib/services/profiles.service"
 import { TeamService } from "@/lib/services/team.service"
+import { useProfile } from "@/providers/profile-provider"
 
 export function useIdentityData() {
    const supabase = createClient()
    const router = useRouter()
-   const [user, setUser] = React.useState<any>(null)
-   const [profile, setProfile] = React.useState<Profile | null>(null)
+   const { user, profile, isLoading: isProfileLoading } = useProfile()
    const [isLoading, setIsLoading] = React.useState(true)
    const [saving, setSaving] = React.useState(false)
    const [team, setTeam] = React.useState<any[]>([])
@@ -40,37 +40,22 @@ export function useIdentityData() {
    }
 
    React.useEffect(() => {
-      async function getSession() {
-         try {
-            if (!supabase) return;
-            const { data: { session } } = await supabase.auth.getSession()
-            if (!session) {
-               router.push('/join')
-               return
-            }
-            setUser(session.user)
-            fetchTeam(session.user.id)
-
-            const data = await ProfilesService.getById(session.user.id)
-
-            if (data) {
-               setProfile(data)
-               setPreviewUrl(data.avatar_url || session.user.user_metadata?.avatar_url || null)
-               setEditData({
-                  bio: data.bio || "",
-                  github_url: data.github_url || "",
-                  portfolio_url: data.portfolio_url || "",
-                  availability: data.availability || "Looking for team"
-               })
-            }
-         } catch (e) {
-            console.error(e)
-         } finally {
-            setIsLoading(false)
-         }
-      }
-      getSession()
-   }, [])
+     if (user) {
+       fetchTeam(user.id)
+       if (profile) {
+          setPreviewUrl(profile.avatar_url || (user as any).user_metadata?.avatar_url || null)
+          setEditData({
+             bio: profile.bio || "",
+             github_url: profile.github_url || "",
+             portfolio_url: profile.portfolio_url || "",
+             availability: profile.availability || "Looking for team"
+          })
+       }
+       setIsLoading(false)
+     } else if (!isProfileLoading) {
+       router.push('/join')
+     }
+   }, [user, profile, isProfileLoading])
 
    const handleFullUpdate = async () => {
       if (!user) return

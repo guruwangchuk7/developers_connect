@@ -86,7 +86,7 @@ export default function IdentitySynthesisPage() {
          <GlobalHeader />
 
          <main className="flex-1 flex flex-col items-center w-full">
-            <div className="w-full px-[1cm] pt-10 md:pt-16 pb-20 space-y-10">
+            <div className="w-full px-4 md:px-10 pt-10 md:pt-16 pb-20 space-y-10">
                <div className="space-y-8">
                   <div className="space-y-2">
                      <button

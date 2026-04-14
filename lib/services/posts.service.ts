@@ -1,10 +1,9 @@
 import { createClient } from "@/lib/supabase"
-import { Post, PostType } from "@/types"
-
-const supabase = createClient()
+import { PostType } from "@/types"
 
 export const PostsService = {
   async getAll(limit = 20) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('posts')
       .select(`*, profiles!user_id (full_name, role, avatar_url)`)
@@ -16,6 +15,7 @@ export const PostsService = {
   },
 
   async getByType(type: PostType, limit = 20) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('posts')
       .select(`*, profiles!user_id (full_name, role, avatar_url)`)
@@ -28,6 +28,7 @@ export const PostsService = {
   },
 
   async create(userId: string, type: string, content: string, tags: string[] = []) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('posts')
       .insert([{
@@ -44,6 +45,7 @@ export const PostsService = {
   },
 
   async delete(postId: string) {
+    const supabase = createClient()
     const { error } = await supabase
       .from('posts')
       .delete()
@@ -53,6 +55,7 @@ export const PostsService = {
   },
 
   async like(postId: string, userId: string) {
+    const supabase = createClient()
     const { error } = await supabase
       .from('post_likes')
       .insert([{ post_id: postId, user_id: userId }])
@@ -61,6 +64,7 @@ export const PostsService = {
   },
 
   async unlike(postId: string, userId: string) {
+    const supabase = createClient()
     const { error } = await supabase
       .from('post_likes')
       .delete()
@@ -71,6 +75,7 @@ export const PostsService = {
   },
 
   async getUserLikes(userId: string) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('post_likes')
       .select('post_id')

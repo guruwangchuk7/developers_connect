@@ -13,10 +13,11 @@ interface GlobalHeaderProps {
   children?: React.ReactNode;
 }
 
+import { useProfile } from "@/providers/profile-provider";
+
 export function GlobalHeader({ children }: GlobalHeaderProps) {
+  const { session, profile } = useProfile();
   const [isOpen, setIsOpen] = React.useState(false);
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [profile, setProfile] = React.useState<any>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = React.useState(false);
   const supabase = createClient();
   const pathname = usePathname();
@@ -24,24 +25,6 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
     pathname?.startsWith('/identity') ||
     pathname?.startsWith('/profile') ||
     pathname?.startsWith('/apply');
-
-  React.useEffect(() => {
-    if (!supabase) return;
-    async function initSession() {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      setSession(currentSession);
-
-      if (currentSession?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url, role, skills')
-          .eq('id', currentSession.user.id)
-          .single();
-        if (data) setProfile(data);
-      }
-    }
-    initSession();
-  }, [supabase]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -69,7 +52,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md pt-[env(safe-area-inset-top)] flex justify-center">
-      <div className="w-full px-[1cm] relative flex h-16 items-center justify-between">
+      <div className="w-full px-4 md:px-10 relative flex h-16 items-center justify-between">
         <div className="flex items-center gap-6 lg:gap-12 shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
             <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-primary group-hover:scale-110 transition-transform"></div>
@@ -116,6 +99,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                     onClick={(e) => {
                       e.stopPropagation();
                       setIsProfileMenuOpen(!isProfileMenuOpen);
+                      if (!isProfileMenuOpen) setIsOpen(false);
                     }}
                     className="group focus:outline-none"
                   >
@@ -226,7 +210,10 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
 
           <button
             className="lg:hidden p-2 text-foreground/70 hover:text-foreground transition-colors"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => {
+              setIsOpen(!isOpen);
+              if (!isOpen) setIsProfileMenuOpen(false);
+            }}
             aria-label="Toggle Menu"
           >
             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

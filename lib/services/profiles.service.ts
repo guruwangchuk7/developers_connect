@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase"
 import { Profile } from "@/types"
 
-const supabase = createClient()
 
 export const ProfilesService = {
   async getById(id: string) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -16,6 +16,7 @@ export const ProfilesService = {
   },
 
   async getAll(limit = 100) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -27,6 +28,7 @@ export const ProfilesService = {
   },
 
   async update(id: string, updates: Partial<Profile>) {
+    const supabase = createClient()
     const { data, error } = await supabase
       .from('profiles')
       .update({

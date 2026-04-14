@@ -8,11 +8,10 @@ import { FeedPost, Profile, Event as DashboardEvent, Connection, Notification } 
 
 import { PostsService } from "@/lib/services/posts.service"
 import { ProfilesService } from "@/lib/services/profiles.service"
+import { useProfile } from "@/providers/profile-provider"
 
 export function useDashboardData() {
-   const [user, setUser] = React.useState<any>(null)
-   const [profile, setProfile] = React.useState<Profile | null>(null)
-   const [isInitializing, setIsInitializing] = React.useState(true)
+   const { user, profile, isLoading: isProfileLoading } = useProfile()
    const [isDataLoading, setIsDataLoading] = React.useState(true)
    const [activeTab, setActiveTabRaw] = React.useState<string>("all")
 
@@ -31,6 +30,8 @@ export function useDashboardData() {
    const pathname = usePathname()
    const searchParams = useSearchParams()
 
+   const isInitializing = isProfileLoading
+
    const setActiveTab = (tab: string) => {
       setActiveTabRaw(tab)
       const params = new URLSearchParams(searchParams?.toString())
@@ -38,7 +39,7 @@ export function useDashboardData() {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
    }
 
-   const fetchPosts = async () => {
+   const fetchPosts = React.useCallback(async () => {
       try {
          const data = await PostsService.getAll(30)
          setPosts(data.map((p: any) => ({
@@ -58,26 +59,26 @@ export function useDashboardData() {
       } catch (e) {
          console.error("Posts sync failed", e)
       }
-   }
+   }, [])
 
-   const fetchEvents = async () => {
+   const fetchEvents = React.useCallback(async () => {
       const { data } = await supabase
          .from('events')
          .select(`*, profiles!organizer_id (full_name)`)
          .order('event_date', { ascending: true })
       if (data) setEvents(data)
-   }
+   }, [supabase])
 
-   const fetchUserLikes = async (userId: string) => {
+   const fetchUserLikes = React.useCallback(async (userId: string) => {
       try {
          const likedPostIds = await PostsService.getUserLikes(userId)
          setUserLikes(likedPostIds)
       } catch (e) {
          console.error("Likes sync failed", e)
       }
-   }
+   }, [])
 
-   const fetchMyConnections = async (userId: string) => {
+   const fetchMyConnections = React.useCallback(async (userId: string) => {
       const { data } = await supabase
          .from('connections')
          .select(`*, 
@@ -90,25 +91,25 @@ export function useDashboardData() {
          setMyConnections(data)
          setPendingRequests(data.filter((c: any) => c.receiver_id === userId && c.status === 'PENDING'))
       }
-   }
+   }, [supabase])
 
-   const fetchNotifications = async (userId: string) => {
+   const fetchNotifications = React.useCallback(async (userId: string) => {
       const { data } = await supabase
          .from('notifications')
          .select('*')
          .eq('user_id', userId)
          .order('created_at', { ascending: false })
       if (data) setNotifications(data)
-   }
+   }, [supabase])
 
-   const fetchAllProfiles = async () => {
+   const fetchAllProfiles = React.useCallback(async () => {
       try {
          const data = await ProfilesService.getAll(100)
          setAllProfiles(data)
       } catch (e) {
          console.error("Profiles sync failed", e)
       }
-   }
+   }, [])
 
    const handleLike = async (postId: string) => {
       if (!user) return
@@ -189,30 +190,76 @@ export function useDashboardData() {
 
    const handlePost = async (guidedFields: any, setGuidedFields: (fields: any) => void) => {
       if (!user) return
-      const configs: Record<string, { content: string, type: string }> = {
-         "post-update": { content: `MILESTONE: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "UPDATE" },
-         "ask-help": { content: `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "HELP" },
-         "dev-needed": { content: `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`, type: "TEAM" },
-         "share-project": { content: `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`, type: "PROJECT" }
-      }
-
+      
       const emptyFields = { blocker: "", stack: "", context: "", role: "", project: "", mission: "", projectName: "", description: "", link: "", eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: "" }
 
       if (activeTab === "organize-event") {
-         if (!guidedFields.eventTitle.trim()) return toast.error("Event synthesis failed")
+         if (!guidedFields.eventTitle?.trim()) return toast.error("Event title required")
+         if (!guidedFields.eventVenue?.trim()) return toast.error("Event venue required")
+         
          setIsPosting(true)
-         const { error } = await supabase.from('events').insert([{ organizer_id: user.id, title: guidedFields.eventTitle, venue: guidedFields.eventVenue, event_date: guidedFields.eventDate || new Date().toISOString(), description: guidedFields.eventDescription + (guidedFields.eventEndDate ? `\nEND_DATE: ${guidedFields.eventEndDate}` : ""), image_url: guidedFields.eventPoster || null }])
-         if (!error) { setGuidedFields(emptyFields); fetchEvents(); setActiveTab("events"); toast.success("Event broadcasted successfully") }
-         setIsPosting(false)
+         try {
+            const { error } = await supabase.from('events').insert([{ 
+               organizer_id: user.id, 
+               title: guidedFields.eventTitle.trim(), 
+               venue: guidedFields.eventVenue.trim(), 
+               event_date: guidedFields.eventDate || new Date().toISOString(), 
+               description: guidedFields.eventDescription?.trim() + (guidedFields.eventEndDate ? `\nEND_DATE: ${guidedFields.eventEndDate}` : ""), 
+               image_url: guidedFields.eventPoster?.trim() || null 
+            }])
+            if (!error) { 
+               setGuidedFields(emptyFields); 
+               fetchEvents(); 
+               setActiveTab("events"); 
+               toast.success("Event broadcasted successfully") 
+            } else {
+               toast.error("Broadcast failed")
+            }
+         } catch(e) {
+            toast.error("Connection interrupted")
+         } finally {
+            setIsPosting(false)
+         }
          return
       }
 
+      const configs: Record<string, { content: string, type: string, label: string }> = {
+         "post-update": { content: `MILESTONE: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "UPDATE", label: "Milestone" },
+         "ask-help": { content: `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "HELP", label: "Help request" },
+         "dev-needed": { content: `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`, type: "TEAM", label: "Team search" },
+         "share-project": { content: `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`, type: "PROJECT", label: "Project launch" }
+      }
+
       const config = configs[activeTab]
-      if (!config?.content.trim()) return toast.error("Fragment sync failed")
+      if (!config) return
+
+      // Specific validation for content types
+      if (activeTab === "post-update" && !guidedFields.blocker?.trim()) return toast.error("Update content required")
+      if (activeTab === "ask-help" && !guidedFields.blocker?.trim()) return toast.error("Blocker description required")
+      if (activeTab === "dev-needed" && !guidedFields.role?.trim()) return toast.error("Role description required")
+      if (activeTab === "share-project" && !guidedFields.projectName?.trim()) return toast.error("Project name required")
+
       setIsPosting(true)
-      const { error } = await supabase.from('posts').insert([{ user_id: user.id, type: config.type, content: config.content, tags: config.content.match(/#\w+/g)?.map(t => t.slice(1)) || [] }])
-      if (!error) { setGuidedFields(emptyFields); fetchPosts(); setActiveTab("all"); toast.success("Fragment synchronized successfully") }
-      setIsPosting(false)
+      try {
+         const { error } = await supabase.from('posts').insert([{ 
+            user_id: user.id, 
+            type: config.type, 
+            content: config.content.trim(), 
+            tags: config.content.match(/#\w+/g)?.map(t => t.slice(1)) || [] 
+         }])
+         if (!error) { 
+            setGuidedFields(emptyFields); 
+            fetchPosts(); 
+            setActiveTab("all"); 
+            toast.success(`${config.label} synchronized successfully`) 
+         } else {
+            toast.error("Sync failed")
+         }
+      } catch(e) {
+         toast.error("Network error")
+      } finally {
+         setIsPosting(false)
+      }
    }
 
    React.useEffect(() => {
@@ -223,40 +270,15 @@ export function useDashboardData() {
    }, [searchParams])
 
    React.useEffect(() => {
-      async function init() {
-         const { data: { session } } = await supabase.auth.getSession()
-         if (!session) {
-            router.push('/join')
-            return
-         }
-         setUser(session.user)
-         setIsInitializing(false)
+      if (!user) return
 
+      async function initData() {
          await Promise.all([
-            ProfilesService.getById(session.user.id).then(async (data) => {
-               if (data) {
-                  setProfile(data);
-                  const metaAvatar = session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture;
-                  const metaEmail = session.user.email;
-                  const needsUpdate = (!data.avatar_url && metaAvatar) || (!data.email && metaEmail);
-                  
-                  if (needsUpdate) {
-                     const updated = await ProfilesService.update(session.user.id, {
-                        avatar_url: data.avatar_url || metaAvatar,
-                        email: data.email || metaEmail 
-                     })
-                     if (updated) {
-                        setProfile(updated);
-                        fetchPosts();
-                     }
-                  }
-               }
-            }),
             fetchPosts(),
             fetchEvents(),
-            fetchUserLikes(session.user.id),
-            fetchMyConnections(session.user.id),
-            fetchNotifications(session.user.id),
+            fetchUserLikes(user!.id),
+            fetchMyConnections(user!.id),
+            fetchNotifications(user!.id),
             fetchAllProfiles()
          ])
 
@@ -269,8 +291,9 @@ export function useDashboardData() {
 
          return () => clearInterval(interval)
       }
-      init()
-   }, [])
+      
+      initData()
+   }, [user, fetchPosts, fetchEvents, fetchUserLikes, fetchMyConnections, fetchNotifications, fetchAllProfiles])
 
    return {
       user,
