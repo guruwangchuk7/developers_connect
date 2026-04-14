@@ -46,7 +46,7 @@ export function FAQ() {
           </p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 max-w-4xl mx-auto">
           {faqs.map((faq, i) => (
             <div 
               key={i} 
