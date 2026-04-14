@@ -28,9 +28,9 @@ export function PostCreator({
   const getHelpLabels = () => {
     if (activeTab === "post-update") {
       return {
-        title: "Project Sync",
-        blocker: "Primary Milestone",
-        context: "Update details to help others synchronize with your progress..."
+        title: "Project Update",
+        blocker: "Key Achievement",
+        context: "Update details to keep others updated on your progress..."
       }
     }
     if (activeTab === "ask-help") {
@@ -41,9 +41,9 @@ export function PostCreator({
       }
     }
     return {
-      title: "Guided Synthesis",
-      blocker: "Primary Blocker",
-      context: "Provide details to help others synchronize with your issue..."
+      title: "Quick Post",
+      blocker: "Main Problem",
+      context: "Explain what you're stuck on so the network can help..."
     }
   }
 
@@ -54,7 +54,7 @@ export function PostCreator({
       <div className="flex items-center gap-4">
         <div className="h-0.5 w-8 bg-primary/30" />
         <h3 className="text-[13px] font-semibold uppercase tracking-widest text-primary/60">
-          {isHelpType ? helpLabels.title : isTeamType ? "Team Formation" : isEventType ? "Event Initiation" : "Project Launch"}
+          {isHelpType ? helpLabels.title : isTeamType ? "Build a Team" : isEventType ? "Host an Event" : "Project Launch"}
         </h3>
       </div>
 
@@ -156,7 +156,7 @@ export function PostCreator({
             disabled={isPosting}
             className="w-full md:w-auto px-10 h-12 bg-primary text-background text-[13px] font-bold rounded-sm hover:opacity-90 transition-all flex items-center justify-center gap-3 shadow-lg shadow-primary/20 active:scale-95 disabled:opacity-50"
           >
-            {isPosting ? "Synchronizing..." : "Post Fragment"}
+            {isPosting ? "Posting..." : "Share Post"}
             <Sparkles className="h-3.5 w-3.5" />
           </button>
         </div>

@@ -35,13 +35,13 @@ export function TeamManagement({
     <div className="p-6 md:p-8 space-y-10 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-[#101828]">Team synchronization</h3>
-          <p className="text-xs text-muted-foreground">Manage your technical collaborators and their ecosystem roles.</p>
+          <h3 className="text-sm font-semibold text-[#101828]">Your Team</h3>
+          <p className="text-xs text-muted-foreground">Manage your collaborators and their roles.</p>
         </div>
       </div>
 
       <div className="p-6 bg-secondary/20 rounded-xl border border-border/40 space-y-6">
-        <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sync New Collaborator</h4>
+        <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Add Team Member</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             type="text"
@@ -52,7 +52,7 @@ export function TeamManagement({
           />
           <input
             type="email"
-            placeholder="Gmail address"
+            placeholder="Email address"
             className="bg-background border border-border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-primary/10 transition-all"
             value={inviteData.email}
             onChange={e => setInviteData({ ...inviteData, email: e.target.value })}
@@ -130,7 +130,7 @@ export function TeamManagement({
 
       {team.length === 0 && (
         <div className="py-12 text-center border border-dashed border-border rounded-xl">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Isolated Node: No collaborators synchronized yet.</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">No team members added yet.</p>
         </div>
       )}
     </div>

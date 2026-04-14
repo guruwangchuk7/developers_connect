@@ -33,8 +33,8 @@ export function ContentFeed({
           <MessageCircle className="h-5 w-5 text-muted-foreground/40" />
         </div>
         <div className="space-y-1">
-          <h3 className="text-[15px] font-semibold text-foreground">No synchronization fragments found</h3>
-          <p className="text-[12px] text-muted-foreground/60">Be the first to broadcast a technical update to the network.</p>
+          <h3 className="text-[15px] font-semibold text-foreground">No updates found</h3>
+          <p className="text-[12px] text-muted-foreground/60">Be the first to share an update with the network.</p>
         </div>
       </div>
     )
@@ -126,7 +126,7 @@ export function ContentFeed({
                     post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
                       post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
                 )}>
-                  {post.type === 'UPDATE' ? 'Sync' : post.type}
+                  {post.type === 'UPDATE' ? 'Update' : post.type}
                 </div>
                 {post.userId === user?.id && (
                   <button

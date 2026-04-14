@@ -139,7 +139,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                             )}
                           </div>
                           <div className="space-y-0.5 overflow-hidden">
-                            <h4 className="text-[14px] font-semibold tracking-tight text-foreground truncate">{profile?.full_name || (session.user as any).user_metadata?.full_name || "Synchronizing Node..."}</h4>
+                            <h4 className="text-[14px] font-semibold tracking-tight text-foreground truncate">{profile?.full_name || (session.user as any).user_metadata?.full_name || "Loading profile..."}</h4>
                             <p className="text-[11px] text-muted-foreground/60 truncate">
                               {profile?.role || "Active Member"}
                             </p>
@@ -188,7 +188,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                           className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
                           onClick={() => setIsProfileMenuOpen(false)}
                         >
-                          Sync Channels
+                          Connections
                         </Link>
                       </div>
 

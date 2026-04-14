@@ -136,10 +136,10 @@ export function MessagesOverlay({
           )}
           <div>
             <h3 className="text-[16px] md:text-[18px] font-bold text-foreground">
-              {selectedPeer ? selectedPeer.full_name : "Workspace Comms"}
+              {selectedPeer ? selectedPeer.full_name : "Chat Messages"}
             </h3>
             <p className="text-[11px] md:text-[12px] font-medium text-muted-foreground/50 uppercase tracking-widest leading-none mt-1">
-              {selectedPeer ? (selectedPeer.role || "Peer Node") : "Synchronization Node"}
+              {selectedPeer ? (selectedPeer.role || "Developer") : "Secure Messaging"}
             </p>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function MessagesOverlay({
               <div className="space-y-6">
                 <div className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4 text-primary" />
-                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Sync Requests</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">Connection Requests</h4>
                 </div>
                 <div className="space-y-4">
                   {pendingRequests.map((req) => (
@@ -184,7 +184,7 @@ export function MessagesOverlay({
                           onClick={() => onAccept(req.id)}
                           className="px-4 py-2 bg-primary text-background text-[10px] font-black uppercase tracking-widest rounded-sm hover:opacity-90 transition-all active:scale-95"
                         >
-                          Sync
+                          Connect
                         </button>
                         <button 
                           onClick={() => onDecline(req.id)}
@@ -228,7 +228,7 @@ export function MessagesOverlay({
                           </div>
                           <div>
                             <p className="text-[14px] font-bold text-foreground leading-none">{peer?.full_name}</p>
-                            <p className="text-[11px] font-medium text-muted-foreground mt-1.5 line-clamp-1">Sync established. Ready for comms.</p>
+                            <p className="text-[11px] font-medium text-muted-foreground mt-1.5 line-clamp-1">Connected. Send a message.</p>
                           </div>
                         </div>
                         <MoreVertical className="h-4 w-4 text-muted-foreground/20 group-hover:text-muted-foreground transition-colors" />
@@ -278,9 +278,9 @@ export function MessagesOverlay({
                       </div>
                    </div>
                    <div className="space-y-4 px-12">
-                      <h4 className="text-[16px] font-bold tracking-tight text-foreground">Encrypted Channel Established</h4>
+                      <h4 className="text-[16px] font-bold tracking-tight text-foreground">Secure Chat Active</h4>
                       <p className="text-[12px] text-muted-foreground leading-relaxed">
-                        Synchronization with <strong>{selectedPeer.full_name}</strong> is verified. Direct messaging is now active.
+                        Messaging with <strong>{selectedPeer.full_name}</strong> is verified and active.
                       </p>
                    </div>
                 </div>

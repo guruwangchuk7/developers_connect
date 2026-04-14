@@ -16,7 +16,7 @@ import { useIdentityData } from "@/features/identity/hooks/use-identity-data"
 import { IdentityTabs } from "@/features/identity/components/identity-tabs"
 import { TeamManagement } from "@/features/identity/components/team-management"
 
-export default function IdentitySynthesisPage() {
+export default function SettingsPage() {
    const {
       user,
       isLoading,
@@ -109,8 +109,8 @@ export default function IdentitySynthesisPage() {
                <div className="bg-background border border-border/60 rounded-xl shadow-sm overflow-hidden">
                   <div className="p-6 md:p-8 border-b border-border/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
                      <div className="space-y-1">
-                        <h2 className="text-lg font-semibold text-[#101828]">Identity Synthesis</h2>
-                        <p className="text-sm text-muted-foreground">Update your photo and personal technical details here.</p>
+                        <h2 className="text-lg font-semibold text-[#101828]">Profile Settings</h2>
+                        <p className="text-sm text-muted-foreground">Update your photo and profile details here.</p>
                      </div>
                      <div className="flex items-center gap-3">
                         <button onClick={() => router.back()} className="px-4 py-2 text-sm font-semibold border border-border rounded-lg hover:bg-secondary transition-colors">
@@ -127,7 +127,7 @@ export default function IdentitySynthesisPage() {
                         <>
                            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-start">
                               <div className="md:col-span-3 pt-2">
-                                 <label className="text-sm font-semibold text-[#344054]">Professional Name</label>
+                                 <label className="text-sm font-semibold text-[#344054]">Full Name</label>
                               </div>
                               <div className="md:col-span-9 grid grid-cols-2 gap-4">
                                  <input type="text" placeholder="First name" className="w-full bg-background border border-border rounded-lg p-2.5 text-sm outline-none" value={user.user_metadata?.full_name?.split(' ')[0] || ""} disabled />
@@ -161,8 +161,8 @@ export default function IdentitySynthesisPage() {
 
                            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-start">
                               <div className="md:col-span-3 pt-2">
-                                 <label className="text-sm font-semibold text-[#344054]">GitHub Narrative</label>
-                                 <p className="text-xs text-muted-foreground mt-1">Primary link to your ecosystem code.</p>
+                                 <label className="text-sm font-semibold text-[#344054]">GitHub Link</label>
+                                 <p className="text-xs text-muted-foreground mt-1">Your public code profile.</p>
                               </div>
                               <div className="md:col-span-9 relative max-w-2xl">
                                  <input type="text" placeholder="github.com/username" className="w-full bg-background border border-border rounded-lg p-2.5 pl-10 text-sm outline-none" value={editData.github_url} onChange={e => setEditData({ ...editData, github_url: e.target.value })} />
@@ -172,8 +172,8 @@ export default function IdentitySynthesisPage() {
 
                            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-start">
                               <div className="md:col-span-3 pt-2">
-                                 <label className="text-sm font-semibold text-[#344054]">Operational Status</label>
-                                 <p className="text-xs text-muted-foreground mt-1">Your current visibility in the network.</p>
+                                 <label className="text-sm font-semibold text-[#344054]">Work Status</label>
+                                 <p className="text-xs text-muted-foreground mt-1">Let others know if you're available.</p>
                               </div>
                               <div className="md:col-span-9 max-w-2xl">
                                  <select className="w-full bg-background border border-border rounded-lg p-2.5 text-sm appearance-none" value={editData.availability} onChange={e => setEditData({ ...editData, availability: e.target.value })}>
@@ -184,14 +184,14 @@ export default function IdentitySynthesisPage() {
 
                            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-start border-b-0">
                               <div className="md:col-span-3 pt-2">
-                                 <label className="text-sm font-semibold text-[#344054]">Technical Narrative</label>
-                                 <p className="text-xs text-muted-foreground mt-1">Describe your unique professional path.</p>
+                                 <label className="text-sm font-semibold text-[#344054]">Bio</label>
+                                 <p className="text-xs text-muted-foreground mt-1">Tell us about yourself and your work.</p>
                               </div>
                               <div className="md:col-span-9 space-y-4 max-w-3xl">
                                  <div className="border border-border rounded-t-lg bg-secondary/30 px-4 py-2 flex items-center justify-between">
                                     <div className="flex items-center gap-6"><span className="text-xs font-semibold text-muted-foreground flex items-center gap-2">Normal text <Clock className="h-3 w-3" /></span><div className="flex items-center gap-4 text-muted-foreground/60"><span className="font-bold">B</span><span className="italic">I</span><LinkIcon className="h-3.5 w-3.5" /></div></div>
                                  </div>
-                                 <textarea placeholder="Describe your unique professional path..." className="w-full bg-background border border-border border-t-0 rounded-b-lg p-6 md:p-8 text-[14px] font-medium min-h-[200px] resize-none leading-relaxed transition-all placeholder:text-muted-foreground/30 shadow-inner" value={editData.bio} onChange={e => setEditData({ ...editData, bio: e.target.value })} />
+                                 <textarea placeholder="Tell us about yourself and your work..." className="w-full bg-background border border-border border-t-0 rounded-b-lg p-6 md:p-8 text-[14px] font-medium min-h-[200px] resize-none leading-relaxed transition-all placeholder:text-muted-foreground/30 shadow-inner" value={editData.bio} onChange={e => setEditData({ ...editData, bio: e.target.value })} />
                                  <div className="flex justify-start text-[11px] font-medium text-muted-foreground">{editData.bio.length} characters left (approx)</div>
                               </div>
                            </div>
@@ -209,7 +209,7 @@ export default function IdentitySynthesisPage() {
                               <div className="md:col-span-3 pt-2"><label className="text-sm font-semibold text-[#344054]">New password</label><p className="text-xs text-muted-foreground mt-1">Must be at least 8 characters.</p></div>
                               <div className="md:col-span-9 space-y-4 max-w-md w-full"><input type="password" disabled className="w-full bg-secondary/20 border border-border rounded-lg p-2.5 text-sm outline-none cursor-not-allowed" placeholder="••••••••" /><input type="password" disabled className="w-full bg-secondary/20 border border-border rounded-lg p-2.5 text-sm outline-none cursor-not-allowed" placeholder="Confirm new password" /></div>
                            </div>
-                           <p className="text-[10px] text-muted-foreground italic text-center pt-4">Internal Error: Password synchronization node currently in Read-Only mode.</p>
+                           <p className="text-[10px] text-muted-foreground italic text-center pt-4">Password updates are currently disabled.</p>
                         </div>
                      )}
 
@@ -233,7 +233,7 @@ export default function IdentitySynthesisPage() {
                               <div className="md:col-span-3 pt-2"><label className="text-sm font-semibold text-[#344054]">Email address</label></div>
                               <div className="md:col-span-9 max-w-xl w-full">
                                  <div className="relative group"><input type="email" className="w-full bg-secondary/20 border border-border rounded-lg p-2.5 pl-10 text-sm outline-none" value={user.email} disabled /><Check className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-success" /><div className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-brand-success/10 text-brand-success rounded text-[9px] font-black uppercase tracking-widest">Verified</div></div>
-                                 <p className="mt-2 text-[11px] text-muted-foreground italic">Auth method: {user.app_metadata?.provider || 'Google'} Secure Relay</p>
+                                 <p className="mt-2 text-[11px] text-muted-foreground italic">Logged in with: {user.app_metadata?.provider || 'Google'}</p>
                               </div>
                            </div>
                         </div>

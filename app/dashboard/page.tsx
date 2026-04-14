@@ -68,19 +68,19 @@ function DashboardContent() {
          case "post-update":
             return { title: "Guided Update", subtitle: "Share your latest technical breakthrough" }
          case "ask-help":
-            return { title: "Request Assistance", subtitle: "Get technical help from the community for your project" }
+            return { title: "Get Help", subtitle: "Get technical support from the community for your project" }
          case "share-project":
             return { title: "Launch Project", subtitle: "Showcase your work to the network" }
          case "organize-event":
-            return { title: "Initiate Event", subtitle: "Organize workshops, meetups, or hackathons" }
+            return { title: "Host Event", subtitle: "Organize workshops, meetups, or hackathons" }
          case "projects":
-            return { title: "Technical Projects", subtitle: "Browse through the national development repository" }
+            return { title: "Browse Projects", subtitle: "Browse through projects from our community" }
          case "events":
             return { title: "Community Events", subtitle: "Workshops, hackathons, and local gatherings" }
          case "help":
-            return { title: "Resource Exchange", subtitle: "Peer-to-peer technical support and documentation" }
+            return { title: "Community Help", subtitle: "Ask and answer technical questions with other developers" }
          case "help-guide":
-            return { title: "Synchronization Guide", subtitle: "Maximizing your professional impact in the network" }
+            return { title: "Member Guide", subtitle: "Learn how to use the platform effectively and connect with others" }
          default:
             return { title: <>Developer <span className="text-primary">Dashboard</span></>, subtitle: null }
       }
