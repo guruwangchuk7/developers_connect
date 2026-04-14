@@ -1,17 +1,45 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
     const { ownerEmail, applicantName, role, project, motivation, cvUrl } = await req.json();
 
-    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    // 1. Basic Validation
+    if (!ownerEmail || !applicantName || !role || !project || !motivation) {
+       return NextResponse.json({ error: 'Missing mandatory fields' }, { status: 400 });
+    }
 
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
     if (!RESEND_API_KEY) {
+      return NextResponse.json({ error: 'Email service misconfigured' }, { status: 500 });
+    }
+
+    // 2. Security: Verify that the recipient is actually a registered project owner
+    // This prevents the endpoint from being used as a general purpose spam relay.
+    const supabase = createClient();
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', ownerEmail)
+      .single();
+
+    if (profileError || !profile) {
       return NextResponse.json(
-        { error: 'Email service not configured (RESEND_API_KEY missing)' },
-        { status: 500 }
+        { error: 'Unauthorized recipient: Target email must belong to a registered developer.' },
+        { status: 403 }
       );
     }
+
+    // 3. Simple HTML escaping for safety
+    const escape = (str: string) => str.replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[m] || m));
+
+    const safeApplicantName = escape(applicantName);
+    const safeProject = escape(project);
+    const safeMotivation = escape(motivation);
+    const safeRole = escape(role);
 
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -22,15 +50,15 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         from: 'DevelopersConnect <onboarding@resend.dev>',
         to: [ownerEmail],
-        subject: `[Team App] ${role} for ${project}`,
+        subject: `[Team App] ${safeRole} for ${safeProject}`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
             <h2 style="color: #000;">New Team Application synchronized!</h2>
-            <p><strong>${applicantName}</strong> has applied to join your team for the project <strong>${project}</strong>.</p>
+            <p><strong>${safeApplicantName}</strong> has applied to join your team for the project <strong>${safeProject}</strong>.</p>
             
             <div style="background: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px 0;">
               <h3 style="margin-top: 0;">Motivation:</h3>
-              <p style="white-space: pre-wrap;">${motivation}</p>
+              <p style="white-space: pre-wrap;">${safeMotivation}</p>
             </div>
 
             <p>You can review their credentials and CV here:</p>
@@ -51,6 +79,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: data.message }, { status: response.status });
     }
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
