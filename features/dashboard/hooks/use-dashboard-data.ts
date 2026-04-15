@@ -187,28 +187,44 @@ export function useDashboardData() {
       }
    }
 
-   const handleUploadEventPoster = async (file: File) => {
+   const handleUploadEventPoster = async (file: File): Promise<string | null> => {
       if (!user) return null
-      
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${Math.random()}.${fileExt}`
-      const filePath = `events/${user.id}/${fileName}`
 
       try {
-         const { error: uploadError } = await supabase.storage
-            .from('public')
-            .upload(filePath, file)
+         // Client-side image compression + base64 conversion
+         // This avoids needing a Supabase Storage bucket
+         return await new Promise<string | null>((resolve) => {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+               const img = new Image()
+               img.onload = () => {
+                  const canvas = document.createElement('canvas')
+                  const MAX_SIZE = 800
+                  let width = img.width
+                  let height = img.height
 
-         if (uploadError) throw uploadError
+                  if (width > height) {
+                     if (width > MAX_SIZE) { height = (height * MAX_SIZE) / width; width = MAX_SIZE }
+                  } else {
+                     if (height > MAX_SIZE) { width = (width * MAX_SIZE) / height; height = MAX_SIZE }
+                  }
 
-         const { data: { publicUrl } } = supabase.storage
-            .from('public')
-            .getPublicUrl(filePath)
-
-         return publicUrl
+                  canvas.width = width
+                  canvas.height = height
+                  const ctx = canvas.getContext('2d')
+                  ctx?.drawImage(img, 0, 0, width, height)
+                  const dataUrl = canvas.toDataURL('image/jpeg', 0.7)
+                  resolve(dataUrl)
+               }
+               img.onerror = () => { toast.error("Invalid image file"); resolve(null) }
+               img.src = e.target?.result as string
+            }
+            reader.onerror = () => { toast.error("Could not read the file"); resolve(null) }
+            reader.readAsDataURL(file)
+         })
       } catch (error) {
-         console.error('Error uploading image: ', error)
-         toast.error("Failed to upload image")
+         console.error('Error processing image: ', error)
+         toast.error("Failed to process image")
          return null
       }
    }

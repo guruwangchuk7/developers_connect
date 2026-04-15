@@ -31,7 +31,8 @@ export default function EventsPage() {
           type: "COMMUNITY", // Default type
           attendees: 0, // Not tracked in schema yet
           prize: null,
-          featured: false
+          featured: false,
+          image_url: e.image_url
         })))
       }
       setIsLoading(false)
@@ -80,7 +81,7 @@ export default function EventsPage() {
                   ))}
                </div>
             ) : filteredEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden mb-20 md:mb-32">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 md:mb-32">
                 {filteredEvents.map((event) => {
                    const endDateMatch = event.description?.match(/END_DATE: (.*)/)
                    const endDate = endDateMatch ? endDateMatch[1] : null
@@ -161,7 +162,7 @@ function EventCard({ title, description, location, date, endDate, type, attendee
 }) {
   return (
     <div className={cn(
-        "bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group",
+        "bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group border border-border/40 rounded-sm",
         featured && "md:col-span-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
     )}>
       {imageUrl && (
