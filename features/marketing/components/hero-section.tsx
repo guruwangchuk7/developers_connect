@@ -15,7 +15,7 @@ export function HeroSection() {
 
             <a 
               href="/join"
-              className="md:hidden px-6 py-2 border border-border text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-primary hover:text-background transition-all"
+              className="md:hidden px-6 py-2 bg-primary text-background text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm hover:opacity-90 transition-all"
             >
               Access the Platform
             </a>
