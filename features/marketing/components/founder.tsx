@@ -38,11 +38,24 @@ export function Founder() {
 
           <div className="space-y-6 md:space-y-8 relative">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b pb-4 sm:border-none sm:pb-0">
-              <span className="text-sm md:text-lg font-bold tracking-tight text-primary">@guru_wangchuk</span>
+              <a 
+                href="https://guruwangchuk.me/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm md:text-lg font-bold tracking-tight text-primary hover:underline transition-all"
+              >
+                @guru_wangchuk
+              </a>
               <div className="flex gap-4 items-center">
-                <Twitter className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
-                <Github className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
-                <Linkedin className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                <a href="https://x.com/guru_wangchuk" target="_blank" rel="noopener noreferrer">
+                  <Twitter className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                </a>
+                <a href="https://github.com/guruwangchuk7" target="_blank" rel="noopener noreferrer">
+                  <Github className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                </a>
+                <a href="https://lnkd.in/dw3Xf4Q6" target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                </a>
               </div>
             </div>
 
