@@ -106,7 +106,7 @@ export default function TeamNeededPage() {
                 ))}
               </div>
             ) : filteredTeams.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {filteredTeams.map((team) => {
                   const isOwnPost = user?.id === team.userId
                   const isApplied = applications.some(a => a.post_id === team.id)

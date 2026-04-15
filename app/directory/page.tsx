@@ -185,7 +185,7 @@ export default function DirectoryPage() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProfiles.map((p) => (
                 <div key={p.id} className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group relative overflow-hidden">
                   <div className="flex items-start justify-between relative z-10">

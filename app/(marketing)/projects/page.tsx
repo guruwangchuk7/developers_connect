@@ -78,7 +78,7 @@ export default function ProjectsPage() {
                 ))}
               </div>
             ) : filteredProjects.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {filteredProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
