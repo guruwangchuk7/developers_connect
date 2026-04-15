@@ -12,10 +12,14 @@ export function HeroSection() {
               A working network for builders in Bhutan. Connect, collaborate,
               and build the future of the nation&apos;s technical ecosystem.
             </p>
-          </div>
 
-
-        </div>
+            <a 
+              href="/join"
+              className="md:hidden px-6 py-2 border border-border text-[10px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-primary hover:text-background transition-all"
+            >
+              Access the Platform
+            </a>
+          </div>        </div>
       </div>
     </section>
   );
