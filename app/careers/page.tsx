@@ -87,7 +87,7 @@ export default function CareersPage() {
                      </div>
                      <div>
                         <h3 className="text-xl font-bold">{role.title}</h3>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{role.availability}</span>
+                        <span className="text-[10px] font-normal uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{role.availability}</span>
                      </div>
                   </div>
 
