@@ -172,6 +172,47 @@ export function useDashboardData() {
       }
    }
 
+   const handleDeleteEvent = async (eventId: string) => {
+      if (!window.confirm("Are you sure you want to delete this event? This action cannot be undone.")) return
+      try {
+         const { error } = await supabase.from('events').delete().eq('id', eventId)
+         if (!error) {
+            setEvents(prev => prev.filter(e => e.id !== eventId))
+            toast.success("Event removed from the grid")
+         } else {
+            toast.error("Failed to remove event")
+         }
+      } catch (e) {
+         toast.error("Connection error")
+      }
+   }
+
+   const handleUploadEventPoster = async (file: File) => {
+      if (!user) return null
+      
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `events/${user.id}/${fileName}`
+
+      try {
+         const { error: uploadError } = await supabase.storage
+            .from('public')
+            .upload(filePath, file)
+
+         if (uploadError) throw uploadError
+
+         const { data: { publicUrl } } = supabase.storage
+            .from('public')
+            .getPublicUrl(filePath)
+
+         return publicUrl
+      } catch (error) {
+         console.error('Error uploading image: ', error)
+         toast.error("Failed to upload image")
+         return null
+      }
+   }
+
    const handleAcceptConnection = async (connectionId: string) => {
       const { error } = await supabase.from('connections').update({ status: 'ACCEPTED' }).eq('id', connectionId)
       if (!error && user) {
@@ -323,6 +364,8 @@ export function useDashboardData() {
       handleAcceptConnection,
       handleDeclineConnection,
       handlePost,
+      handleDeleteEvent,
+      handleUploadEventPoster,
       supabase,
       router,
       fetchPosts,

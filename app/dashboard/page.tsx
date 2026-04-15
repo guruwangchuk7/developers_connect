@@ -47,6 +47,8 @@ function DashboardContent() {
       handleAcceptConnection,
       handleDeclineConnection,
       handlePost,
+      handleDeleteEvent,
+      handleUploadEventPoster,
       router
    } = useDashboardData()
 
@@ -165,6 +167,8 @@ function DashboardContent() {
                         <EventGrid
                            events={events}
                            onOrganizeEvent={() => setActiveTab("organize-event")}
+                           onDeleteEvent={handleDeleteEvent}
+                           currentUserId={user?.id}
                         />
                      ) : activeTab === "help-guide" ? (
                         <Help />
@@ -176,6 +180,7 @@ function DashboardContent() {
                               setGuidedFields={setGuidedFields}
                               isPosting={isPosting}
                               handlePost={() => handlePost(guidedFields, setGuidedFields)}
+                              onUploadImage={handleUploadEventPoster}
                            />
                            {activeTab === "all" && (
                               <ContentFeed

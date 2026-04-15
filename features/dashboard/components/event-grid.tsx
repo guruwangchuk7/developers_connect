@@ -1,14 +1,16 @@
 "use client"
 
 import * as React from "react"
-import { Plus, Trophy } from "lucide-react"
+import { Plus, Trophy, Trash2 } from "lucide-react"
 
 interface EventGridProps {
   events: any[]
   onOrganizeEvent: () => void
+  onDeleteEvent?: (id: string) => void
+  currentUserId?: string
 }
 
-export function EventGrid({ events, onOrganizeEvent }: EventGridProps) {
+export function EventGrid({ events, onOrganizeEvent, onDeleteEvent, currentUserId }: EventGridProps) {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -28,9 +30,18 @@ export function EventGrid({ events, onOrganizeEvent }: EventGridProps) {
             const endDateMatch = event.description?.match(/END_DATE: (.*)/)
             const endDate = endDateMatch ? endDateMatch[1] : null
             const cleanDescription = event.description?.replace(/END_DATE: (.*)/, '').trim()
+            const isOwner = currentUserId === event.organizer_id
 
             return (
-              <div key={event.id} className="bg-background border border-border/40 rounded-sm overflow-hidden flex flex-col hover:border-primary/20 transition-all group">
+              <div key={event.id} className="bg-background border border-border/40 rounded-sm overflow-hidden flex flex-col hover:border-primary/20 transition-all group relative">
+                {isOwner && onDeleteEvent && (
+                  <button 
+                    onClick={() => onDeleteEvent(event.id)}
+                    className="absolute top-3 right-3 z-10 p-2 bg-background/80 backdrop-blur-md rounded-full border border-border/40 text-red-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
                 {hasPoster && (
                   <div className="aspect-video w-full overflow-hidden border-b border-border/10">
                     <img src={event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

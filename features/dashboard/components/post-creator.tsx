@@ -9,6 +9,7 @@ interface PostCreatorProps {
   setGuidedFields: (fields: Record<string, string>) => void
   isPosting: boolean
   handlePost: () => void
+  onUploadImage?: (file: File) => Promise<string | null>
 }
 
 export function PostCreator({
@@ -16,14 +17,30 @@ export function PostCreator({
   guidedFields,
   setGuidedFields,
   isPosting,
-  handlePost
+  handlePost,
+  onUploadImage
 }: PostCreatorProps) {
+  const [isUploading, setIsUploading] = React.useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
   const isHelpType = ["help", "post-update", "ask-help"].includes(activeTab)
   const isTeamType = ["teams", "team-needed", "dev-needed"].includes(activeTab)
   const isProjectType = ["projects", "share-project"].includes(activeTab)
   const isEventType = ["organize-event"].includes(activeTab)
 
   if (!isHelpType && !isTeamType && !isProjectType && !isEventType) return null
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !onUploadImage) return
+
+    setIsUploading(true)
+    const url = await onUploadImage(file)
+    if (url) {
+      setGuidedFields({ ...guidedFields, eventPoster: url })
+    }
+    setIsUploading(false)
+  }
 
   const getHelpLabels = () => {
     if (activeTab === "post-update") {
@@ -130,8 +147,29 @@ export function PostCreator({
               <input type="text" placeholder="e.g. TechPark Amphitheater" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.eventVenue || ""} onChange={e => setGuidedFields({ ...guidedFields, eventVenue: e.target.value })} />
             </div>
             <div className="space-y-3">
-              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Poster URL (Optional)</label>
-              <input type="text" placeholder="https://image-host.com/poster.jpg" className="w-full bg-secondary/40 border border-transparent px-4 py-3 rounded-sm focus:outline-none focus:border-primary/20 focus:bg-background transition-all text-[14px] font-medium placeholder:text-muted-foreground/30" value={guidedFields.eventPoster || ""} onChange={e => setGuidedFields({ ...guidedFields, eventPoster: e.target.value })} />
+              <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Event Poster</label>
+              <div className="flex flex-col gap-4">
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  className="hidden" 
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                />
+                <button 
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full bg-secondary/40 border border-dashed border-border/40 px-4 py-3 rounded-sm focus:outline-none hover:bg-secondary/60 transition-all text-[12px] font-bold text-muted-foreground flex items-center justify-center gap-2"
+                >
+                  {isUploading ? "Uploading..." : guidedFields.eventPoster ? "Change Image" : "Upload Event Poster"}
+                </button>
+                {guidedFields.eventPoster && (
+                  <div className="aspect-video w-full rounded-sm overflow-hidden border border-border/20">
+                    <img src={guidedFields.eventPoster} alt="Poster Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
             </div>
             <div className="space-y-3">
               <label className="text-[13px] font-medium text-muted-foreground/60 pl-1">Start Date</label>
