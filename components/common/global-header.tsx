@@ -246,7 +246,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             </>
           )}
 
-          {session && (
+          {isDashboard && (
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Network</p>
