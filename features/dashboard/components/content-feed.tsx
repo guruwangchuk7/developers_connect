@@ -166,32 +166,100 @@ export function ContentFeed({
             </div>
 
             {/* Content Section */}
-            <div className="space-y-4 text-left">
+            <div className="text-left">
               {(() => {
-                const imageMatch = post.content.match(/\nIMAGE: (data:image\/[^\s]+)/)
-                const displayContent = post.content.replace(/\nIMAGE: data:image\/[^\s]+/, '').trim()
+                const content = post.content
+                const imageMatch = content.match(/\nIMAGE: (data:image\/[^\s]+)/)
+                const mainContent = content.replace(/\nIMAGE: data:image\/[^\s]+/, '').trim()
                 const imageUrl = imageMatch?.[1] || null
 
-                return (
-                  <>
-                    <div className="px-4 md:px-6">
-                      <ExpandableText text={displayContent} />
+                // Parser for structured content
+                const parseField = (label: string) => {
+                  const regex = new RegExp(`${label}:\\s*([\\s\\S]*?)(?=\\n[A-Z\\s]+:|$|\\nIMAGE:)`, 'i')
+                  return mainContent.match(regex)?.[1]?.trim() || null
+                }
 
-                      <div className="flex flex-wrap gap-1.5 mt-4">
+                if (post.type === 'HELP') {
+                  const blocker = parseField('BLOCKER')
+                  const stack = parseField('STACK')
+                  const context = parseField('CONTEXT')
+
+                  return (
+                    <div className="px-4 md:px-6 space-y-4">
+                      {stack && (
+                        <div className="flex flex-wrap gap-1.5 pb-2">
+                          {stack.split(',').map(s => (
+                            <span key={s} className="text-[10px] font-bold uppercase tracking-wider text-primary/40 px-2 py-0.5 bg-secondary/30 rounded-full border border-border/10">
+                              {s.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {blocker && <h3 className="text-[18px] md:text-[20px] font-extrabold tracking-tight text-foreground leading-tight">{blocker}</h3>}
+                      {context && <ExpandableText text={context} maxLength={250} />}
+                    </div>
+                  )
+                }
+
+                if (post.type === 'TEAM') {
+                  const role = parseField('ROLE NEEDED')
+                  const project = parseField('PROJECT')
+                  const mission = parseField('MISSION')
+
+                  return (
+                    <div className="px-4 md:px-6 space-y-4">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60">Your Request</span>
+                        {role && <h3 className="text-[18px] md:text-[20px] font-extrabold tracking-tight text-foreground leading-tight">{role}</h3>}
+                        {project && (
+                          <div className="flex items-center gap-2 pt-1">
+                            <span className="text-[11px] font-bold text-muted-foreground/60 uppercase">Project:</span>
+                            <span className="text-[12px] font-bold text-primary">{project}</span>
+                          </div>
+                        )}
+                      </div>
+                      {mission && <ExpandableText text={mission} maxLength={250} />}
+                    </div>
+                  )
+                }
+
+                if (post.type === 'PROJECT') {
+                  const projectName = parseField('PROJECT')
+                  const description = parseField('DESCRIPTION')
+                  const link = parseField('LINK')
+
+                  return (
+                    <div className="px-4 md:px-6 space-y-4">
+                      {projectName && <h3 className="text-[18px] md:text-[20px] font-extrabold tracking-tight text-foreground leading-tight">🚀 {projectName}</h3>}
+                      {description && <ExpandableText text={description} maxLength={300} />}
+                      {link && (
+                        <a href={link.startsWith('http') ? link : `https://${link}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-[12px] font-bold text-primary hover:underline">
+                          View Project Details →
+                        </a>
+                      )}
+                    </div>
+                  )
+                }
+
+                // Default / Update view
+                return (
+                  <div className="px-4 md:px-6 space-y-4">
+                    <ExpandableText text={mainContent} />
+                    {post.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
                         {post.tags.map((tag: string) => (
                           <span key={tag} className="text-[10px] font-bold text-primary/70 hover:underline cursor-pointer">
                             #{tag}
                           </span>
                         ))}
                       </div>
-                    </div>
-
+                    )}
                     {imageUrl && (
-                      <div className="mt-4 border-y border-border/10 bg-secondary/5">
-                        <img src={imageUrl} alt="Post image" className="w-full object-contain max-h-[600px] mx-auto" />
+                      <div className="mt-4 rounded-sm overflow-hidden border border-border/10 bg-secondary/5">
+                        <img src={imageUrl} alt="Post content" className="w-full object-contain max-h-[500px]" />
                       </div>
                     )}
-                  </>
+                  </div>
                 )
               })()}
             </div>
