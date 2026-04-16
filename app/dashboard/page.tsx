@@ -57,7 +57,8 @@ function DashboardContent() {
       blocker: "", stack: "", context: "",
       role: "", project: "", mission: "",
       projectName: "", description: "", link: "",
-      eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: ""
+      eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: "",
+      updateImage: ""
    })
 
    const headerInfo = React.useMemo(() => {
@@ -68,7 +69,7 @@ function DashboardContent() {
          case "dev-needed":
             return { title: "Project Teams", subtitle: "Find the right partners for your next build" }
          case "post-update":
-            return { title: "Guided Update", subtitle: "Share your latest technical breakthrough" }
+            return { title: "Share Update", subtitle: "What have you been working on?" }
          case "ask-help":
             return { title: "Get Help", subtitle: "Get technical support from the community for your project" }
          case "share-project":
@@ -181,6 +182,7 @@ function DashboardContent() {
                               isPosting={isPosting}
                               handlePost={() => handlePost(guidedFields, setGuidedFields)}
                               onUploadImage={handleUploadEventPoster}
+                              user={profile}
                            />
                            {activeTab === "all" && (
                               <ContentFeed

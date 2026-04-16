@@ -248,7 +248,7 @@ export function useDashboardData() {
    const handlePost = async (guidedFields: any, setGuidedFields: (fields: any) => void) => {
       if (!user) return
 
-      const emptyFields = { blocker: "", stack: "", context: "", role: "", project: "", mission: "", projectName: "", description: "", link: "", eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: "" }
+      const emptyFields = { blocker: "", stack: "", context: "", role: "", project: "", mission: "", projectName: "", description: "", link: "", eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: "", updateImage: "" }
 
       if (activeTab === "organize-event") {
          if (!guidedFields.eventTitle?.trim()) return toast.error("Event title required")
@@ -281,7 +281,7 @@ export function useDashboardData() {
       }
 
       const configs: Record<string, { content: string, type: string, label: string }> = {
-         "post-update": { content: `MILESTONE: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "UPDATE", label: "Milestone" },
+         "post-update": { content: (guidedFields.blocker || "") + (guidedFields.updateImage ? `\nIMAGE: ${guidedFields.updateImage}` : ""), type: "UPDATE", label: "Update" },
          "ask-help": { content: `BLOCKER: ${guidedFields.blocker}\nSTACK: ${guidedFields.stack}\nCONTEXT: ${guidedFields.context}`, type: "HELP", label: "Help request" },
          "dev-needed": { content: `ROLE NEEDED: ${guidedFields.role}\nPROJECT: ${guidedFields.project}\nMISSION: ${guidedFields.mission}`, type: "TEAM", label: "Team search" },
          "share-project": { content: `PROJECT: ${guidedFields.projectName}\nDESCRIPTION: ${guidedFields.description}\nLINK: ${guidedFields.link}`, type: "PROJECT", label: "Project launch" }
@@ -298,11 +298,16 @@ export function useDashboardData() {
 
       setIsPosting(true)
       try {
+         // Extract tags from hashtags in content + optional comma-separated tags field
+         const hashTags = config.content.match(/#\w+/g)?.map(t => t.slice(1)) || []
+         const manualTags = (guidedFields.stack || "").split(',').map((t: string) => t.trim()).filter(Boolean)
+         const allTags = [...new Set([...hashTags, ...manualTags])]
+
          const { error } = await supabase.from('posts').insert([{
             user_id: user.id,
             type: config.type,
             content: config.content.trim(),
-            tags: config.content.match(/#\w+/g)?.map(t => t.slice(1)) || []
+            tags: allTags
          }])
          if (!error) {
             setGuidedFields(emptyFields);

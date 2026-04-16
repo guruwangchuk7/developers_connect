@@ -17,6 +17,31 @@ interface ContentFeedProps {
   isGrid?: boolean
 }
 
+const ExpandableText = ({ text, maxLength = 180 }: { text: string, maxLength?: number }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false)
+  const isTooLong = text.length > maxLength
+
+  if (!isTooLong || isExpanded) {
+    return (
+      <p className="text-[14px] md:text-[15px] leading-relaxed font-medium text-foreground/80 whitespace-pre-wrap">
+        {text}
+      </p>
+    )
+  }
+
+  return (
+    <p className="text-[14px] md:text-[15px] leading-relaxed font-medium text-foreground/80 whitespace-pre-wrap">
+      {text.slice(0, maxLength)}
+      <button
+        onClick={() => setIsExpanded(true)}
+        className="ml-1 text-muted-foreground/50 hover:text-primary font-bold transition-colors"
+      >
+        ... more
+      </button>
+    </p>
+  )
+}
+
 export function ContentFeed({
   posts,
   user,
@@ -82,9 +107,7 @@ export function ContentFeed({
               </div>
 
               <div className="space-y-3 text-left">
-                <p className="text-[14px] leading-relaxed font-medium text-foreground/70">
-                  "{post.content}"
-                </p>
+                <ExpandableText text={post.content} />
                 <div className="flex flex-wrap gap-1.5">
                   {post.skills?.map((skill) => (
                     <span key={skill} className="text-[9px] font-bold uppercase tracking-widest text-primary/60 px-2 py-0.5 bg-primary/5 rounded-sm border border-primary/10">
@@ -99,11 +122,11 @@ export function ContentFeed({
 
         const isLiked = userLikes.includes(post.id)
         return (
-          <article key={post.id} className="p-6 md:p-10 bg-background border border-border/20 rounded-sm hover:border-primary/20 transition-all group/card relative overflow-hidden backdrop-blur-sm">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-3xl -z-10 opacity-0 group-hover/card:opacity-100 transition-opacity" />
-            <div className="flex items-center justify-between gap-6 mb-8">
-              <Link href={`/profile/${post.userId}`} className="flex items-center gap-4 group/user">
-                <div className="h-10 w-10 rounded-full bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover/card:border-primary group-hover/user:ring-2 group-hover/user:ring-primary/20 transition-all overflow-hidden shrink-0">
+          <article key={post.id} className="bg-background border border-border/20 rounded-sm hover:border-primary/10 transition-all group/card relative overflow-hidden backdrop-blur-sm shadow-sm">
+            {/* Header */}
+            <div className="p-4 md:p-6 flex items-start justify-between gap-4">
+              <Link href={`/profile/${post.userId}`} className="flex items-start gap-3 group/user">
+                <div className="h-12 w-12 rounded-full bg-secondary border border-border/10 flex items-center justify-center text-[13px] font-bold uppercase text-primary/60 group-hover:ring-2 group-hover:ring-primary/20 transition-all overflow-hidden shrink-0">
                   {post.avatar_url ? (
                     <img src={post.avatar_url} alt={post.user} className="h-full w-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   ) : (
@@ -111,27 +134,29 @@ export function ContentFeed({
                   )}
                 </div>
                 <div className="space-y-0.5 text-left">
-                  <h4 className="text-[14px] md:text-[15px] font-semibold tracking-tight text-foreground group-hover/user:text-primary transition-colors">{post.user}</h4>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/60">{post.role}</span>
-                    <span className="text-muted-foreground/20 text-[8px]">•</span>
-                    <span className="text-[10px] md:text-[11px] font-medium text-muted-foreground/60">{post.timestamp}</span>
-                  </div>
+                  <h4 className="text-[14px] md:text-[15px] font-bold tracking-tight text-foreground group-hover/user:text-primary transition-colors flex items-center gap-2">
+                    {post.user}
+                    {post.type === 'UPDATE' && <span className="text-[10px] font-medium text-muted-foreground/40">• Update</span>}
+                  </h4>
+                  <p className="text-[12px] font-medium text-muted-foreground/60 leading-tight">{post.role}</p>
+                  <p className="text-[11px] text-muted-foreground/40">{post.timestamp}</p>
                 </div>
               </Link>
+
               <div className="flex items-center gap-1">
-                <div className={cn(
-                  "px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase",
-                  post.type === 'UPDATE' ? "bg-amber-500/10 text-amber-600" :
+                {post.type !== 'UPDATE' && (
+                  <div className={cn(
+                    "px-2 py-0.5 rounded-sm text-[9px] font-bold uppercase mr-2",
                     post.type === 'HELP' ? "bg-red-500/10 text-red-600" :
                       post.type === 'TEAM' ? "bg-blue-500/10 text-blue-600" : "bg-emerald-500/10 text-emerald-600"
-                )}>
-                  {post.type === 'UPDATE' ? 'Update' : post.type}
-                </div>
+                  )}>
+                    {post.type}
+                  </div>
+                )}
                 {post.userId === user?.id && (
                   <button
                     onClick={() => handleDeletePost(post.id)}
-                    className="p-3 -m-1.5 text-muted-foreground/40 hover:text-red-500 transition-colors"
+                    className="p-2 text-muted-foreground/30 hover:text-red-500 transition-colors"
                     title="Delete Post"
                   >
                     <X className="h-4 w-4" />
@@ -139,40 +164,79 @@ export function ContentFeed({
                 )}
               </div>
             </div>
-            <div className="space-y-5 text-left mb-6">
-              <p className="text-[14px] md:text-[15px] leading-relaxed font-medium text-foreground/80 whitespace-pre-wrap">
-                {post.content}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {post.tags.map((tag: string) => (
-                  <span key={tag} className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-2 py-0.5 bg-secondary/40 rounded-sm border border-border/10">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+
+            {/* Content Section */}
+            <div className="space-y-4 text-left">
+              {(() => {
+                const imageMatch = post.content.match(/\nIMAGE: (data:image\/[^\s]+)/)
+                const displayContent = post.content.replace(/\nIMAGE: data:image\/[^\s]+/, '').trim()
+                const imageUrl = imageMatch?.[1] || null
+
+                return (
+                  <>
+                    <div className="px-4 md:px-6">
+                      <ExpandableText text={displayContent} />
+
+                      <div className="flex flex-wrap gap-1.5 mt-4">
+                        {post.tags.map((tag: string) => (
+                          <span key={tag} className="text-[10px] font-bold text-primary/70 hover:underline cursor-pointer">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {imageUrl && (
+                      <div className="mt-4 border-y border-border/10 bg-secondary/5">
+                        <img src={imageUrl} alt="Post image" className="w-full object-contain max-h-[600px] mx-auto" />
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
-            <div className="pt-4 border-t border-border/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="flex items-center gap-4 md:gap-6">
+
+            {/* Metrics & Actions */}
+            <div className="px-4 py-3 flex flex-col gap-3">
+              {(post.likes > 0 || post.comments > 0) && (
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground/50 pb-2 border-b border-border/5">
+                  <div className="flex items-center gap-1">
+                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Heart className="h-2.5 w-2.5 fill-primary text-primary" />
+                    </div>
+                    <span>{post.likes}</span>
+                  </div>
+                  <span>{post.comments} comments</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => handleLike(post.id)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-[4px] text-[13px] font-semibold transition-colors",
+                      isLiked ? "text-primary bg-primary/5" : "text-muted-foreground/70 hover:bg-secondary/20"
+                    )}
+                  >
+                    <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+                    <span>Like</span>
+                  </button>
+                  <button className="flex items-center gap-2 px-3 py-2 rounded-[4px] text-[13px] font-semibold text-muted-foreground/70 hover:bg-secondary/20 transition-colors">
+                    <MessageCircle className="h-5 w-5" />
+                    <span>Comment</span>
+                  </button>
+                </div>
+
                 <button
-                  onClick={() => handleLike(post.id)}
-                  className={cn(
-                    "flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest transition-all p-2 -m-2",
-                    isLiked ? "text-primary" : "text-muted-foreground/40 hover:text-primary"
-                  )}
+                  onClick={() => handleConnect(post.userId)}
+                  disabled={post.userId === user?.id}
+                  className="px-3 py-2 text-[13px] font-semibold text-primary hover:bg-primary/5 rounded-[4px] transition-all disabled:opacity-30 flex items-center gap-2"
                 >
-                  <Heart className={cn("h-4 w-4", isLiked && "fill-current")} /> {post.likes}
-                </button>
-                <button className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40 hover:text-primary transition-all p-2 -m-2">
-                  <MessageCircle className="h-4 w-4" /> {post.comments}
+                  <UserPlus className="h-4 w-4" />
+                  {post.userId === user?.id ? "Me" : "Connect"}
                 </button>
               </div>
-              <button
-                onClick={() => handleConnect(post.userId)}
-                disabled={post.userId === user?.id}
-                className="px-4 py-1.5 text-[12px] font-bold border border-border/20 text-muted-foreground hover:bg-primary hover:text-background transition-all rounded-sm flex items-center justify-center gap-2 active:scale-95 disabled:opacity-30"
-              >
-                <UserPlus className="h-3.5 w-3.5" /> {post.userId === user?.id ? "Own Post" : "Connect"}
-              </button>
             </div>
           </article>
         )
