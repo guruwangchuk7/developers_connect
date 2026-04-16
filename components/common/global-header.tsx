@@ -171,6 +171,13 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                         >
                           Help
                         </Link>
+                        <Link
+                          href="/dashboard?tab=messages"
+                          className="flex items-center gap-3 px-5 py-2 text-[13px] text-foreground/70 hover:bg-secondary/30 transition-colors"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                        >
+                          Messages
+                        </Link>
                       </div>
 
                       {/* Section: Manage */}
@@ -239,7 +246,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
             </>
           )}
 
-          {isDashboard && (
+          {session && (
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/40 px-1">Network</p>

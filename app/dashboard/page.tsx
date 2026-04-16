@@ -84,8 +84,16 @@ function DashboardContent() {
             return { title: "Community Help", subtitle: "Ask and answer technical questions with other developers" }
          case "help-guide":
             return { title: "Member Guide", subtitle: "Learn how to use the platform effectively and connect with others" }
+         case "messages":
+            return { title: <>Technical <span className="text-primary">Messages</span></>, subtitle: "Direct synchronization with your network" }
          default:
             return { title: <>Developer <span className="text-primary">Dashboard</span></>, subtitle: null }
+      }
+   }, [activeTab])
+
+   React.useEffect(() => {
+      if (activeTab === "messages") {
+         setIsMessagesOpen(true)
       }
    }, [activeTab])
 
@@ -203,7 +211,12 @@ function DashboardContent() {
 
          <MessagesOverlay 
             isOpen={isMessagesOpen} 
-            setIsOpen={setIsMessagesOpen} 
+            setIsOpen={(val) => {
+               setIsMessagesOpen(val)
+               if (!val && activeTab === "messages") {
+                  setActiveTab("all")
+               }
+            }} 
             pendingRequests={pendingRequests}
             connections={myConnections.filter(c => c.status === 'ACCEPTED')}
             onAccept={handleAcceptConnection}
