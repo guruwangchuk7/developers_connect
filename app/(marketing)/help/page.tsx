@@ -88,7 +88,7 @@ export default function FeedPage() {
                 ))}
               </div>
             ) : filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredPosts.map((post) => (
                   <HelpCard
                     key={post.id}
@@ -145,7 +145,7 @@ function HelpCard({ title, description, author, stack, replies, views, tags, urg
   urgent?: boolean
 }) {
   return (
-    <div className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/5 transition-all group relative h-full flex flex-col justify-between">
+    <div className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/5 transition-all group relative h-full flex flex-col justify-between border border-border/40 rounded-sm">
       <div className="space-y-6">
         <div className="flex items-start justify-between">
           <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 px-2 py-0.5 bg-primary/5 rounded-sm">
