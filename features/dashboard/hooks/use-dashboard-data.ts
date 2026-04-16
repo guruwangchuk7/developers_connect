@@ -86,7 +86,7 @@ export function useDashboardData() {
             receiver:profiles!receiver_id(id, full_name, avatar_url, role)
          `)
          .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-      
+
       if (data) {
          setMyConnections(data)
          setPendingRequests(data.filter((c: any) => c.receiver_id === userId && c.status === 'PENDING'))
@@ -247,32 +247,32 @@ export function useDashboardData() {
 
    const handlePost = async (guidedFields: any, setGuidedFields: (fields: any) => void) => {
       if (!user) return
-      
+
       const emptyFields = { blocker: "", stack: "", context: "", role: "", project: "", mission: "", projectName: "", description: "", link: "", eventTitle: "", eventVenue: "", eventDate: "", eventEndDate: "", eventDescription: "", eventPoster: "" }
 
       if (activeTab === "organize-event") {
          if (!guidedFields.eventTitle?.trim()) return toast.error("Event title required")
          if (!guidedFields.eventVenue?.trim()) return toast.error("Event venue required")
-         
+
          setIsPosting(true)
          try {
-            const { error } = await supabase.from('events').insert([{ 
-               organizer_id: user.id, 
-               title: guidedFields.eventTitle.trim(), 
-               venue: guidedFields.eventVenue.trim(), 
-               event_date: guidedFields.eventDate || new Date().toISOString(), 
-               description: guidedFields.eventDescription?.trim() + (guidedFields.eventEndDate ? `\nEND_DATE: ${guidedFields.eventEndDate}` : ""), 
-               image_url: guidedFields.eventPoster?.trim() || null 
+            const { error } = await supabase.from('events').insert([{
+               organizer_id: user.id,
+               title: guidedFields.eventTitle.trim(),
+               venue: guidedFields.eventVenue.trim(),
+               event_date: guidedFields.eventDate || new Date().toISOString(),
+               description: guidedFields.eventDescription?.trim() + (guidedFields.eventEndDate ? `\nEND_DATE: ${guidedFields.eventEndDate}` : ""),
+               image_url: guidedFields.eventPoster?.trim() || null
             }])
-            if (!error) { 
-               setGuidedFields(emptyFields); 
-               fetchEvents(); 
-               setActiveTab("events"); 
-               toast.success("Event broadcasted successfully") 
+            if (!error) {
+               setGuidedFields(emptyFields);
+               fetchEvents();
+               setActiveTab("events");
+               toast.success("Event broadcasted successfully")
             } else {
                toast.error("Broadcast failed")
             }
-         } catch(e) {
+         } catch (e) {
             toast.error("Connection interrupted")
          } finally {
             setIsPosting(false)
@@ -298,21 +298,21 @@ export function useDashboardData() {
 
       setIsPosting(true)
       try {
-         const { error } = await supabase.from('posts').insert([{ 
-            user_id: user.id, 
-            type: config.type, 
-            content: config.content.trim(), 
-            tags: config.content.match(/#\w+/g)?.map(t => t.slice(1)) || [] 
+         const { error } = await supabase.from('posts').insert([{
+            user_id: user.id,
+            type: config.type,
+            content: config.content.trim(),
+            tags: config.content.match(/#\w+/g)?.map(t => t.slice(1)) || []
          }])
-         if (!error) { 
-            setGuidedFields(emptyFields); 
-            fetchPosts(); 
-            setActiveTab("all"); 
-            toast.success(`${config.label} synchronized successfully`) 
+         if (!error) {
+            setGuidedFields(emptyFields);
+            fetchPosts();
+            setActiveTab("all");
+            toast.success(`${config.label} synchronized successfully`)
          } else {
             toast.error("Sync failed")
          }
-      } catch(e) {
+      } catch (e) {
          toast.error("Network error")
       } finally {
          setIsPosting(false)
@@ -348,7 +348,7 @@ export function useDashboardData() {
 
          return () => clearInterval(interval)
       }
-      
+
       initData()
    }, [user, fetchPosts, fetchEvents, fetchUserLikes, fetchMyConnections, fetchNotifications, fetchAllProfiles])
 

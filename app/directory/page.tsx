@@ -187,8 +187,9 @@ export default function DirectoryPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProfiles.map((p) => (
-                <div key={p.id} className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group relative overflow-hidden">
-                  <div className="flex items-start justify-between relative z-10">
+                <div key={p.id} className="bg-background p-8 md:p-12 flex flex-col hover:bg-secondary/10 transition-colors group relative overflow-hidden" style={{ minHeight: '420px' }}>
+                  {/* Row 1: Avatar + Badge — fixed height */}
+                  <div className="flex items-start justify-between relative z-10 mb-8">
                     <div className="flex flex-col items-center justify-center h-14 w-14 rounded-full bg-secondary italic font-black text-muted-foreground/40 text-lg border border-border/50 group-hover:scale-110 transition-transform overflow-hidden shrink-0">
                       {p.avatar_url ? (
                         <img src={p.avatar_url} alt={p.full_name} className="h-full w-full object-cover" />
@@ -197,43 +198,44 @@ export default function DirectoryPage() {
                       )}
                     </div>
                     <span className={cn(
-                      "px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm",
+                      "px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full border shadow-sm shrink-0",
                       p.availability === "Open to work"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : "bg-secondary text-muted-foreground border-border/60"
                     )}>
-                      {p.availability}
+                      {p.availability || "Available"}
                     </span>
                   </div>
 
-                  <div className="space-y-4 relative z-10">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-2xl font-bold tracking-tight">{p.full_name}</h3>
-                      </div>
-                      <div className="flex items-center gap-2 text-primary/60 text-[11px] font-bold uppercase tracking-[0.2em]">
-                        {p.role}
-                      </div>
+                  {/* Row 2: Name + Role — fixed height */}
+                  <div className="relative z-10 mb-4" style={{ minHeight: '52px' }}>
+                    <h3 className="text-2xl font-bold tracking-tight">{p.full_name}</h3>
+                    <div className="text-primary/60 text-[11px] font-bold uppercase tracking-[0.2em] mt-1 min-h-[1rem]">
+                      {p.role || "\u00A0"}
                     </div>
-                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-3 min-h-[4.5rem]">
-                      {p.bio || "Building the future of technical collaboration in Bhutan."}
-                    </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2 relative z-10">
+                  {/* Row 3: Bio — fixed height */}
+                  <p className="text-sm md:text-base text-muted-foreground leading-relaxed line-clamp-3 relative z-10 mb-6" style={{ minHeight: '4.5rem' }}>
+                    {p.bio || "Building the future of technical collaboration in Bhutan."}
+                  </p>
+
+                  {/* Row 4: Skills — fixed height */}
+                  <div className="flex flex-wrap gap-2 relative z-10 mb-8" style={{ minHeight: '2rem' }}>
                     {p.skills?.slice(0, 4).map((s: string, i: number) => (
                       <span key={i} className="px-2.5 py-1 border border-border/60 text-[11px] font-bold rounded-sm bg-secondary/20 group-hover:bg-background transition-colors">{s}</span>
                     ))}
                     {p.skills?.length > 4 && <span className="text-[11px] font-bold text-muted-foreground/40 self-center">+{p.skills.length - 4}</span>}
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  {/* Row 5: Actions — pushed to bottom */}
+                  <div className="flex items-center gap-3 mt-auto relative z-10 pt-4 border-t border-border/20">
                     {getConnectionStatus(p.id) === 'SELF' ? (
-                      <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
+                      <span className="h-11 flex items-center text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">
                         Your Profile
                       </span>
                     ) : getConnectionStatus(p.id) === 'ACCEPTED' ? (
-                      <div className="flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase tracking-widest">
+                      <div className="h-11 flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] uppercase tracking-widest">
                         <Check className="h-3 w-3" /> Connected
                       </div>
                     ) : getConnectionStatus(p.id) === 'PENDING' ? (
@@ -252,7 +254,7 @@ export default function DirectoryPage() {
                           e.currentTarget.classList.remove('bg-red-500', 'text-white', 'border-red-600')
                           e.currentTarget.classList.add('bg-orange-50/50', 'text-orange-500', 'border-orange-200')
                         }}
-                        className="w-full h-11 border border-orange-200 bg-orange-50/50 text-orange-500 font-bold text-[10px] uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2 transition-all"
+                        className="flex-1 h-11 border border-orange-200 bg-orange-50/50 text-orange-500 font-bold text-[10px] uppercase tracking-[0.2em] rounded-sm flex items-center justify-center gap-2 transition-all"
                       >
                         <Clock className="h-3.5 w-3.5" />
                         <span className="status-text">Request Sent</span>
@@ -261,7 +263,7 @@ export default function DirectoryPage() {
                       <button
                         onClick={() => handleConnect(p.id)}
                         disabled={processingId === p.id}
-                        className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors flex items-center gap-2"
+                        className="flex-1 h-11 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors border border-border/40 rounded-sm hover:border-primary/30"
                       >
                         <UserPlus className="h-3.5 w-3.5" />
                         {processingId === p.id ? "Sending..." : "Connect"}
@@ -270,7 +272,7 @@ export default function DirectoryPage() {
 
                     <Link
                       href={`/profile/${p.id}`}
-                      className="text-[11px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors"
+                      className="h-11 flex items-center text-[11px] font-bold uppercase tracking-[0.15em] text-primary/60 hover:text-primary transition-colors shrink-0 whitespace-nowrap"
                     >
                       View Profile →
                     </Link>

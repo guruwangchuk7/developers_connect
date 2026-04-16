@@ -10,6 +10,7 @@ import { buttonVariants } from "@/components/ui/button-variants"
 
 const roles = [
   {
+    slug: "frontend-designer",
     title: "Frontend Designer",
     icon: <Palette className="h-6 w-6" />,
     description: "Craft pixel-perfect, high-fidelity user experiences and interactive interfaces for the next generation of our platform.",
@@ -17,6 +18,7 @@ const roles = [
     availability: "1 Open Slot"
   },
   {
+    slug: "backend-developer",
     title: "Backend Developer",
     icon: <Terminal className="h-6 w-6" />,
     description: "Architect scalable server-side systems, manage database synchronization protocols, and optimize high-performance APIs.",
@@ -24,6 +26,7 @@ const roles = [
     availability: "1 Open Slot"
   },
   {
+    slug: "security-engineer",
     title: "Security Engineer",
     icon: <Shield className="h-6 w-6" />,
     description: "Harden our technical node ecosystem, implement advanced encryption protocols, and ensure absolute data integrity.",
@@ -31,6 +34,7 @@ const roles = [
     availability: "1 Open Slot"
   },
   {
+    slug: "business-analyst",
     title: "Business Analyst",
     icon: <BarChart3 className="h-6 w-6" />,
     description: "Translate complex system metrics into actionable technical roadmaps and bridge the gap between engineering and growth.",
@@ -105,10 +109,10 @@ export default function CareersPage() {
 
                   <div className="pt-4">
                     <Link 
-                      href="/contact"
+                      href={`/careers/${role.slug}`}
                       className="inline-flex items-center gap-2 text-sm font-bold text-primary group-hover:gap-3 transition-all"
                     >
-                      Submit Application <ArrowRight className="h-4 w-4" />
+                      View Details <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>
                 </div>
@@ -122,3 +126,4 @@ export default function CareersPage() {
     </div>
   )
 }
+

@@ -82,6 +82,7 @@ export default function ProjectsPage() {
                 {filteredProjects.map((project) => (
                   <ProjectCard
                     key={project.id}
+                    id={project.id}
                     title={project.title}
                     description={project.description}
                     tags={project.tags}
@@ -119,7 +120,8 @@ export default function ProjectsPage() {
   );
 }
 
-function ProjectCard({ title, description, tags, contributors, status, author }: {
+function ProjectCard({ id, title, description, tags, contributors, status, author }: {
+  id: string,
   title: string,
   description: string,
   tags: string[],
@@ -143,7 +145,7 @@ function ProjectCard({ title, description, tags, contributors, status, author }:
           <h3 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors cursor-pointer line-clamp-1">{title}</h3>
           {author && <p className="text-[11px] font-bold text-primary/60 uppercase tracking-widest">Built by {author}</p>}
         </div>
-        <p className="text-muted-foreground leading-relaxed line-clamp-3 h-20 text-[14px]">
+        <p className="text-muted-foreground leading-relaxed line-clamp-5 text-[14px]">
           {description}
         </p>
       </div>
@@ -162,9 +164,9 @@ function ProjectCard({ title, description, tags, contributors, status, author }:
           <Share2 className="h-3.5 w-3.5" />
           <span>{contributors} {contributors === 1 ? 'Contributor' : 'Contributors'}</span>
         </div>
-        <button className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
+        <Link href={`/projects/${id}`} className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
           View Details →
-        </button>
+        </Link>
       </div>
     </div>
   );

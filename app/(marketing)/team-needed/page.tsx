@@ -114,12 +114,12 @@ export default function TeamNeededPage() {
                   return (
                     <TeamCard
                       key={team.id}
+                      id={team.id}
                       role={team.role}
                       project={team.project}
                       mission={team.mission}
                       author={team.author}
                       tags={team.tags}
-                      onApply={() => router.push(`/apply/${team.id}`)}
                       isOwnPost={isOwnPost}
                       isApplied={isApplied}
                     />
@@ -155,14 +155,14 @@ export default function TeamNeededPage() {
 }
 
 function TeamCard({ 
-  role, project, mission, author, tags, onApply, isOwnPost, isApplied 
+  id, role, project, mission, author, tags, isOwnPost, isApplied 
 }: {
+  id: string,
   role: string,
   project: string,
   mission: string,
   author: string,
   tags: string[],
-  onApply: () => void,
   isOwnPost: boolean,
   isApplied: boolean
 }) {
@@ -185,7 +185,7 @@ function TeamCard({
           <h3 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors cursor-pointer line-clamp-1">{role}</h3>
           <p className="text-[11px] font-bold text-primary/60 uppercase tracking-widest">Project: {project}</p>
         </div>
-        <p className="text-muted-foreground leading-relaxed line-clamp-3 h-20 text-[14px]">
+        <p className="text-muted-foreground leading-relaxed line-clamp-3 min-h-[5rem] text-[14px]">
           {mission}
         </p>
       </div>
@@ -203,24 +203,25 @@ function TeamCard({
           <Users className="h-3.5 w-3.5" />
           <span>Posted by {author}</span>
         </div>
-        <button 
-          onClick={onApply}
-          disabled={isOwnPost || isApplied}
-          className={cn(
-            "text-[10px] font-bold uppercase tracking-widest transition-all flex items-center gap-2",
-            isApplied ? "text-emerald-600 cursor-default" : 
-            isOwnPost ? "text-muted-foreground/40 cursor-default" : 
-            "text-primary/60 hover:text-primary active:scale-95"
+        <div className="flex items-center gap-4">
+          {isApplied && (
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1.5">
+              <Check className="h-3 w-3" /> Applied
+            </span>
           )}
-        >
-          {isApplied ? (
-            <><Check className="h-3 w-3" /> Application Sent</>
-          ) : isOwnPost ? (
-            "Managing Post"
+          {isOwnPost ? (
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">
+              Managing Post
+            </span>
           ) : (
-            "Apply to Team →"
+            <Link
+              href={`/team-needed/${id}`}
+              className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors"
+            >
+              View Details →
+            </Link>
           )}
-        </button>
+        </div>
       </div>
     </div>
   );
