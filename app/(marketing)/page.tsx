@@ -11,8 +11,8 @@ import { FAQ } from "@/features/marketing/components/faq";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Home | Bhutan Developer Network",
-  description: "Join the premier network for developers in Bhutan. Build your professional identity, collaborate on national projects, and get technical support from local experts.",
+  title: "Home | Bhutan Developer Connect",
+  description: "Join the premier network for developers in Bhutan. Connect with professionals, build your identity, and collaborate on national projects.",
   alternates: {
     canonical: "/",
   },
@@ -22,8 +22,8 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Bhutan Developer Network",
-    "alternateName": "BDN",
+    "name": "Bhutan Developer Connect",
+    "alternateName": "BDC",
     "url": "https://www.bhutandevelopersconnect.xyz",
     "description": "A professional network for developers and builders in Bhutan.",
     "potentialAction": {
@@ -36,7 +36,7 @@ export default function Home() {
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Bhutan Developer Network",
+    "name": "Bhutan Developer Connect",
     "url": "https://www.bhutandevelopersconnect.xyz",
     "logo": "https://www.bhutandevelopersconnect.xyz/logo.png",
     "contactPoint": {

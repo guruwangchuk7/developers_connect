@@ -23,10 +23,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.bhutandevelopersconnect.xyz"),
+  verification: {
+    google: "GYLBQwvAUlZ6S48oYT-Cp69r-mFE8i8qJcnggDUwH6o",
+  },
   title: {
-    default: "Bhutan Developer Network (BDN) | Professional Technical Collaboration",
-    template: "%s | Bhutan Developer Network"
+    default: "Bhutan Developer Connect | Professional Technical Collaboration",
+    template: "%s | Bhutan Developer Connect"
   },
   description: "The professional technical layer for Bhutan's tech ecosystem. Join verified developers, find technical help, and form teams for impactful projects.",
   keywords: ["Bhutan Tech", "Developers Bhutan", "Tech Collaboration", "Bhutan Developer Network", "Bhutantech Ecosystem", "Professional Identity", "Technical Reputation"],
@@ -42,9 +44,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_BT",
     url: "https://www.bhutandevelopersconnect.xyz",
-    siteName: "Bhutan Developer Network",
-    title: "Bhutan Developer Network | The National Technical Grid",
-    description: "Professionalizing Bhutan's tech community through identity, collaboration, and vetted technical reputation.",
+    siteName: "Bhutan Developer Connect",
+    title: "Bhutan Developer Connect | The National Technical Grid",
+    description: "Connecting Bhutan's tech community through identity, collaboration, and vetted technical reputation.",
     images: [
       {
         url: "/og-image.png", // We should ensure this exists or create it
@@ -56,8 +58,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bhutan Developer Network (BDN)",
-    description: "The professional technical layer for Bhutan's tech ecosystem.",
+    title: "Bhutan Developer Connect (BDN)",
+    description: "The professional technical layer for Bhutan's tech ecosystem. Connect, build, and grow.",
     images: ["/og-image.png"],
     creator: "@BhutanDevNet", // Placeholder
   },

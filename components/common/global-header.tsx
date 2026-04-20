@@ -85,7 +85,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
                     Sign in
                   </Link>
                   <Link href="/join" className={cn(buttonVariants({ size: "sm" }), "h-9 rounded-sm px-4 md:px-5 text-[13px] font-semibold bg-primary shadow-sm transition hover:opacity-90")}>
-                    Join Network
+                    Join Connect
                   </Link>
                 </div>
               )}
@@ -341,7 +341,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                <Link href="/join" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-none h-12 font-bold")} onClick={() => setIsOpen(false)}>Join Network</Link>
+                <Link href="/join" className={cn(buttonVariants({ size: "lg" }), "w-full justify-center bg-primary rounded-sm h-12 font-bold")} onClick={() => setIsOpen(false)}>Join Connect</Link>
                 <Link href="/join" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "w-full justify-center rounded-none h-12 font-bold border-border/20")} onClick={() => setIsOpen(false)}>Sign in</Link>
               </div>
             )}
