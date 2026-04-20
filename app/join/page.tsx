@@ -6,12 +6,14 @@ import { buttonVariants } from "@/components/ui/button-variants"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { Mail } from "lucide-react"
+import { analytics } from "@/lib/analytics"
 
 export default function JoinPage() {
   const supabase = createClient()
   const [isLoading, setIsLoading] = React.useState(false)
 
   const handleGoogleLogin = async () => {
+    analytics.trackAdminLogin('google')
     setIsLoading(true)
     try {
       const { error } = await supabase.auth.signInWithOAuth({

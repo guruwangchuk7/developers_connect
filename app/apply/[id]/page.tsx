@@ -8,6 +8,7 @@ import { GlobalFooter } from "@/components/common/global-footer"
 import { ArrowLeft, UploadCloud, FileText, CheckCircle2, ChevronRight, Loader2, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { analytics } from "@/lib/analytics"
 
 export default function ApplicationPage({ params }: { params: any }) {
   const { id } = React.use(params) as { id: string }
@@ -20,6 +21,12 @@ export default function ApplicationPage({ params }: { params: any }) {
   const [isLoading, setIsLoading] = React.useState(true)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isSuccess, setIsSuccess] = React.useState(false)
+
+  React.useEffect(() => {
+    if (!isLoading && post) {
+      analytics.trackBookingStarted(post.role || 'Project Role');
+    }
+  }, [isLoading, post]);
 
   // Form State
   const [formData, setFormData] = React.useState({
@@ -133,6 +140,7 @@ export default function ApplicationPage({ params }: { params: any }) {
       }
 
       // 4. Success state
+      analytics.trackBookingConfirmed(post.role || 'Project Role', 0);
       setIsSuccess(true)
       toast.success("Identity Synchronization Complete: Application Dispatched")
       

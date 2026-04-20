@@ -14,6 +14,7 @@ interface GlobalHeaderProps {
 }
 
 import { useProfile } from "@/providers/profile-provider";
+import { analytics } from "@/lib/analytics";
 
 export function GlobalHeader({ children }: GlobalHeaderProps) {
   const { session, profile } = useProfile();
@@ -46,6 +47,7 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
   const showMarketingLinks = !isDashboard && !children;
 
   const handleSignOut = async () => {
+    analytics.trackEvent('sign_out', 'auth', 'Header Sign Out');
     await supabase.auth.signOut();
     window.location.href = "/";
   };
@@ -91,7 +93,11 @@ export function GlobalHeader({ children }: GlobalHeaderProps) {
               {session && (
                 <div className="flex items-center gap-4 relative">
                   {pathname === "/" && (
-                    <Link href="/dashboard" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}>
+                    <Link 
+                      href="/dashboard" 
+                      onClick={() => analytics.trackAdminAccess()}
+                      className={cn(buttonVariants({ variant: "outline", size: "sm" }), "h-9 rounded-sm px-4 font-bold text-[11px] uppercase tracking-widest transition-all hover:bg-secondary/50")}
+                    >
                       Dashboard
                     </Link>
                   )}

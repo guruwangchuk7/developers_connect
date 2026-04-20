@@ -4,6 +4,7 @@ import * as React from "react"
 import { createClient } from "@/lib/supabase"
 import { Profile } from "@/types"
 import { Session, User, AuthChangeEvent } from "@supabase/supabase-js"
+import { analytics } from "@/lib/analytics"
 
 interface ProfileContextType {
   user: User | null
@@ -42,7 +43,10 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       setUser(currentSession?.user ?? null)
       
       if (currentSession?.user) {
+        analytics.identify(currentSession.user.id)
         await fetchProfile(currentSession.user.id)
+      } else {
+        analytics.identify(null)
       }
       setIsLoading(false)
     }
@@ -52,8 +56,13 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setSession(session)
       setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-      else setProfile(null)
+      if (session?.user) {
+        analytics.identify(session.user.id)
+        fetchProfile(session.user.id)
+      } else {
+        analytics.identify(null)
+        setProfile(null)
+      }
     })
 
     return () => subscription.unsubscribe()

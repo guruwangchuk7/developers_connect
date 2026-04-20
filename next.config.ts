@@ -24,9 +24,9 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self' https://*.supabase.co",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
-              "img-src 'self' data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://www.googletagmanager.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com",
+              "img-src 'self' data: https://*.supabase.co https://images.unsplash.com https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "frame-ancestors 'none'",
