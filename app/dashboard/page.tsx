@@ -229,7 +229,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
    return (
-      <Suspense fallback={null}>
+      <Suspense fallback={<HeaderSkeleton />}>
          <DashboardContent />
       </Suspense>
    )

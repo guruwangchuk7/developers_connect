@@ -25,7 +25,7 @@ export function useDashboardData() {
    const [isPosting, setIsPosting] = React.useState(false)
    const [discoverSearch, setDiscoverSearch] = React.useState("")
 
-   const supabase = createClient()
+   const supabase = React.useMemo(() => createClient(), [])
    const router = useRouter()
    const pathname = usePathname()
    const searchParams = useSearchParams()
