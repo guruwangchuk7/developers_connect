@@ -23,8 +23,55 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bhutan Developer Network (BDN)",
-  description: "A working network for builders in Bhutan.",
+  metadataBase: new URL("https://www.bhutandevelopersconnect.xyz"),
+  title: {
+    default: "Bhutan Developer Network (BDN) | Professional Technical Collaboration",
+    template: "%s | Bhutan Developer Network"
+  },
+  description: "The professional technical layer for Bhutan's tech ecosystem. Join verified developers, find technical help, and form teams for impactful projects.",
+  keywords: ["Bhutan Tech", "Developers Bhutan", "Tech Collaboration", "Bhutan Developer Network", "Bhutantech Ecosystem", "Professional Identity", "Technical Reputation"],
+  authors: [{ name: "BDN Team" }],
+  creator: "Bhutan Developer Network",
+  publisher: "Bhutan Developer Network",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_BT",
+    url: "https://www.bhutandevelopersconnect.xyz",
+    siteName: "Bhutan Developer Network",
+    title: "Bhutan Developer Network | The National Technical Grid",
+    description: "Professionalizing Bhutan's tech community through identity, collaboration, and vetted technical reputation.",
+    images: [
+      {
+        url: "/og-image.png", // We should ensure this exists or create it
+        width: 1200,
+        height: 630,
+        alt: "Bhutan Developer Network",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Bhutan Developer Network (BDN)",
+    description: "The professional technical layer for Bhutan's tech ecosystem.",
+    images: ["/og-image.png"],
+    creator: "@BhutanDevNet", // Placeholder
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export const viewport = {

@@ -8,10 +8,60 @@ import { Plans } from "@/features/marketing/components/plans";
 import { WhyUseIt } from "@/features/marketing/components/why-use-it";
 import { Founder } from "@/features/marketing/components/founder";
 import { FAQ } from "@/features/marketing/components/faq";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home | Bhutan Developer Network",
+  description: "Join the premier network for developers in Bhutan. Build your professional identity, collaborate on national projects, and get technical support from local experts.",
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Bhutan Developer Network",
+    "alternateName": "BDN",
+    "url": "https://www.bhutandevelopersconnect.xyz",
+    "description": "A professional network for developers and builders in Bhutan.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.bhutandevelopersconnect.xyz/directory?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Bhutan Developer Network",
+    "url": "https://www.bhutandevelopersconnect.xyz",
+    "logo": "https://www.bhutandevelopersconnect.xyz/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+975-17XXXXXX",
+      "contactType": "customer service",
+      "areaServed": "BT",
+      "availableLanguage": ["English", "Dzongkha"]
+    },
+    "sameAs": [
+      "https://twitter.com/BhutanDevNet",
+      "https://github.com/bhutan-developer-network"
+    ]
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background selection:bg-primary/5">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       <GlobalHeader />
       <main className="flex-1">
         <HeroSection />
