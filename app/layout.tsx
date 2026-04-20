@@ -22,6 +22,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   verification: {
     google: "GYLBQwvAUlZ6S48oYT-Cp69r-mFE8i8qJcnggDUwH6o",

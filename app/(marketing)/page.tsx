@@ -11,7 +11,9 @@ import { FAQ } from "@/features/marketing/components/faq";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Home | Bhutan Developer Connect",
+  title: {
+    absolute: "Bhutan Developer Connect | Developer Network & Tech Community in Bhutan"
+  },
   description: "Join the premier network for developers in Bhutan. Connect with professionals, build your identity, and collaborate on national projects.",
   alternates: {
     canonical: "/",
