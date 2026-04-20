@@ -29,7 +29,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-px md:bg-border border border-border overflow-hidden rounded-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 border border-border overflow-hidden rounded-sm">
               <FeatureCard
                 icon={<Monitor className="h-full w-full" />}
                 title="Developer Identity"

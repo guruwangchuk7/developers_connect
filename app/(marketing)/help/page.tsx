@@ -34,7 +34,7 @@ export default function FeedPage() {
             title,
             description,
             author: p.profiles?.full_name || 'Anonymous',
-            category: stack || 'General',
+            stack: stack ? stack.split(',').map((s: string) => s.trim()) : [],
             replies: p.comments_count || 0,
             likes: p.likes_count || 0,
             tags: p.tags || [],
@@ -50,7 +50,7 @@ export default function FeedPage() {
   const filteredPosts = helpPosts.filter((p: any) =>
     p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+    p.stack.some((s: string) => s.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   return (
@@ -61,20 +61,20 @@ export default function FeedPage() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-24">
               <div className="space-y-4">
-                <h1 className="text-3xl md:text-4xl lg:text-6xl font-bold tracking-tighter">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tighter">
                   Technical Help Feed
                 </h1>
-                <p className="text-muted-foreground text-sm font-medium leading-relaxed md:text-lg max-w-2xl">
+                <p className="text-muted-foreground font-medium leading-relaxed text-[15px] max-w-2xl">
                   Real-time assistance from vetted professionals across the national ecosystem.
                 </p>
               </div>
 
               <div className="relative w-full md:w-80">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search technical questions..."
-                  className="w-full bg-transparent border-b border-border/80 pl-10 py-3 focus:outline-none focus:border-primary transition-colors text-sm font-medium tracking-tight"
+                  className="w-full bg-transparent border-b border-border/80 pl-8 py-3 focus:outline-none focus:border-primary transition-colors text-[13px] font-semibold tracking-tight placeholder:text-muted-foreground/40"
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                 />
@@ -88,14 +88,14 @@ export default function FeedPage() {
                 ))}
               </div>
             ) : filteredPosts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredPosts.map((post) => (
                   <HelpCard
                     key={post.id}
                     title={post.title}
                     description={post.description}
                     author={post.author}
-                    category={post.category}
+                    stack={post.stack}
                     replies={post.replies}
                     views={post.likes * 7 + 12} // Simulation of views
                     tags={post.tags}
@@ -109,19 +109,20 @@ export default function FeedPage() {
               </div>
             )}
 
-            <div className="mt-20 py-16 bg-secondary/10 px-8 flex flex-col md:flex-row items-center justify-between rounded-sm border border-border">
-              <div className="space-y-4 max-w-xl text-center md:text-left mb-10 md:mb-0">
+            <div className="mt-20 py-16 bg-secondary/10 px-8 flex flex-col md:flex-row items-center justify-between rounded-sm border border-border overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="space-y-4 max-w-xl text-center md:text-left mb-10 md:mb-0 relative z-10">
                 <h3 className="text-2xl md:text-3xl font-bold tracking-tight">Facing a technical blocker?</h3>
                 <p className="text-muted-foreground font-medium text-[14px]">
                   Join the network today to post your questions and get answers from our vetted pool of experts within hours.
                 </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/join" className="px-8 py-3 bg-primary text-primary-foreground font-bold rounded-sm hover:opacity-90 transition-opacity text-center text-[10px] uppercase tracking-[0.2em]">
+              <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+                <Link href="/join" className="px-10 py-4 bg-primary text-primary-foreground font-bold rounded-sm hover:opacity-90 transition-opacity text-center text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/10">
                   Sign in to post
                 </Link>
-                <Link href="/about" className="px-8 py-3 bg-background border border-border text-foreground font-bold rounded-sm hover:bg-secondary/50 transition-colors text-center text-[10px] uppercase tracking-[0.2em]">
-                  Learn how it works
+                <Link href="/about" className="px-10 py-4 bg-background border border-border text-foreground font-bold rounded-sm hover:bg-secondary/50 transition-colors text-center text-[11px] uppercase tracking-[0.2em]">
+                  How it works
                 </Link>
               </div>
             </div>
@@ -133,62 +134,83 @@ export default function FeedPage() {
   );
 }
 
-function HelpCard({ title, description, author, category, replies, views, tags, urgent }: {
+function HelpCard({ title, description, author, stack, replies, views, tags, urgent }: {
   title: string,
   description: string,
   author: string,
-  category: string,
+  stack: string[],
   replies: number,
   views: number,
   tags: string[],
   urgent?: boolean
 }) {
   return (
-    <div className="bg-background p-8 md:p-10 space-y-6 hover:bg-secondary/10 transition-colors group">
-      <div className="flex items-start justify-between">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-primary/40 group-hover:text-primary transition-colors">
-          {category}
-        </span>
-        {urgent && (
-          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-red-50 text-red-600 border border-red-100 rounded-full text-[9px] font-bold uppercase tracking-widest animate-pulse">
-            <AlertCircle className="h-3 w-3" /> Urgent
+    <div className="bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/5 transition-all group relative h-full flex flex-col justify-between border border-border/40 rounded-sm">
+      <div className="space-y-6">
+        <div className="flex items-start justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary/60 px-2 py-0.5 bg-primary/5 rounded-sm">
+            Technical Request
+          </span>
+          {urgent && (
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 border border-red-100 rounded-sm text-[9px] font-bold uppercase tracking-widest">
+              <AlertCircle className="h-3 w-3" /> Urgent
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-[22px] md:text-[24px] font-black tracking-tighter leading-tight group-hover:text-primary transition-colors">{title}</h3>
+
+          {stack.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {stack.map((s, i) => (
+                <span key={i} className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40 px-2 py-0.5 bg-secondary/30 rounded-full border border-border/10">
+                  {s}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <p className="text-[14px] md:text-[15px] font-medium text-muted-foreground leading-relaxed line-clamp-4">
+            {description}
+          </p>
+        </div>
+
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {tags.map((tag, i) => (
+              <span key={i} className="text-[10px] font-bold text-primary/60 hover:underline cursor-pointer">
+                #{tag.toLowerCase().replace(' ', '')}
+              </span>
+            ))}
           </div>
         )}
       </div>
 
-      <div className="space-y-3">
-        <h3 className="text-xl font-bold tracking-tight group-hover:underline cursor-pointer decoration-2 decoration-primary/20 line-clamp-2">{title}</h3>
-        <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3 overflow-hidden text-ellipsis h-16">
-          {description}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2 pt-2">
-        {tags.map((tag, i) => (
-          <span key={i} className="text-[10px] font-bold border border-border/50 px-2 py-0.5 rounded-sm bg-secondary/10">
-            #{tag.toLowerCase().replace(' ', '')}
-          </span>
-        ))}
-        {tags.length === 0 && <span className="text-[10px] font-bold text-muted-foreground/30 italic">No tags</span>}
-      </div>
-
-      <div className="pt-6 border-t flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-full bg-secondary flex items-center justify-center text-[8px] font-black italic text-muted-foreground/60 border border-border/30">
+      <div className="pt-10 space-y-6">
+        <div className="flex items-center justify-between border-t border-border pt-6">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-[10px] font-black uppercase text-primary/60 border border-border/10">
               {author[0]}
             </div>
-            <span className="text-[11px] font-bold text-muted-foreground/70">{author}</span>
-          </div>
-          <div className="flex items-center gap-4 text-muted-foreground/60 font-semibold text-[10px]">
-            <div className="flex items-center gap-1">
-              <MessageSquare className="h-3 w-3" /> {replies}
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-widest">Posted by</span>
+              <span className="text-[13px] font-bold text-foreground">{author}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Eye className="h-3 w-3" /> {views}
+          </div>
+          <div className="flex items-center gap-4 text-muted-foreground/40 font-bold text-[10px] uppercase tracking-wider">
+            <div className="flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5" /> {replies}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Eye className="h-3.5 w-3.5" /> {views}
             </div>
           </div>
         </div>
+
+        <button className="w-full py-3 bg-secondary/20 hover:bg-primary hover:text-background transition-all text-[11px] font-bold uppercase tracking-widest rounded-sm">
+          View Details →
+        </button>
       </div>
     </div>
   );

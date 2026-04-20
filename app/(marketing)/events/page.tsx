@@ -31,7 +31,8 @@ export default function EventsPage() {
           type: "COMMUNITY", // Default type
           attendees: 0, // Not tracked in schema yet
           prize: null,
-          featured: false
+          featured: false,
+          image_url: e.image_url
         })))
       }
       setIsLoading(false)
@@ -80,7 +81,7 @@ export default function EventsPage() {
                   ))}
                </div>
             ) : filteredEvents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-px md:bg-border md:border border-border rounded-sm overflow-hidden mb-20 md:mb-32">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 md:mb-32">
                 {filteredEvents.map((event) => {
                    const endDateMatch = event.description?.match(/END_DATE: (.*)/)
                    const endDate = endDateMatch ? endDateMatch[1] : null
@@ -89,6 +90,7 @@ export default function EventsPage() {
                    return (
                     <EventCard 
                       key={event.id}
+                      id={event.id}
                       title={event.title}
                       description={cleanDescription}
                       location={event.location}
@@ -147,7 +149,8 @@ export default function EventsPage() {
   );
 }
 
-function EventCard({ title, description, location, date, endDate, type, attendees, prize, featured, imageUrl }: { 
+function EventCard({ id, title, description, location, date, endDate, type, attendees, prize, featured, imageUrl }: { 
+  id: string,
   title: string, 
   description: string, 
   location: string,
@@ -160,8 +163,9 @@ function EventCard({ title, description, location, date, endDate, type, attendee
   imageUrl?: string | null
 }) {
   return (
+    <Link href={`/events/${id}`} className="block">
     <div className={cn(
-        "bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group",
+        "bg-background p-8 md:p-12 space-y-8 hover:bg-secondary/10 transition-colors group border border-border/40 rounded-sm cursor-pointer",
         featured && "md:col-span-2 border-primary/20 bg-primary/5 hover:bg-primary/10 transition-colors"
     )}>
       {imageUrl && (
@@ -181,7 +185,7 @@ function EventCard({ title, description, location, date, endDate, type, attendee
       </div>
       
       <div className={cn("space-y-4", featured && "max-w-xl mx-auto text-center md:text-left md:mx-0")}>
-        <h3 className={cn("text-xl md:text-2xl lg:text-3xl font-bold tracking-tight group-hover:text-primary transition-colors cursor-pointer", featured && "md:text-2xl lg:text-4xl")}>{title}</h3>
+        <h3 className={cn("text-xl md:text-2xl lg:text-3xl font-bold tracking-tight group-hover:text-primary transition-colors", featured && "md:text-2xl lg:text-4xl")}>{title}</h3>
         <p className="text-muted-foreground leading-relaxed text-[14px] md:text-base line-clamp-3">
           {description}
         </p>
@@ -207,10 +211,11 @@ function EventCard({ title, description, location, date, endDate, type, attendee
       </div>
       
       <div className="pt-4">
-          <button className="w-full md:w-auto px-8 py-2.5 bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors rounded-sm text-[10px] uppercase tracking-widest">
-              Register Now →
-          </button>
+          <span className="w-full md:w-auto px-8 py-2.5 bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-colors rounded-sm text-[10px] uppercase tracking-widest inline-block">
+              View Event Details →
+          </span>
       </div>
     </div>
+    </Link>
   );
 }

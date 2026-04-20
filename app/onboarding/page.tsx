@@ -122,9 +122,9 @@ export default function OnboardingPage() {
 
       <div className="w-full max-w-4xl space-y-16">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-semibold tracking-tighter sm:text-5xl">Quick Access Setup</h1>
+          <h1 className="text-4xl font-semibold tracking-tighter sm:text-5xl">Set up your profile</h1>
           <p className="text-sm text-muted-foreground font-medium uppercase tracking-[0.2em]">
-            Step 2: Build your basic identity
+            Step 2: Tell us about yourself
           </p>
         </div>
 
@@ -205,9 +205,9 @@ export default function OnboardingPage() {
             <div className="space-y-8 border-t border-border/40 pt-16">
               <div className="space-y-2 text-center">
                 <h2 className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground flex items-center justify-center gap-2">
-                  <Rocket className="h-3.5 w-3.5" /> Skillset
+                  <Rocket className="h-3.5 w-3.5" /> Skills
                 </h2>
-                <p className="text-xs text-muted-foreground font-medium">Select a few core competencies to begin.</p>
+                <p className="text-xs text-muted-foreground font-medium">Select a few skills to begin.</p>
               </div>
 
               <div className="flex flex-wrap justify-center gap-2.5">
@@ -275,7 +275,7 @@ export default function OnboardingPage() {
                 "min-w-64 h-16 rounded-sm bg-primary text-background font-bold tracking-[0.1em] uppercase shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-30"
               )}
             >
-              {isLoading ? "Synchronizing..." : "Complete Identity Setup"}
+              {isLoading ? "Saving..." : "Finish Profile"}
             </button>
           </div>
         </form>

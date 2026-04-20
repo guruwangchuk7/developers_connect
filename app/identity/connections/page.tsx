@@ -75,7 +75,7 @@ export default function ConnectionsPage() {
     if (!error) {
       setConnections(prev => prev.filter(c => c.id !== connId))
       setRemovingConnId(null)
-      toast.success("Synchronization channel terminated.")
+      toast.success("Connection removed.")
     } else {
       toast.error("Failed to disconnect.")
     }
@@ -112,14 +112,14 @@ export default function ConnectionsPage() {
               ) : (
                 <>
                   <h1 className="text-3xl font-semibold tracking-tight text-[#101828] flex items-center gap-3">
-                    Sync Channels
+                    Connections
                     {!isDataLoading && (
                       <span className="px-2 py-0.5 bg-secondary rounded-full text-[10px] font-bold text-muted-foreground">
-                        {connections.length} Established
+                        {connections.length} Total
                       </span>
                     )}
                   </h1>
-                  <p className="text-sm text-muted-foreground">Manage your active technical connections and peer communication channels.</p>
+                  <p className="text-sm text-muted-foreground">Manage your developer connections and messaging history.</p>
                 </>
               )}
             </div>
@@ -130,7 +130,7 @@ export default function ConnectionsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
             <input 
               type="text"
-              placeholder="Search synchronized peers..."
+              placeholder="Search connections..."
               className="w-full bg-white border border-border/60 rounded-xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all shadow-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -166,7 +166,7 @@ export default function ConnectionsPage() {
                             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">{peer?.role || 'Developer'}</p>
                             <div className="flex items-center gap-2 mt-1">
                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                               <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">Encrypted Channel</span>
+                               <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter">Secure Messaging Active</span>
                             </div>
                           </div>
                         </div>
@@ -191,7 +191,7 @@ export default function ConnectionsPage() {
                              {removingConnId === conn.id ? (
                                <div className="flex items-center gap-2">
                                   <Unlink className="h-3.5 w-3.5" />
-                                  <span className="text-[9px] font-black uppercase tracking-widest">Confirm Disconnect</span>
+                                  <span className="text-[9px] font-black uppercase tracking-widest">Confirm</span>
                                </div>
                              ) : (
                                <UserMinus className="h-4 w-4" />
@@ -208,8 +208,8 @@ export default function ConnectionsPage() {
                     <Users className="h-10 w-10 text-muted-foreground/30" />
                  </div>
                  <div className="text-center space-y-1">
-                    <p className="text-sm font-bold text-foreground uppercase tracking-widest">No active channels found</p>
-                    <p className="text-xs text-muted-foreground">Initiate a synchronization from the developer directory.</p>
+                    <p className="text-sm font-bold text-foreground uppercase tracking-widest">No connections yet</p>
+                    <p className="text-xs text-muted-foreground">Start connecting with developers in the directory.</p>
                  </div>
               </div>
             )}
@@ -221,9 +221,9 @@ export default function ConnectionsPage() {
                 <ShieldAlert className="h-5 w-5 text-white" />
              </div>
              <div className="space-y-1.5">
-                <h4 className="text-[13px] font-bold text-[#912018] uppercase tracking-widest">Protocol Termination Warning</h4>
+                <h4 className="text-[13px] font-bold text-[#912018] uppercase tracking-widest">Warning</h4>
                 <p className="text-[12px] text-[#B42318]/70 leading-relaxed font-medium">
-                  Disconnecting a peer will immediately terminate the encrypted sync channel. All message history will be locked and both nodes will be removed from each other's message workspaces. This action is atomic and irreversible.
+                  Removing a connection will immediately hide your message history and remove them from your messages workspace.
                 </p>
              </div>
           </div>

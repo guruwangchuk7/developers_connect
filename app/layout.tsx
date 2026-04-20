@@ -36,6 +36,7 @@ export const viewport = {
 };
 
 import { Toaster } from "sonner";
+import { ProfileProvider } from "@/providers/profile-provider";
 
 export default function RootLayout({
   children,
@@ -48,7 +49,9 @@ export default function RootLayout({
       className={`${inter.variable} ${outfit.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        <ProfileProvider>
+          {children}
+        </ProfileProvider>
         <Toaster position="top-center" expand={false} richColors />
       </body>
     </html>
