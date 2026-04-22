@@ -25,6 +25,7 @@ const geistMono = Geist_Mono({
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.bhutandevelopersconnect.xyz"),
   verification: {
     google: "GYLBQwvAUlZ6S48oYT-Cp69r-mFE8i8qJcnggDUwH6o",
   },
